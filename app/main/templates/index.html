@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Food Delivery Platform{% endblock %}
+
+{% block content %}
+    <div class="jumbotron text-center">
+        <h1>Welcome to Lieferspatz!</h1>
+        <p>Your favorite food, delivered fast and easy!</p>
+        <a href="/search" class="btn btn-primary">Start Searching for Food</a>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Restaurant Image">
+                <div class="card-body">
+                    <h5 class="card-title">Featured Restaurant 1</h5>
+                    <p class="card-text">Browse their menu and order your favorite dishes.</p>
+                    <a href="/search?restaurant=1" class="btn btn-secondary">Visit Restaurant</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Restaurant Image">
+                <div class="card-body">
+                    <h5 class="card-title">Featured Restaurant 2</h5>
+                    <p class="card-text">Browse their menu and order your favorite dishes.</p>
+                    <a href="/search?restaurant=2" class="btn btn-secondary">Visit Restaurant</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Restaurant Image">
+                <div class="card-body">
+                    <h5 class="card-title">Featured Restaurant 3</h5>
+                    <p class="card-text">Browse their menu and order your favorite dishes.</p>
+                    <a href="/search?restaurant=3" class="btn btn-secondary">Visit Restaurant</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
