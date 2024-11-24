@@ -12,3 +12,4 @@ load_dotenv()
 class Config:
     # Flask configurations
     SECRET_KEY = os.getenv("SECRET_KEY")
+    DATABASE_URL = os.getenv("DATABASE_URL")

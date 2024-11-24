@@ -9,7 +9,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    print(app.config)
     # Register Blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(restaurant_bp)
