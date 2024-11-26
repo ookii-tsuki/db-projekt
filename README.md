@@ -92,6 +92,24 @@ Before starting the setup process, you need to have Python installed on your mac
      ```bash
      pip install -r requirements.txt
      ```
+6. **Create `launch.json` file**:
+   - In the VS Code Explorer, click on the **New Folder** button and create a folder named `.vscode` in the project’s root directory.
+   - Under the newly created folder, right click and click the **New File** option and name it `launch.json`
+   - Add the following lines to your `launch.json` file:
+   ```json
+   {
+      "version": "0.2.0",
+      "configurations": [
+         {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "run.py",
+            "console": "integratedTerminal"
+         }
+      ]
+   }
+   ```
 
 ### 4. Set Up the Database
 
