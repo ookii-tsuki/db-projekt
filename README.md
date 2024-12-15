@@ -2,6 +2,8 @@
 
 This is a web platform that allows users to order food from various restaurants. It includes features like user registration, menu browsing, placing orders, and viewing order history.
 
+See the [Documentation](Documentation/DOCUMENTATION.md) for details on the available endpoints and routes.
+
 ## Getting Started
 
 Follow the steps below to set up and run the project on your local machine. We will use **GitHub Desktop** for version control and **VS Code** to edit and run the project.
