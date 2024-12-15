@@ -1,6 +1,21 @@
 # API Documentation
 
+## Table of Contents
 
+1. [User Authentication API](#user-authentication-api)
+    1. [POST /auth/user/register](#post-authuserregister)
+    2. [POST /auth/user/login](#post-authuserlogin)
+    3. [POST /auth/user/logout](#post-authuserlogout)
+    4. [GET /auth/user](#get-authuser)
+    5. [POST /auth/restaurant/register](#post-authrestaurantregister)
+    6. [POST /auth/restaurant/login](#post-authrestaurantlogin)
+    7. [POST /auth/restaurant/logout](#post-authrestaurantlogout)
+    8. [GET /auth/restaurant](#get-authrestaurant)
+2. [Main API](#main-api)
+    1. [GET /main/search](#get-mainsearch)
+    2. [POST /main/restaurant/add_favorite](#post-mainrestaurantadd_favorite)
+    3. [GET /main/restaurant/favorite](#get-mainrestaurantfavorite)
+    4. [GET /main/restaurant/](#get-mainrestaurant)
 
 ## User Authentication API
 
@@ -380,7 +395,7 @@ Returns a list of favorite restaurants.
     "message": "No favorite restaurants found."
   }
   ```
-  
+
 
 ### GET /main/restaurant/
 
