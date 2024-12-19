@@ -3,23 +3,23 @@
 ## Table of Contents
 
 1. [User Authentication API](#user-authentication-api)
-    1. [POST /auth/user/register](#post-authuserregister)
-    2. [POST /auth/user/login](#post-authuserlogin)
-    3. [POST /auth/user/logout](#post-authuserlogout)
-    4. [GET /auth/user](#get-authuser)
-    5. [POST /auth/restaurant/register](#post-authrestaurantregister)
-    6. [POST /auth/restaurant/login](#post-authrestaurantlogin)
-    7. [POST /auth/restaurant/logout](#post-authrestaurantlogout)
-    8. [GET /auth/restaurant](#get-authrestaurant)
+    1. [POST /api/auth/user/register](#post-authuserregister)
+    2. [POST /api/auth/user/login](#post-authuserlogin)
+    3. [POST /api/auth/user/logout](#post-authuserlogout)
+    4. [GET /api/auth/user](#get-authuser)
+    5. [POST /api/auth/restaurant/register](#post-authrestaurantregister)
+    6. [POST /api/auth/restaurant/login](#post-authrestaurantlogin)
+    7. [POST /api/auth/restaurant/logout](#post-authrestaurantlogout)
+    8. [GET /api/auth/restaurant](#get-authrestaurant)
 2. [Main API](#main-api)
-    1. [GET /main/search](#get-mainsearch)
-    2. [POST /main/restaurant/add_favorite](#post-mainrestaurantadd_favorite)
-    3. [GET /main/restaurant/favorite](#get-mainrestaurantfavorite)
-    4. [GET /main/restaurant/](#get-mainrestaurant)
+    1. [GET /api/main/search](#get-mainsearch)
+    2. [POST /api/main/restaurant/add_favorite](#post-mainrestaurantadd_favorite)
+    3. [GET /api/main/restaurant/favorite](#get-mainrestaurantfavorite)
+    4. [GET /api/main/restaurant/](#get-mainrestaurant)
 
 ## User Authentication API
 
-### POST /auth/user/register
+### POST /api/auth/user/register
 
 **Description:**  
 Registers a new user.
@@ -59,7 +59,7 @@ Registers a new user.
   }
   ```
 
-### POST /auth/user/login
+### POST /api/auth/user/login
 
 **Description:**
 Logs in a user.
@@ -93,7 +93,7 @@ Logs in a user.
   }
   ```
 
-### POST /auth/user/logout
+### POST /api/auth/user/logout
 
 **Description:**
 Logs out a user.
@@ -107,7 +107,7 @@ Logs out a user.
   }
   ```
 
-### GET /auth/user
+### GET /api/auth/user
 
 **Description:**
 Returns the user's information.
@@ -124,6 +124,7 @@ Returns the user's information.
     "address": "Doge Street 23",
     "city": "Doge City",
     "zip": "12345",
+    "wallet": 100.00
   }
   ```
 * `401 Unauthorized`
@@ -139,7 +140,7 @@ Returns the user's information.
   }
   ```
 
-### POST /auth/restaurant/resgister
+### POST /api/auth/restaurant/resgister
 
 **Description:**
 Registers a new restaurant.
@@ -182,7 +183,7 @@ Registers a new restaurant.
 
 > 🗒 Note: The `banner` field is a base64-encoded image data and the image should not exceed 1MB.
 
-### POST /auth/restaurant/login
+### POST /api/auth/restaurant/login
 
 **Description:**
 Logs in a restaurant.
@@ -216,7 +217,7 @@ Logs in a restaurant.
   }
   ```
 
-### POST /auth/restaurant/logout
+### POST /api/auth/restaurant/logout
 
 **Description:**
 Logs out a restaurant.
@@ -242,7 +243,7 @@ Logs out a restaurant.
   }
   ```
 
-### GET /auth/restaurant
+### GET /api/auth/restaurant
 
 **Description:**
 Returns the restaurant's information.
@@ -259,6 +260,7 @@ Returns the restaurant's information.
     "city": "Doge City",
     "zip": "12345",
     "description": "The best pizza in town.",
+    "wallet": 100.00,
     "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
   }
   ```
@@ -278,7 +280,7 @@ Returns the restaurant's information.
 
 ## Main API
 
-### GET /main/search
+### GET /api/main/search
 
 **Description:**
 Returns a list of restaurants based on the search query and filters.
@@ -333,7 +335,7 @@ Returns a list of restaurants based on the search query and filters.
   }
   ```
 
-### POST /main/restaurant/add_favorite
+### POST /api/main/restaurant/add_favorite
 
 **Description:**
 Adds a restaurant to the user's favorite list.
@@ -367,7 +369,7 @@ Adds a restaurant to the user's favorite list.
   }
   ```
 
-### GET /main/restaurant/favorite
+### GET /api/main/restaurant/favorite
 
 **Description:**
 Returns a list of favorite restaurants.
@@ -399,7 +401,7 @@ Returns a list of favorite restaurants.
   ```
 
 
-### GET /main/restaurant/
+### GET /api/main/restaurant/
 
 **Description:**
 Returns the restaurant's information and available menu items.
