@@ -638,4 +638,260 @@ Returns the status of all active orders.
   }
   ```
 
-#
+### POST /api/restaurant/add_item
+
+**Description:**
+Adds a new item to the restaurant's menu.
+
+**Request Body:**  
+
+```json
+{
+  "name": "Shoyu Ramen",
+  "price": 14.99,
+  "description": "A soy sauce-based noodle soup with a clear brown broth, thin wheat noodles, and toppings like green onions, bamboo shoots, boiled egg, and fish cake.",
+  "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
+}
+```
+
+**Response:**
+
+* `201 Created`
+  ```json
+  {
+    "message": "Item successfully added to the menu."
+  }
+  ```
+* `400 Bad request`
+  ```json
+  {
+    "message": "Invalid request body."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Restaurant not found."
+  }
+  ```
+
+### GET /api/restaurant/items
+
+**Description:**
+Returns the restaurant's menu items.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  [
+    {
+      "item_id": "1090",
+      "name": "Shoyu Ramen",
+      "price": 14.99,
+      "description": "A soy sauce-based noodle soup with a clear brown broth, thin wheat noodles, and toppings like green onions, bamboo shoots, boiled egg, and fish cake.",
+      "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
+    }
+  ]
+  ```
+
+* `404 Not found`
+  ```json
+  {
+    "message": "No items found."
+  }
+  ```
+
+### PUT /api/restaurant/item/{item_id}
+
+**Description:**
+Updates an item in the restaurant's menu.
+
+**Request Body:**  
+
+```json
+{
+  "name": "Shoyu Ramen",
+  "price": 15.99,
+  "description": "A soy sauce-based noodle soup with a clear brown broth, thin wheat noodles, and toppings like green onions, bamboo shoots, boiled egg, and fish cake.",
+  "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
+}
+```
+
+**Response:**
+
+* `200 OK`
+  ```json
+  {
+    "message": "Item successfully updated."
+  }
+  ```
+* `400 Bad request`
+  ```json
+  {
+    "message": "Invalid request body."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Item not found."
+  }
+  ```
+
+### DELETE /api/restaurant/item/{item_id}
+
+**Description:**
+Deletes an item from the restaurant's menu.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  {
+    "message": "Item successfully deleted."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Item not found."
+  }
+  ```
+
+### GET /api/restaurant/orders
+
+**Description:**
+Returns the restaurant's active orders.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  [
+    {
+      "order_id": "1000",
+      "user_id": "1000",
+      "name": "Doge Mustermann",
+      "address": "Doge Street 23",
+      "city": "Doge City",
+      "zip": "12345",
+      "items": [
+        {
+          "item_id": "1000",
+          "name": "Cheese Pizza",
+          "price": 10.99,
+          "quantity": 2,
+          "notes": "Extra cheese."
+        }
+      ],
+      "total": 21.98,
+      "status": 0,
+      "date": 1734600213
+    }
+  ]
+  ```
+
+* `404 Not found`
+  ```json
+  {
+    "message": "No active orders found."
+  }
+  ```
+
+### PUT /api/restaurant/order/{order_id}
+
+**Description:**
+Updates the status of an order.
+
+**Request Body:**  
+
+```json
+{
+  "status": 1
+}
+```
+
+**Response:**
+
+* `200 OK`
+  ```json
+  {
+    "message": "Order status successfully updated."
+  }
+  ```
+* `400 Bad request`
+  ```json
+  {
+    "message": "Invalid request body."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Order not found."
+  }
+  ```
+
+### GET /api/restaurant/order_history
+
+**Description:**
+Returns the restaurant's order history.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  [
+    {
+      "order_id": "1000",
+      "user_id": "1000",
+      "name": "Doge Mustermann",
+      "address": "Doge Street 23",
+      "city": "Doge City",
+      "zip": "12345",
+      "items": [
+        {
+          "item_id": "1000",
+          "name": "Cheese Pizza",
+          "price": 10.99,
+          "quantity": 2,
+          "notes": "Extra cheese."
+        }
+      ],
+      "total": 21.98,
+      "status": 3,
+      "date": 1734600213
+    }
+  ]
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "No order history found."
+  }
+  ```
+
+### GET /api/restaurant/stats
+
+**Description:**
+Returns the restaurant's statistics.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  {
+    "total_orders": 100,
+    "total_revenue": 10000.00,
+    "average_rating": 4.5
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "No statistics found."
+  }
+  ```
+
+  
