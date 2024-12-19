@@ -27,9 +27,9 @@
     2. [GET /api/restaurant/items](#get-apirestaurantitems)
     3. [PUT /api/restaurant/item/{item_id}](#put-apirestaurantitemitem_id)
     4. [DELETE /api/restaurant/item/{item_id}](#delete-apirestaurantitemitem_id)
-    5. [GET /api/restaurant/orders](#get-apirestaurantorders)
-    6. [PUT /api/restaurant/order/{order_id}](#put-apirestaurantorderorder_id)
-    7. [GET /api/restaurant/order_history](#get-apirestaurantorder_history)
+    5. [GET /api/restaurant/orders](#get-apirestaurantordersstatus)
+    6. [PUT /api/restaurant/order/{order_id}](#put-apirestaurantordersorderorder_id)
+    7. [GET /api/restaurant/order_history](#get-apirestaurantordershistory)
     8. [GET /api/restaurant/stats](#get-apirestaurantstats)
 
 ## User Authentication API
@@ -774,7 +774,7 @@ Deletes an item from the restaurant's menu.
   }
   ```
 
-### GET /api/restaurant/orders
+### GET /api/restaurant/orders/status
 
 **Description:**
 Returns the restaurant's active orders.
@@ -814,7 +814,7 @@ Returns the restaurant's active orders.
   }
   ```
 
-### PUT /api/restaurant/order/{order_id}
+### PUT /api/restaurant/orders/order/{order_id}
 
 **Description:**
 Updates the status of an order.
@@ -848,7 +848,7 @@ Updates the status of an order.
   }
   ```
 
-### GET /api/restaurant/order_history
+### GET /api/restaurant/orders/history
 
 **Description:**
 Returns the restaurant's order history.
