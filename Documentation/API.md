@@ -452,3 +452,190 @@ Returns the restaurant's information and available menu items.
     "message": "Restaurant not found."
   }
   ```
+
+
+### POST /api/order/add_cart
+
+**Description:**
+Adds an item to the user's cart.
+
+**Request Body:**  
+
+```json
+{
+  "item_id": "1000",
+  "restaurant_id": "1999",
+  "quantity": 2,
+  "notes": "Extra cheese."
+}
+```
+
+**Response:**
+
+* `201 Created`
+  ```json
+  {
+    "message": "Item successfully added to cart."
+  }
+  ```
+* `400 Bad request`
+  ```json
+  {
+    "message": "Invalid request body."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Item not found."
+  }
+  ```
+
+### GET /api/order/cart
+
+**Description:**
+Returns the user's cart.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  {
+    "cart": [
+      {
+        "item_id": "1000",
+        "restaurant_id": "1999",
+        "name": "Cheese Pizza",
+        "price": "10.99",
+        "quantity": 2,
+        "notes": "Extra cheese."
+      }
+    ]
+  }
+  ```
+
+* `404 Not found`
+  ```json
+  {
+    "message": "Cart is empty."
+  }
+  ```
+
+### POST /api/order/checkout
+
+**Description:**
+Checks out the user's cart.
+
+**Request Body:**  
+
+```json
+{
+  "action": "place_order"
+}
+```
+
+**Response:**
+
+* `201 Created`
+  ```json
+  {
+    "message": "Order successfully placed."
+  }
+  ```
+* `400 Bad request`
+  ```json
+  {
+    "message": "Invalid request body."
+  }
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "Cart is empty."
+  }
+  ```
+
+### GET /api/order/history
+
+**Description:**
+Returns the user's order history.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  [
+    {
+      "order_id": "1000",
+      "restaurant_id": "1999",
+      "name": "Doge's Pizza",
+      "address": "Doge Street 24",
+      "city": "Doge City",
+      "zip": "12345",
+      "items": [
+        {
+          "item_id": "1000",
+          "name": "Cheese Pizza",
+          "price": 10.99,
+          "quantity": 2,
+          "notes": "Extra cheese."
+        }
+      ],
+      "total": 21.98,
+      "status": 0,
+      "date": 1734600213
+    }
+  ]
+  ```
+
+* `404 Not found`
+  ```json
+  {
+    "message": "No order history found."
+  }
+  ```
+
+> 🗒 Note: The `date` field is a Unix timestamp.
+
+> 🗒 Note: The `status` field could be any of the following values: 0: "Pending", 1: "Preparing", 2: "Being delivered", 3: "Delivered", 4: "Rejected"
+
+### GET /api/order/status
+
+**Description:**
+Returns the status of all active orders.
+
+**Response:**
+
+* `200 OK`
+  ```json
+  [
+    {
+      "order_id": "1000",
+      "restaurant_id": "1999",
+      "name": "Doge's Pizza",
+      "address": "Doge Street 24",
+      "city": "Doge City",
+      "zip": "12345",
+      "items": [
+        {
+          "item_id": "1000",
+          "name": "Cheese Pizza",
+          "price": 10.99,
+          "quantity": 2,
+          "notes": "Extra cheese."
+        }
+      ],
+      "total": 21.98,
+      "status": 0,
+      "date": 1734600213
+    }
+  ]
+  ```
+* `404 Not found`
+  ```json
+  {
+    "message": "No active orders found."
+  }
+  ```
+
+#
