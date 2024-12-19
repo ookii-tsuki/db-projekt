@@ -180,6 +180,8 @@ Registers a new restaurant.
   }
   ```
 
+> 🗒 Note: The `banner` field is a base64-encoded image data and the image should not exceed 1MB.
+
 ### POST /auth/restaurant/login
 
 **Description:**
