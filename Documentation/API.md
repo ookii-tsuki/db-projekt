@@ -425,14 +425,14 @@ Returns the restaurant's information and available menu items.
       {
         "item_id": "1000",
         "name": "Cheese Pizza",
-        "price": "10.99",
+        "price": 10.99,
         "description": "A classic cheese pizza.",
         "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
       },
       {
         "item_id": "1001",
         "name": "Pepperoni Pizza",
-        "price": "12.99",
+        "price": 12.99,
         "description": "A classic pepperoni pizza.",
         "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
       }
@@ -506,7 +506,7 @@ Returns the user's cart.
         "item_id": "1000",
         "restaurant_id": "1999",
         "name": "Cheese Pizza",
-        "price": "10.99",
+        "price": 10.99,
         "quantity": 2,
         "notes": "Extra cheese."
       }
@@ -894,4 +894,3 @@ Returns the restaurant's statistics.
   }
   ```
 
-  
