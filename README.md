@@ -117,8 +117,8 @@ Before starting the setup process, you need to have Python installed on your mac
    - In the VS Code Explorer, click on the **New File** button and create a file named `.env` in the project’s root directory.
    - Add the following lines to your `.env` file:
      ```
-     SECRET_KEY=your-secret-key
-     DATABASE_URL=sqlite:///app.db
+      SECRET_KEY=secret
+      SQLALCHEMY_DATABASE_URI=sqlite:///app.db
      ```
 
      You can replace `your-secret-key` with a strong secret key for your app. If you don’t know how to create one, just type any random string for now.
