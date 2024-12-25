@@ -1,6 +1,5 @@
 from app import db
 
-
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -51,27 +50,18 @@ class Restaurant(db.Model):
     wallet = db.Column(db.Float, nullable=False, default=0.0)
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
-    approx_delivery_time = db.Column(db.String(50), nullable=True)  # Lieferzeit als String
-    is_favorite = db.Column(db.Boolean, default=False)  # Favorit
     cuisine = db.Column(db.String(100), nullable=True)  # Art der Küche (z. B. "Pizza")
 
-    # Beziehung zu MenuItem
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
 
-    def to_dict(self):
-        return {
-            "restaurant_id": self.restaurant_id,
-            "name": self.name,
-            "address": self.address,
-            "city": self.city,
-            "zip": self.zip_code,
-            "description": self.description,
-            "rating": self.rating,
-            "approx_delivery_time": self.approx_delivery_time,
-            "is_favorite": self.is_favorite,
-            "banner": self.banner,
-            "cuisine": self.cuisine
-        }
+    def __repr__(self):
+        return (
+            f"<Restaurant ID: {self.restaurant_id}, "
+            f"Name: {self.name}, "
+            f"Address: {self.address}, {self.city} {self.zip_code}, "
+            f"Cuisine: {self.cuisine}, "
+            f"Rating: {self.rating}>"
+        )
 
 
 class MenuItem(db.Model):
@@ -83,14 +73,58 @@ class MenuItem(db.Model):
     description = db.Column(db.String(255), nullable=True)
     image = db.Column(db.Text, nullable=True)
 
-    # Fremdschlüssel zu Restaurant
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
 
-    def to_dict(self):
-        return {
-            "item_id": self.item_id,
-            "name": self.name,
-            "price": self.price,
-            "description": self.description,
-            "image": self.image
-        }
+    def __repr__(self):
+        return (
+            f"<MenuItem ID: {self.item_id}, "
+            f"Name: {self.name}, "
+            f"Price: {self.price}, "
+            f"Description: {self.description}>"
+        )
+    
+class CartItem(db.Model):
+    __tablename__ = 'cart_items'
+
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_items.item_id'), primary_key=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    notes = db.Column(db.String(255), nullable=True)
+
+    # Beziehung zur MenuItem-Klasse
+    menu_item = db.relationship('MenuItem', backref='cart_items', lazy=True)
+
+    def __repr__(self):
+        return (
+            f"<CartItem Item ID: {self.item_id}, "
+            f"Restaurant ID: {self.restaurant_id}, "
+            f"User ID: {self.user_id}, "
+            f"Quantity: {self.quantity}, "
+            f"Notes: {self.notes}>"
+        )
+
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+
+    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
+    total = db.Column(db.Float, nullable=False)
+    status = db.Column(db.Integer, nullable=False, default=0)  # 0: Ausstehend, 1: In Bearbeitung, etc.
+    date = db.Column(db.DateTime, nullable=False, default=db.func.now())
+
+    # Beziehungen
+    user = db.relationship('User', backref=db.backref('orders', lazy=True))
+    restaurant = db.relationship('Restaurant', backref=db.backref('orders', lazy=True))
+
+    def __repr__(self):
+        return (
+            f"<Order ID: {self.order_id}, "
+            f"User ID: {self.user_id}, "
+            f"Restaurant ID: {self.restaurant_id}, "
+            f"Total: {self.total:.2f}, "
+            f"Status: {self.status}, "
+            f"Date: {self.date}>"
+        )
