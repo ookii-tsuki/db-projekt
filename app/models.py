@@ -52,7 +52,7 @@ class Restaurant(db.Model):
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
     cuisine = db.Column(db.String(100), nullable=True)  # Art der Küche (z. B. "Pizza")
-     
+
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
 
@@ -84,7 +84,8 @@ class MenuItem(db.Model):
             f"Price: {self.price}, "
             f"Description: {self.description}>"
         )
-    
+
+
 class CartItem(db.Model):
     __tablename__ = 'cart_items'
 
@@ -94,7 +95,7 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.String(255), nullable=True)
 
-    #Beziehungen
+    # Beziehungen
     menu_item = db.relationship('MenuItem', backref='cart_items', lazy=True)
 
     def __repr__(self):
@@ -130,16 +131,13 @@ class Order(db.Model):
             f"Status: {self.status}, "
             f"Date: {self.date}>"
         )
-class LieferspatzWallet(db.Model):
-    __tablename__ = 'lieferspatz_wallet'
 
-    wallet_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    wallet_balance = db.Column(db.Float, nullable=False, default=0.0)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+class LieferspatzRevenue(db.Model):
+    __tablename__ = 'lieferspatz_revenue'
 
-    # Beziehungen
-    user = db.relationship('User', backref=db.backref('lieferspatz_wallet', lazy=True))
+    revenue_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    total_revenue = db.Column(db.Float, nullable=False, default=0.0)  # Gesamtumsatz der Plattform
 
     def __repr__(self):
-        return f"<Lieferspatz Wallet ID: {self.wallet_id}, User ID: {self.user_id}, Wallet Balance: {self.wallet_balance}>"
+        return f"<LieferspatzRevenue ID: {self.revenue_id}, Total Revenue: {self.total_revenue:.2f}>"
