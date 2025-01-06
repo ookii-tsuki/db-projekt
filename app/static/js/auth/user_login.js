@@ -12,7 +12,9 @@ document.getElementById('registrationForm').addEventListener('submit', function(
         email: document.getElementById('email').value.trim(),
         address: document.getElementById('adresse').value.trim(),
         zip: document.getElementById('plz').value.trim(),
+        city: document.getElementById('ort').value.trim(),
         password: document.getElementById('passwort').value.trim(),
+        
     };
 
     let isValid = true;
@@ -45,6 +47,17 @@ document.getElementById('registrationForm').addEventListener('submit', function(
       document.getElementById('plzError').textContent = 'PLZ darf nicht leer sein.';
       isValid = false;
     }
+    else if(!/^[0-9]{5}$/.test(formData.zip)){
+        document.getElementById('plzError').textContent = 'PLZ nicht gültig.';
+        isValid = false;
+    }
+
+
+    if (!formData.ort) {
+        document.getElementById('ortError').textContent = 'Ort darf nicht leer sein.';
+        isValid = false;
+    }
+      
 
     if (!formData.password) {
       document.getElementById('passwortError').textContent = 'Passwort darf nicht leer sein.';
