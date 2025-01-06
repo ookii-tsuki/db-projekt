@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Registrierung</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background-color: hsl(0, 0%, 100%);
+      min-height: 100vh;
+    }
+    .main-container {
+      width: 90%;
+      max-width: 600px;
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
+    .photo {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 8px;
+    }
+    .heading {
+      font-size: 24px;
+      color: rgb(0, 0, 0);
+      margin: 20px 0 10px;
+    }
+    .form-label {
+      text-align: left;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-control, .btn {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border: 3px solid black;
+      border-radius: 5px;
+      background-color: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button:hover {
+      background-color: black;
+      color: white;
+    }
+    .description {
+      font-size: 16px;
+      color: #000;
+      margin: 10px 0 20px;
+    }
+    hr {
+      width: 100%;
+      border: none;
+      border-top: 2px solid #ddd;
+      margin: 20px 0;
+    }
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    /* Hide the file input, make the upload button look like the others */
+    #banner {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Restaurant Bild" class="photo">
+    <h1 class="heading">Registrierung als Geschäft</h1>
+    <div class="description">
+      Wir freuen uns, dass Du dich für uns entschieden hast.<br>
+      Um sofort loszulegen, fülle bitte das folgende Formular aus.
+    </div>
+    <hr>
+    <form id="registrationForm">
+      <div class="mb-3">
+        <label for="restaurant-name" class="form-label">Name des Restaurants</label>
+        <input id="restaurant-name" type="text" class="form-control" placeholder="Gib Name ein" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-Mail</label>
+        <input id="email" type="email" class="form-control" placeholder="Gib Email ein" required>
+        <div id="emailError" class="error"></div>
+      </div>
+
+      <div class="mb-3">
+        <label for="address" class="form-label">Adresse</label>
+        <input id="address" type="text" class="form-control" placeholder="Gib Adresse ein" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="plz" class="form-label">PLZ</label>
+        <input id="plz" type="text" class="form-control" placeholder="Gib PLZ ein" required>
+        <div id="plzError" class="error"></div>
+      </div>
+
+      <div class="mb-3">
+        <label for="ort" class="form-label">Ort</label>
+        <input id="ort" type="text" class="form-control" placeholder="Gib Ort ein" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="description" class="form-label">Beschreiben Sie Ihr Restaurant</label>
+        <textarea id="description" class="form-control" placeholder="Beschreiben Sie Ihr Restaurant" rows="4" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="banner" class="form-label">Restaurant Bild (optional)</label>
+        <button type="button" class="button" onclick="document.getElementById('banner').click()">Bild hochladen</button>
+        <input type="file" id="banner" class="form-control" accept="image/*" onchange="previewImage(event)">
+        <div id="imagePreview" class="mt-3"></div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Passwort</label>
+        <input id="password" type="password" class="form-control" placeholder="Gib Passwort ein" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="confirm-password" class="form-label">Passwort bestätigen</label>
+        <input id="confirm-password" type="password" class="form-control" placeholder="Passwort bestätigen" required>
+        <div id="confirmPasswordError" class="error"></div>
+      </div>
+
+      <hr>
+      
+      <button type="submit" class="button">Account erstellen</button>
+    </form>
+  </div>
+  
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Clear all previous error messages
+      const errorFields = document.querySelectorAll('.error');
+      errorFields.forEach(field => field.textContent = '');
+
+      // Collect form data
+      const formData = {
+        restaurant_name: document.getElementById('restaurant-name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        zip: document.getElementById('plz').value.trim(),
+        city: document.getElementById('ort').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        password: document.getElementById('password').value.trim(),
+        banner: '', // Default empty if no image is uploaded
+      };
+
+      let isValid = true;
+
+      // Email validation
+      if (!formData.email) {
+        document.getElementById('emailError').textContent = 'E-Mail darf nicht leer sein.';
+        isValid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        document.getElementById('emailError').textContent = 'E-Mail ist nicht gültig.';
+        isValid = false;
+      }
+
+      // PLZ (Postal Code) validation
+      const plz = formData.zip;
+      if (!plz) {
+        document.getElementById('plzError').textContent = 'PLZ darf nicht leer sein.';
+        isValid = false;
+      } else if (!/^\d{5}$/.test(plz)) {
+        document.getElementById('plzError').textContent = 'PLZ muss 5 Ziffern enthalten.';
+        isValid = false;
+      }
+
+      // Password validation
+      if (!formData.password) {
+        document.getElementById('passwortError').textContent = 'Passwort darf nicht leer sein.';
+        isValid = false;
+      }
+
+      // Password confirmation validation
+      const confirmPassword = document.getElementById('confirm-password').value.trim();
+      if (formData.password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwörter stimmen nicht überein.';
+        isValid = false;
+      }
+
+      // Handle image upload (Base64 encoding)
+      const bannerInput = document.getElementById('banner');
+      if (bannerInput.files && bannerInput.files[0]) {
+        const file = bannerInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onloadend = function() {
+          formData.banner = reader.result; // Store the Base64 encoded image data
+          submitForm(isValid, formData); // Call form submission after processing image
+        };
+        
+        reader.readAsDataURL(file); // Convert image to Base64
+      } else {
+        submitForm(isValid, formData); // If no image is uploaded, just submit form data
+      }
+    });
+
+    function submitForm(isValid, formData) {
+      if (isValid) {
+        // Log the form data as JSON
+        console.log(JSON.stringify(formData));
+
+        // Send the form data via Fetch API
+        fetch('/api/auth/restaurant/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            console.log(data.message);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+    }
+
+    // Preview the selected image
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const imgPreview = document.getElementById('imagePreview');
+        imgPreview.innerHTML = '<img src="' + reader.result + '" class="photo" alt="Image Preview">';
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
