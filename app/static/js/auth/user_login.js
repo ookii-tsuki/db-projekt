@@ -53,7 +53,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     }
 
 
-    if (!formData.ort) {
+    if (!formData.city) {
         document.getElementById('ortError').textContent = 'Ort darf nicht leer sein.';
         isValid = false;
     }
@@ -81,6 +81,34 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     if (isValid) {
       // If all validations pass, prepare JSON
       console.log(JSON.stringify(formData));
-      alert('Daten erfolgreich validiert und JSON erstellt!');
+      fetch('/api/auth/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+        .then(response => {
+          // Check specific status codes
+          switch (response.status) {
+            case 201: // Created
+              console.log(response.json())
+              window.location.href = "/users/login";
+              break
+            case 400: // Bad Request
+                console.log(response.json())
+                break
+            case 409: // Unauthorized
+                console.log(response.json())
+                break
+            case 500: // Internal Server Error  
+                console.log(response.json())
+                break
+            default: // Other cases
+              throw new Error(`Unexpected status code: ${response.status}`);
+          }
+        }).catch(error => {
+            console.error('Error:', error.message); // Logs errors with detailed messages
+          });
     }
   });
