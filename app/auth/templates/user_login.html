@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anmeldung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: white;
+      color: black; 
+    }
+
+    .mainarea {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .image-section {
+      position: relative;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .image {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .anmeldung {
+      font-size: 24px;
+      font-weight: bold;
+      color: black; 
+      margin-top: 10px;
+    }
+
+    .form-section {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: black; /* Black text */
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc; /* Light gray border */
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: white; /* White background */
+      color: #000; /* Black text */
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .create-account {
+      width: 100%;
+      padding: 12px;
+      background-color: black; /* Black button */
+      color: white; /* White text */
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .create-account:hover {
+      background-color: #333; /* Dark gray on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="mainarea">
+    <div class="image-section">
+      <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="image" class="image">
+      <div class="anmeldung">Anmeldung</div>
+    </div>
+    <form class="form-section" id="registrationForm">
+      <div class="form-group">
+        <label for="vorname">Vorname</label>
+        <input type="text" id="vorname" placeholder="Vorname">
+        <div class="error" id="vornameError"></div>
+      </div>
+      <div class="form-group">
+        <label for="nachname">Nachname</label>
+        <input type="text" id="nachname" placeholder="Nachname">
+        <div class="error" id="nachnameError"></div>
+      </div>
+      <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input type="email" id="email" placeholder="E-Mail">
+        <div class="error" id="emailError"></div>
+      </div>
+      <div class="form-group">
+        <label for="adresse">Adresse</label>
+        <input type="text" id="adresse" placeholder="Adresse">
+        <div class="error" id="adresseError"></div>
+      </div>
+      <div class="form-group">
+        <label for="plz">PLZ</label>
+        <input type="text" id="plz" placeholder="PLZ">
+        <div class="error" id="plzError"></div>
+      </div>
+      <div class="form-group">
+        <label for="passwort">Passwort</label>
+        <input type="password" id="passwort" placeholder="Passwort">
+        <div class="error" id="passwortError"></div>
+      </div>
+      <div class="form-group">
+        <label for="passwort-bestatigen">Passwort Bestätigen</label>
+        <input type="password" id="passwort-bestatigen" placeholder="Passwort Bestätigen">
+        <div class="error" id="confirmPasswordError"></div>
+      </div>
+      <button type="submit" class="create-account">Konto Erstellen</button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/auth/user_login.js') }}"></script>
+
+</body>
+</html>
