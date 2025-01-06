@@ -51,6 +51,11 @@ document.getElementById('registrationForm').addEventListener('submit', function(
       document.getElementById('passwortError').textContent = 'Passwort darf nicht leer sein.';
       isValid = false;
     }
+    else if (formData.passwort.length < 8) {
+        document.getElementById('passwortError').textContent = 'Passwort darf nicht kleiner als 8 zeichnen sein.';
+        isValid = false;
+  
+    }
 
     if (!formData.passwortBestatigen) {
       document.getElementById('confirmPasswordError').textContent = 'Passwort Bestätigen darf nicht leer sein.';
