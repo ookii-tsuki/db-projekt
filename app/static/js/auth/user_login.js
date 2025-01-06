@@ -7,24 +7,23 @@ document.getElementById('registrationForm').addEventListener('submit', function(
 
     // Collect form data
     const formData = {
-      vorname: document.getElementById('vorname').value.trim(),
-      nachname: document.getElementById('nachname').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      adresse: document.getElementById('adresse').value.trim(),
-      plz: document.getElementById('plz').value.trim(),
-      passwort: document.getElementById('passwort').value.trim(),
-      passwortBestatigen: document.getElementById('passwort-bestatigen').value.trim()
+        first_name: document.getElementById('vorname').value.trim(),
+        last_name: document.getElementById('nachname').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        address: document.getElementById('adresse').value.trim(),
+        zip: document.getElementById('plz').value.trim(),
+        password: document.getElementById('passwort').value.trim(),
     };
 
     let isValid = true;
 
     // Validate each field
-    if (!formData.vorname) {
+    if (!formData.first_name) {
       document.getElementById('vornameError').textContent = 'Vorname darf nicht leer sein.';
       isValid = false;
     }
 
-    if (!formData.nachname) {
+    if (!formData.last_name) {
       document.getElementById('nachnameError').textContent = 'Nachname darf nicht leer sein.';
       isValid = false;
     }
@@ -37,30 +36,31 @@ document.getElementById('registrationForm').addEventListener('submit', function(
       isValid = false;
     }
 
-    if (!formData.adresse) {
+    if (!formData.address) {
       document.getElementById('adresseError').textContent = 'Adresse darf nicht leer sein.';
       isValid = false;
     }
 
-    if (!formData.plz) {
+    if (!formData.zip) {
       document.getElementById('plzError').textContent = 'PLZ darf nicht leer sein.';
       isValid = false;
     }
 
-    if (!formData.passwort) {
+    if (!formData.password) {
       document.getElementById('passwortError').textContent = 'Passwort darf nicht leer sein.';
       isValid = false;
     }
-    else if (formData.passwort.length < 8) {
+    else if (formData.password.length < 8) {
         document.getElementById('passwortError').textContent = 'Passwort darf nicht kleiner als 8 zeichnen sein.';
         isValid = false;
   
     }
 
-    if (!formData.passwortBestatigen) {
+    let passwordBestatigen = document.getElementById('passwort-bestatigen').value.trim()
+    if (!passwordBestatigen) {
       document.getElementById('confirmPasswordError').textContent = 'Passwort Bestätigen darf nicht leer sein.';
       isValid = false;
-    } else if (formData.passwort !== formData.passwortBestatigen) {
+    } else if (formData.password !== passwordBestatigen) {
       document.getElementById('confirmPasswordError').textContent = 'Passwörter stimmen nicht überein.';
       isValid = false;
     }
