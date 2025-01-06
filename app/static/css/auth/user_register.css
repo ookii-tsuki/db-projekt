@@ -45,17 +45,17 @@ body {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
-    color: black; /* Black text */
+    color: black; 
   }
 
   .form-group input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc; /* Light gray border */
+    border: 1px solid #ccc; 
     border-radius: 4px;
     font-size: 14px;
-    background-color: white; /* White background */
-    color: #000; /* Black text */
+    background-color: white; 
+    color: #000; 
   }
 
   .error {
@@ -67,8 +67,8 @@ body {
   .create-account {
     width: 100%;
     padding: 12px;
-    background-color: black; /* Black button */
-    color: white; /* White text */
+    background-color: black; 
+    color: white; 
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -76,5 +76,5 @@ body {
   }
 
   .create-account:hover {
-    background-color: #333; /* Dark gray on hover */
+    background-color: #333; 
   }
