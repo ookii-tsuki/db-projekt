@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ihre Speisekarte</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: white;
+      color: black;
+    }
+    .bell-icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+    }
+    .bell-message {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      font-size: 14px;
+    }
+    .photo {
+      position: absolute;
+      top: 20px;
+      right: 80px;
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+    }
+    .main-heading {
+      margin-top: 80px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .sub-heading {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .line {
+      border-top: 1px solid #ccc;
+      margin: 20px 0;
+    }
+    .food-item {
+      margin: 20px auto;
+      width: 80%;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+    }
+    .food-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .food-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+    }
+    .food-description {
+      flex: 2;
+      margin-right: 20px;
+    }
+    .food-photo {
+      flex: 1;
+      max-width: 150px;
+      height: 150px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      object-fit: cover;
+    }
+    .edit-icon {
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    .add-button {
+      margin-top: 20px;
+    }
+    .save-button {
+      margin-top: 20px;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="bell-icon" onclick="toggleMessage()">
+    🔔
+  </div>
+  <div class="bell-message" id="bellMessage">
+    Es gibt momentan keine Neuigkeiten
+  </div>
+  <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+  <div class="container">
+    <h1 class="main-heading">Ihre Speisekarte</h1>
+    <p class="sub-heading">Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen</p>
+    <p class="sub-heading">bestehende Items anpassen, oder Items entfernen</p>
+    <div class="line"></div>
+
+    <div class="food-item">
+      <div class="food-header">
+        <h2>Burger</h2>
+        <img src="{{ url_for('static', filename='images/pen1.png') }}" alt="Edit" class="edit-icon" style="width: 20px; height: 20px;">
+      </div>
+      <div class="food-details">
+        <div class="food-description">
+          <strong>BH Main Burger</strong>
+          <p>Der legendäre Burger, der uns so beliebt gemacht hat!</p>
+          <p>• Burger mit saftigem Doppelrindfleisch und frischem Gemüse</p>
+          <p>• Die außergewöhnliche Main-Burger-Spezialsoße</p>
+          <p>• Der perfekte Burger für eine Geschmacksexplosion</p>
+        </div>
+        <img src="{{ url_for('static', filename='images/1.jpg') }}" alt="Food Photo" class="food-photo">
+      </div>
+      <button class="btn btn-dark add-button">
+        <img src="{{ url_for('static', filename='images/plusultra.webp') }}" alt="Add" style="width: 16px; height: 16px;"> Hinzufügen
+      </button>
+    </div>
+
+    <div class="line"></div>
+    <button class="btn btn-dark save-button">Speichern</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleMessage() {
+      const message = document.getElementById('bellMessage');
+      message.style.display = message.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
+</body>
+</html>
