@@ -45,7 +45,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             case 200: // Success
               response.json().then(data => {
                 alert('Login erfolgreich! Weiterleitung...');
-                window.location.href = "/dashboard"; // Redirect to dashboard or another page
+                window.location.href = "/restaurant/dashboard"; // Redirect to dashboard or another page
               });
               break;
             case 400: // Bad Request
