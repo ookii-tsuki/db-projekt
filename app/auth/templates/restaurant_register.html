@@ -80,7 +80,6 @@
       font-size: 12px;
       margin-top: 5px;
     }
-    /* Hide the file input, make the upload button look like the others */
     #banner {
       display: none;
     }
@@ -178,24 +177,24 @@
       };
 
       let isValid = true;
+
+      // Validation logic
       if (!formData.name) {
-        document.getElementById('nameError').textContent = 'name darf nicht leer sein.';
+        document.getElementById('nameError').textContent = 'Name darf nicht leer sein.';
         isValid = false;
       }
       if (!formData.description) {
-        document.getElementById('descriptionError').textContent = 'description darf nicht leer sein.';
+        document.getElementById('descriptionError').textContent = 'Beschreibung darf nicht leer sein.';
         isValid = false;
       }
       if (!formData.address) {
-        document.getElementById('adressError').textContent = 'adress darf nicht leer sein.';
+        document.getElementById('adressError').textContent = 'Adresse darf nicht leer sein.';
         isValid = false;
       }
       if (!formData.city) {
-        document.getElementById('ortError').textContent = 'ort darf nicht leer sein.';
+        document.getElementById('ortError').textContent = 'Ort darf nicht leer sein.';
         isValid = false;
       }
-
-      // Email validation
       if (!formData.email) {
         document.getElementById('emailError').textContent = 'E-Mail darf nicht leer sein.';
         isValid = false;
@@ -203,53 +202,43 @@
         document.getElementById('emailError').textContent = 'E-Mail ist nicht gültig.';
         isValid = false;
       }
-
-      // PLZ (Postal Code) validation
-      const plz = formData.zip;
-      if (!plz) {
-        document.getElementById('plzError').textContent = 'PLZ darf nicht leer sein.';
-        isValid = false;
-      } else if (!/^\d{5}$/.test(plz)) {
+      if (!formData.zip || !/^\d{5}$/.test(formData.zip)) {
         document.getElementById('plzError').textContent = 'PLZ muss 5 Ziffern enthalten.';
         isValid = false;
       }
 
-      // Password validation
-      if (!formData.password) {
-        document.getElementById('passwortError').textContent = 'Passwort darf nicht leer sein.';
+      if (formData.password.length < 8) {
+        document.getElementById('passwordError').textContent = 'Passwort darf nicht kleiner als 8 zeichnen sein.';
         isValid = false;
+  
       }
-
-      // Password confirmation validation
-      const confirmPassword = document.getElementById('confirm-password').value.trim();
-      if (formData.password !== confirmPassword) {
+      if (formData.password !== document.getElementById('confirm-password').value.trim()) {
         document.getElementById('confirmPasswordError').textContent = 'Passwörter stimmen nicht überein.';
         isValid = false;
       }
 
-      // Handle image upload (Base64 encoding)
+      // Check image size
       const bannerInput = document.getElementById('banner');
       if (bannerInput.files && bannerInput.files[0]) {
-        const file = bannerInput.files[0];
+        if (bannerInput.files[0].size > 1048576) {
+          alert('Die Bildgröße darf 1 MB nicht überschreiten.');
+          isValid = false;
+          return;
+        }
+
         const reader = new FileReader();
-        
         reader.onloadend = function() {
-          formData.banner = reader.result; // Store the Base64 encoded image data
-          submitForm(isValid, formData); // Call form submission after processing image
+          formData.banner = reader.result; // Store Base64 image
+          submitForm(isValid, formData);
         };
-        
-        reader.readAsDataURL(file); // Convert image to Base64
+        reader.readAsDataURL(bannerInput.files[0]);
       } else {
-        submitForm(isValid, formData); // If no image is uploaded, just submit form data
+        submitForm(isValid, formData);
       }
     });
 
     function submitForm(isValid, formData) {
       if (isValid) {
-        // Log the form data as JSON
-        console.log(JSON.stringify(formData));
-
-        // Send the form data via Fetch API
         fetch('/api/auth/restaurant/register', {
           method: 'POST',
           headers: {
@@ -257,28 +246,31 @@
           },
           body: JSON.stringify(formData),
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.message) {
-            console.log(data.message);
+        .then(response => {
+          if (response.ok) {
+            alert('Registrierung erfolgreich! Ihr Account wurde erstellt.');
+          } else if (response.status === 400) {
+            alert('Fehler: Ungültige Eingaben.');
+          } else if (response.status === 500) {
+            alert('Serverfehler: Bitte versuchen Sie es später erneut.');
+          } else {
+            alert('Unbekannter Fehler: ' + response.status);
           }
+          return response.json();
         })
+        .then(data => console.log(data))
         .catch(error => console.error('Error:', error));
       }
     }
 
-    // Preview the selected image
     function previewImage(event) {
       const reader = new FileReader();
       reader.onload = function() {
-        const imgPreview = document.getElementById('imagePreview');
-        imgPreview.innerHTML = '<img src="' + reader.result + '" class="photo" alt="Image Preview">';
+        document.getElementById('imagePreview').innerHTML = 
+          '<img src="' + reader.result + '" class="photo" alt="Image Preview">';
       };
       reader.readAsDataURL(event.target.files[0]);
     }
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
