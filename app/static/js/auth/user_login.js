@@ -44,7 +44,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         switch (response.status) {
           case 200: // Success
             response.json().then(data => {
-              alert('Login erfolgreich! Weiterleitung...');
               window.location.href = "/search"; // Redirect to dashboard or another page
             });
             break;
@@ -54,9 +53,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
               console.error(data);
             });
             break;
-          case 409: // Conflict or Unauthorized
+          case 401: //Unauthorized
             response.json().then(data => {
-              alert('Fehler 409: Unautorisierter Zugriff. Bitte prüfen Sie Ihre Login-Daten.');
+              alert('Ungültige Anmeldeinformationen. Bitte überprüfen Sie Ihre Eingaben.');
               console.error(data);
             });
             break;
