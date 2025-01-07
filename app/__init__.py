@@ -1,9 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from app.auth import auth_bp
-from app.restaurant import restaurant_bp
-from app.order import order_bp
-from app.main import main_bp
+
 from config import Config
 
 # Initialize SQLAlchemy
@@ -16,6 +13,10 @@ def create_app():
     # Initialize plugins
     db.init_app(app)
 
+    from app.auth import auth_bp
+    from app.restaurant import restaurant_bp
+    from app.order import order_bp
+    from app.main import main_bp
     # Register Blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(restaurant_bp)
