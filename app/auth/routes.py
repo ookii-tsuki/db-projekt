@@ -1,7 +1,6 @@
-from flask import jsonify, render_template, Blueprint, request
+from flask import jsonify, render_template, Blueprint, request, session
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from app.models import User, Restaurant
 from app import db
 
@@ -42,9 +41,6 @@ def restaurant_register():
 ########################################################################
 ############################# API ROUTES ###############################
 ########################################################################
-
-# This section is still under construction
-# It will only return dummy data for now
 
 
 # A route for the user register API
@@ -120,12 +116,20 @@ def api_user_login():
         # Check if any of the required fields are empty
         if not all(required_fields):
             raise BadRequest("Not all required fields are filled.")
-            
-        correct_credentials = True
+        
+        # Check if the user exists
+        user = User.query.filter_by(email=email).first()
+
+        # Check if the password is correct
+        password_correct = check_password_hash(user.password_hash, password)
+
+        correct_credentials = user and password_correct
 
         # Check if the credentials are correct
         if not correct_credentials:
             return jsonify({"message": "Invalid credentials."}), 401
+        
+        session["user_id"] = user.user_id
 
         # User exists, log the user in
         return jsonify({"message": "User successfully logged in."}), 200
@@ -143,26 +147,29 @@ def api_user_login():
 
 # A route for getting the user profile
 # returns the user profile
-@auth_bp.route("/api/auth/user/profile", methods=["GET"])
+@auth_bp.route("/api/auth/user", methods=["GET"])
 def api_user_profile():
     try:
-        user_logged_in = True
+        
+        user_logged_in = session.get("user_id")
 
-        # Check if the user is logged in
         if not user_logged_in:
             return jsonify({"message": "User not logged in."}), 401
         
-        # Dummy data for now
+        user = User.query.get(user_logged_in)
+        
         user_data = {
-          "user_id": "1000",
-          "first_name": "Doge",
-          "last_name": "Mustermann",
-          "email": "doge.mustermann@gmail.com",
-          "address": "Doge Street 23",
-          "city": "Doge City",
-          "zip": "12345",
-          "wallet": 100.00
+          "user_id": user.user_id,
+          "first_name": user.first_name,
+          "last_name": user.last_name,
+          "email": user.email,
+          "address": user.address,
+          "city": user.city,
+          "zip": user.zip_code,
+          "wallet": user.wallet
         }
+
+        
 
         return jsonify(user_data), 200
     
@@ -194,11 +201,27 @@ def api_restaurant_register():
         if not all(required_fields):
             raise BadRequest("Not all required fields are filled.")
             
-        restaurant_exists = False
+        restaurant_exists = Restaurant.query.filter_by(email=email).first()
 
         # Check if the restaurant already exists
         if restaurant_exists:
             return jsonify({"message": "Restaurant already exists."}), 409
+        
+        new_restaurant = Restaurant(
+            name=name,
+            email=email,
+            password_hash=generate_password_hash(password=password, method='pbkdf2:sha256', salt_length=16),
+            address=address,
+            city=city,
+            zip_code=zip_code,
+            description=description,
+            wallet=100.00,
+            banner=banner
+        )
+        # Add the restaurant to the database
+
+        db.session.add(new_restaurant)
+        db.session.commit()
 
         # Restaurant does not exist, create the restaurant
         return jsonify({"message": "Restaurant successfully registered."}), 201
@@ -229,12 +252,20 @@ def api_restaurant_login():
         # Check if any of the required fields are empty
         if not all(required_fields):
             raise BadRequest("Not all required fields are filled.")
-            
-        correct_credentials = True
+        
+        # Check if the restaurant exists
+        restaurant = Restaurant.query.filter_by(email=email).first()
+
+        # Check if the password is correct
+        password_correct = check_password_hash(restaurant.password_hash, password)
+
+        correct_credentials = password_correct and restaurant
 
         # Check if the credentials are correct
         if not correct_credentials:
             return jsonify({"message": "Invalid credentials."}), 401
+        
+        session["restaurant_id"] = restaurant.restaurant_id
 
         # Restaurant exists, log the restaurant in
         return jsonify({"message": "Restaurant successfully logged in."}), 200
@@ -251,26 +282,27 @@ def api_restaurant_login():
 
 # A route for getting the restaurant profile
 # returns the restaurant profile
-@auth_bp.route("/api/auth/restaurant/profile", methods=["GET"])
+@auth_bp.route("/api/auth/restaurant", methods=["GET"])
 def api_restaurant_profile():
     try:
-        restaurant_logged_in = True
+        restaurant_logged_in = session.get("restaurant_id")
 
         # Check if the restaurant is logged in
         if not restaurant_logged_in:
             return jsonify({"message": "Restaurant not logged in."}), 401
         
-        # Dummy data for now
+        restaurant = Restaurant.query.get(restaurant_logged_in)
+        
         restaurant_data = {
-          "restaurant_id": "1999",
-          "name": "Doge's Pizza",
-          "email": "dogespizza@biteandsavor.com",
-          "address": "Doge Street 24",
-          "city": "Doge City",
-          "zip": "12345",
-          "description": "The best pizza in town.",
-          "wallet": 100.00,
-          "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
+          "restaurant_id": restaurant.restaurant_id,
+          "name": restaurant.name,
+          "email": restaurant.email,
+          "address": restaurant.address,
+          "city": restaurant.city,
+          "zip": restaurant.zip_code,
+          "description": restaurant.description,
+          "wallet": restaurant.wallet,
+          "banner": restaurant.banner,
         }
 
         return jsonify(restaurant_data), 200
