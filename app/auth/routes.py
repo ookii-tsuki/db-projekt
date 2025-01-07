@@ -120,8 +120,8 @@ def api_user_login():
         # Check if the user exists
         user = User.query.filter_by(email=email).first()
 
-        # Check if the password is correct
-        password_correct = check_password_hash(user.password_hash, password)
+        if user:
+            password_correct = check_password_hash(user.password_hash, password)
 
         correct_credentials = user and password_correct
 
@@ -257,7 +257,8 @@ def api_restaurant_login():
         restaurant = Restaurant.query.filter_by(email=email).first()
 
         # Check if the password is correct
-        password_correct = check_password_hash(restaurant.password_hash, password)
+        if restaurant:
+            password_correct = check_password_hash(restaurant.password_hash, password)
 
         correct_credentials = password_correct and restaurant
 
