@@ -1,5 +1,9 @@
 from flask import jsonify, render_template, Blueprint, request
 from werkzeug.exceptions import BadRequest
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from app.models import User, Restaurant
+from app import db
 
 # Import the blueprint
 from app.auth import auth_bp
@@ -65,11 +69,27 @@ def api_user_register():
         if not all(required_fields):
             raise BadRequest("Not all required fields are filled.")
             
-        user_exists = False
+        user_exists = User.query.filter_by(email=email).first()
 
         # Check if the user already exists
         if user_exists:
             return jsonify({"message": "User already exists."}), 409
+        
+
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password_hash=generate_password_hash(password=password, method='pbkdf2:sha256', salt_length=16),
+            address=address,
+            city=city,
+            zip_code=zip_code,
+            wallet=100.00
+        )
+        # Add the user to the database
+
+        db.session.add(new_user)
+        db.session.commit()
 
         # User does not exist, create the user
         return jsonify({"message": "User successfully registered."}), 201
