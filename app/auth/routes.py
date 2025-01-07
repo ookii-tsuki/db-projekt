@@ -215,7 +215,7 @@ def api_restaurant_register():
             city=city,
             zip_code=zip_code,
             description=description,
-            wallet=100.00,
+            wallet=0.00,
             banner=banner
         )
         # Add the restaurant to the database
