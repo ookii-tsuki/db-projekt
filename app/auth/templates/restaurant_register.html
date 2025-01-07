@@ -98,7 +98,8 @@
     <form id="registrationForm">
       <div class="mb-3">
         <label for="restaurant-name" class="form-label">Name des Restaurants</label>
-        <input id="restaurant-name" type="text" class="form-control" placeholder="Gib Name ein" required>
+        <input id="name" type="text" class="form-control" placeholder="Gib Name ein" required>
+        <div id="nameError" class="error"></div>
       </div>
 
       <div class="mb-3">
@@ -110,6 +111,7 @@
       <div class="mb-3">
         <label for="address" class="form-label">Adresse</label>
         <input id="address" type="text" class="form-control" placeholder="Gib Adresse ein" required>
+        <div id="adressError" class="error"></div>
       </div>
 
       <div class="mb-3">
@@ -121,11 +123,13 @@
       <div class="mb-3">
         <label for="ort" class="form-label">Ort</label>
         <input id="ort" type="text" class="form-control" placeholder="Gib Ort ein" required>
+        <div id="ortError" class="error"></div>
       </div>
 
       <div class="mb-3">
         <label for="description" class="form-label">Beschreiben Sie Ihr Restaurant</label>
         <textarea id="description" class="form-control" placeholder="Beschreiben Sie Ihr Restaurant" rows="4" required></textarea>
+        <div id="descriptionError" class="error"></div>
       </div>
 
       <div class="mb-3">
@@ -138,6 +142,7 @@
       <div class="mb-3">
         <label for="password" class="form-label">Passwort</label>
         <input id="password" type="password" class="form-control" placeholder="Gib Passwort ein" required>
+        <div id="passwordError" class="error"></div>
       </div>
 
       <div class="mb-3">
@@ -162,7 +167,7 @@
 
       // Collect form data
       const formData = {
-        restaurant_name: document.getElementById('restaurant-name').value.trim(),
+        name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         address: document.getElementById('address').value.trim(),
         zip: document.getElementById('plz').value.trim(),
@@ -173,6 +178,22 @@
       };
 
       let isValid = true;
+      if (!formData.name) {
+        document.getElementById('nameError').textContent = 'name darf nicht leer sein.';
+        isValid = false;
+      }
+      if (!formData.description) {
+        document.getElementById('descriptionError').textContent = 'description darf nicht leer sein.';
+        isValid = false;
+      }
+      if (!formData.address) {
+        document.getElementById('adressError').textContent = 'adress darf nicht leer sein.';
+        isValid = false;
+      }
+      if (!formData.city) {
+        document.getElementById('ortError').textContent = 'ort darf nicht leer sein.';
+        isValid = false;
+      }
 
       // Email validation
       if (!formData.email) {
