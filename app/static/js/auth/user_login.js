@@ -42,24 +42,37 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
       .then(response => {
         // Check specific status codes
         switch (response.status) {
-          case 200: // Created
-            console.log(response.json())
-            //window.location.href = "/users/login";
-            break
+          case 200: // Success
+            response.json().then(data => {
+              alert('Login erfolgreich! Weiterleitung...');
+              window.location.href = "/search"; // Redirect to dashboard or another page
+            });
+            break;
           case 400: // Bad Request
-              console.log(response.json())
-              break
-          case 409: // Unauthorized
-              console.log(response.json())
-              break
-          case 500: // Internal Server Error  
-              console.log(response.json())
-              break
+            response.json().then(data => {
+              alert('Fehler 400: Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingaben.');
+              console.error(data);
+            });
+            break;
+          case 409: // Conflict or Unauthorized
+            response.json().then(data => {
+              alert('Fehler 409: Unautorisierter Zugriff. Bitte prüfen Sie Ihre Login-Daten.');
+              console.error(data);
+            });
+            break;
+          case 500: // Internal Server Error
+            response.json().then(data => {
+              alert('Fehler 500: Serverfehler. Bitte versuchen Sie es später erneut.');
+              console.error(data);
+            });
+            break;
           default: // Other cases
-            throw new Error(`Unexpected status code: ${response.status}`);
+            throw new Error(`Unerwarteter Statuscode: ${response.status}`);
         }
-      }).catch(error => {
-          console.error('Error:', error.message); // Logs errors with detailed messages
-        });
+      })
+      .catch(error => {
+        console.error('Fehler:', error.message); // Logs errors with detailed messages
+        alert('Ein Fehler ist aufgetreten: ' + error.message);
+      });
   }
 });
