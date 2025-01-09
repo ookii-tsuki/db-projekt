@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, request, session, jsonify
 from werkzeug.exceptions import BadRequest, NotFound
-from app.models import db, CartItem, MenuItem, Restaurant, User, Order
+from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem
 # Import the blueprint
 from app.order import order_bp
 
@@ -47,25 +47,22 @@ def api_cart():
         if not user_id:
             raise BadRequest("User not logged in.")
 
-        cart_items = CartItem.query.filter_by(user_id=user_id).all()
+        cart = Cart.query.filter_by(user_id=user_id).first()
 
-        if not cart_items:
+        if not cart or not cart.cart_items:
             raise NotFound("Cart is empty.")
 
-        cart = {
-            "cart": [
-                {
-                    "item_id": item.item_id,
-                    "restaurant_id": item.restaurant_id,
-                    "name": item.menu_item.name,
-                    "price": item.menu_item.price,
-                    "quantity": item.quantity,
-                    "notes": item.notes
-                } for item in cart_items
-            ]
-        }
+        cart_items = [
+            {
+                "item_id": item.item_id,
+                "name": item.menu_item.name,
+                "price": item.menu_item.price,
+                "quantity": item.quantity,
+                "notes": item.notes
+            } for item in cart.cart_items
+        ]
 
-        return jsonify(cart), 200
+        return jsonify(cart_items), 200
     
     except NotFound as e:
         print(e)
@@ -85,54 +82,37 @@ def api_cart():
 @order_bp.route("/api/order/add_cart", methods=["POST"])
 def api_add_cart():
     try:
-        data = request.get_json()
-
-        item_id = data.get("item_id")
-        restaurant_id = data.get("restaurant_id")
-        quantity = data.get("quantity")
-        notes = data.get("notes")
         user_id = session.get("user_id")
 
-        required_fields = [item_id, restaurant_id, quantity, user_id]
+        if not user_id:
+            raise BadRequest("User not logged in.")
 
-        if not all(required_fields):
-            raise BadRequest("Missing required fields.")
-        
-        item = MenuItem.query.get(item_id)
-        restaurant = Restaurant.query.get(restaurant_id)
-        user = User.query.get(user_id)
+        data = request.get_json()
+        item_id = data.get("item_id")
+        quantity = data.get("quantity", 1)
+        notes = data.get("notes", "")
 
-        if not item:
-            raise NotFound("Item not found.")
-        
-        if not restaurant:
-            raise NotFound("Restaurant not found.")
-        
-        if not user:
-            raise NotFound("User not found.")
-        
-        if item.restaurant_id != restaurant_id:
-            raise BadRequest("Item does not belong to the specified restaurant.")
+        if not item_id:
+            raise BadRequest("Item ID is required.")
 
-        cart_item = CartItem.query.filter_by(
+        menu_item = MenuItem.query.get(item_id)
+        if not menu_item:
+            raise NotFound("Menu item not found.")
+
+        cart = Cart.query.filter_by(user_id=user_id).first()
+        if not cart:
+            cart = Cart(user_id=user_id)
+            db.session.add(cart)
+            db.session.flush()  # Ensure cart_id is generated
+
+        order_item = OrderItem(
+            cart_id=cart.cart_id,
             item_id=item_id,
-            restaurant_id=restaurant_id,
-            user_id=user_id
-        ).first()
-
-        if cart_item:
-            cart_item.quantity = quantity
-            cart_item.notes = notes
-        else:
-            cart_item = CartItem(
-                item_id=item_id,
-                restaurant_id=restaurant_id,
-                user_id=user_id,
-                quantity=quantity,
-                notes=notes
-            )
-            db.session.add(cart_item)
-
+            restaurant_id=menu_item.restaurant_id,
+            quantity=quantity,
+            notes=notes
+        )
+        db.session.add(order_item)
         db.session.commit()
 
         return jsonify({"message": "Item added to cart."}), 201
@@ -154,27 +134,26 @@ def api_add_cart():
 @order_bp.route("/api/order/remove_cart", methods=["POST"])
 def api_remove_cart():
     try:
-        data = request.get_json()
-
-        item_id = data.get("item_id")
-        restaurant_id = data.get("restaurant_id")
         user_id = session.get("user_id")
 
-        required_fields = [item_id, restaurant_id, user_id]
+        if not user_id:
+            raise BadRequest("User not logged in.")
 
-        if not all(required_fields):
-            raise BadRequest("Missing required fields.")
-        
-        cart_item = CartItem.query.filter_by(
-            item_id=item_id,
-            restaurant_id=restaurant_id,
-            user_id=user_id
-        ).first()
+        data = request.get_json()
+        item_id = data.get("item_id")
 
-        if not cart_item:
+        if not item_id:
+            raise BadRequest("Item ID is required.")
+
+        cart = Cart.query.filter_by(user_id=user_id).first()
+        if not cart:
+            raise NotFound("Cart not found.")
+
+        order_item = OrderItem.query.filter_by(cart_id=cart.cart_id, item_id=item_id).first()
+        if not order_item:
             raise NotFound("Item not found in cart.")
 
-        db.session.delete(cart_item)
+        db.session.delete(order_item)
         db.session.commit()
 
         return jsonify({"message": "Item removed from cart."}), 200
@@ -189,11 +168,9 @@ def api_remove_cart():
     
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occurred."}), 500    
+        return jsonify({"message": "An error occurred."}), 500
 
 
-# A route for placing an order
-# Returns confirmation message
 @order_bp.route("/api/order/checkout", methods=["POST"])
 def api_checkout():
     try:
@@ -202,14 +179,14 @@ def api_checkout():
         if not user_id:
             raise BadRequest("User not logged in.")
 
-        cart_items = CartItem.query.filter_by(user_id=user_id).all()
+        cart = Cart.query.filter_by(user_id=user_id).first()
 
-        if not cart_items:
+        if not cart or not cart.cart_items:
             raise NotFound("Cart is empty.")
 
         # Group cart items by restaurant_id
         cart_items_by_restaurant = {}
-        for item in cart_items:
+        for item in cart.cart_items:
             if item.restaurant_id not in cart_items_by_restaurant:
                 cart_items_by_restaurant[item.restaurant_id] = []
             cart_items_by_restaurant[item.restaurant_id].append(item)
@@ -224,13 +201,17 @@ def api_checkout():
                 status=0
             )
             db.session.add(order)
+            db.session.flush()  # Ensure order_id is generated
+
+            # Transfer cart items to order items
+            for item in items:
+                item.order_id = order.order_id
+                item.cart_id = None
 
         db.session.commit()
 
         # Clear the cart after placing the orders
-        for item in cart_items:
-            db.session.delete(item)
-
+        db.session.delete(cart)
         db.session.commit()
 
         return jsonify({"message": "Orders placed successfully."}), 201
@@ -266,25 +247,23 @@ def api_order_history():
 
         order_history = []
         for order in orders:
-            restaurant = Restaurant.query.get(order.restaurant_id)
-            items = MenuItem.query.filter_by(order_id=order.order_id).all()
-            order_items = [
+            items = [
                 {
                     "item_id": item.item_id,
                     "name": item.menu_item.name,
                     "price": item.menu_item.price,
                     "quantity": item.quantity,
                     "notes": item.notes
-                } for item in items
+                } for item in order.order_items
             ]
             order_history.append({
                 "order_id": order.order_id,
-                "restaurant_id": restaurant.restaurant_id,
-                "name": restaurant.name,
-                "address": restaurant.address,
-                "city": restaurant.city,
-                "zip": restaurant.zip_code,
-                "items": order_items,
+                "restaurant_id": order.restaurant_id,
+                "name": order.restaurant.name,
+                "address": order.restaurant.address,
+                "city": order.restaurant.city,
+                "zip": order.restaurant.zip_code,
+                "items": items,
                 "total": order.total,
                 "status": order.status,
                 "date": order.date
