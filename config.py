@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 import warnings
 
 if not os.path.exists(".env"):
@@ -12,4 +13,5 @@ load_dotenv()
 class Config:
     # Flask configurations
     SECRET_KEY = os.getenv("SECRET_KEY")
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    PERMANENT_SESSION_LIFETIME = timedelta(days=1)
