@@ -42,7 +42,7 @@
     }
     .back-button {
       position: absolute;
-      top: 100px; /* Adjusted to align with heading */
+      top: 100px;
       left: 20px;
       font-size: 14px;
       cursor: pointer;
@@ -95,9 +95,80 @@
       margin-left: 10px;
       cursor: pointer;
     }
-    .save-button {
+    .save-button, .btn-black {
       margin-top: 20px;
       float: right;
+      background-color: black;
+      color: white;
+      border: none;
+    }
+    .save-button:hover, .btn-black:hover {
+      background-color: grey;
+      color: white;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      display: none;
+      z-index: 10;
+    }
+    .overlay-content {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+    }
+    .file-upload {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .file-upload input {
+      display: none;
+    }
+    .file-upload label {
+      cursor: pointer;
+      padding: 10px 20px;
+      background-color: black;
+      color: white;
+      border-radius: 5px;
+    }
+    .file-upload label:hover {
+      background-color: grey;
+    }
+    .btn-spacing {
+      margin-top: 10px;
+    }
+    .add-button {
+      background-color: black;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    .add-button:hover {
+      background-color: grey;
+    }
+    .centered {
+      display: flex;
+      justify-content: center;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .button-container .btn-black {
+      width: 48%;
     }
   </style>
 </head>
@@ -117,17 +188,76 @@
     <div class="line"></div>
     <div id="foodItemsContainer"></div>
     <div class="line"></div>
+    <div class="centered">
+      <button class="btn btn-dark add-button" onclick="showAddOverlay()">Hinzufügen</button>
+    </div>
     <button class="btn btn-dark save-button">Speichern</button>
-    <button class="btn btn-dark add-button">
-      <img src="{{ url_for('static', filename='images/plusultra.webp') }}" alt="Add" style="width: 16px; height: 16px;"> Hinzufügen
-    </button>
+  </div>
+
+  <!-- Item bearbeiten Overlay -->
+  <div class="overlay" id="editOverlay">
+    <div class="overlay-content">
+      <h2>Item bearbeiten</h2>
+      <input type="text" class="form-control" id="editName" placeholder="Name">
+      <textarea class="form-control" id="editDescription" placeholder="Beschreibung" style="height: 150px;"></textarea>
+      <div class="file-upload btn-spacing">
+        <label for="editImage">Bild hochladen</label>
+        <input type="file" id="editImage">
+      </div>
+      <input type="number" class="form-control btn-spacing" id="editPrice" placeholder="Preis">
+      <div class="button-container">
+        <button class="btn btn-black" onclick="closeOverlay('editOverlay')">Abbrechen</button>
+        <button class="btn btn-black" onclick="saveEditItem()">Änderungen speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Item hinzufügen Overlay -->
+  <div class="overlay" id="addOverlay">
+    <div class="overlay-content">
+      <h2>Item hinzufügen</h2>
+      <input type="text" class="form-control" id="addName" placeholder="Name">
+      <textarea class="form-control" id="addDescription" placeholder="Beschreibung" style="height: 150px;"></textarea>
+      <div class="file-upload btn-spacing">
+        <label for="addImage">Bild hochladen</label>
+        <input type="file" id="addImage">
+      </div>
+      <input type="number" class="form-control btn-spacing" id="addPrice" placeholder="Preis">
+      <div class="button-container">
+        <button class="btn btn-black" onclick="closeOverlay('addOverlay')">Abbrechen</button>
+        <button class="btn btn-black" onclick="addNewItem()">Item hinzufügen</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    let currentEditingItem = null;
+
     function toggleMessage() {
       const message = document.getElementById('bellMessage');
       message.style.display = message.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function showEditOverlay(item) {
+      // Store the item being edited
+      currentEditingItem = item;
+
+      // Populate the overlay fields with the item's existing data
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editDescription').value = item.description;
+      document.getElementById('editPrice').value = item.price;
+
+      // Display the overlay
+      document.getElementById('editOverlay').style.display = 'flex';
+    }
+
+    function showAddOverlay() {
+      document.getElementById('addOverlay').style.display = 'flex';
+    }
+
+    function closeOverlay(overlayId) {
+      document.getElementById(overlayId).style.display = 'none';
     }
 
     async function fetchMenu() {
@@ -156,7 +286,7 @@
           <div class="food-item">
             <div class="food-header">
               <h2>${item.name} - €${item.price.toFixed(2)}</h2>
-              <img src="{{ url_for('static', filename='images/pen1.png') }}" alt="Edit" class="edit-icon" style="width: 20px; height: 20px;">
+              <img src="{{ url_for('static', filename='images/pen1.png') }}" alt="Edit" class="edit-icon" style="width: 20px; height: 20px;" onclick='showEditOverlay(${JSON.stringify(item)})'>
             </div>
             <div class="food-details">
               <div class="food-description">
@@ -173,6 +303,42 @@
     function clearMenu() {
       const container = document.getElementById('foodItemsContainer');
       container.innerHTML = '<p class="text-center">Keine Items verfügbar.</p>';
+    }
+
+    async function saveEditItem() {
+      if (!currentEditingItem) return;
+
+      const updatedItem = {
+        name: document.getElementById('editName').value,
+        description: document.getElementById('editDescription').value,
+        price: parseFloat(document.getElementById('editPrice').value),
+        // Handle image upload if necessary
+      };
+
+      try {
+        const response = await fetch(`/api/restaurant/item/${currentEditingItem.item_id}`, {
+          method: 'PUT', // Or POST depending on your API
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedItem),
+        });
+
+        if (response.ok) {
+          alert('Änderungen gespeichert!');
+          closeOverlay('editOverlay');
+          fetchMenu(); // Refresh the menu after saving the changes
+        } else {
+          alert('Fehler beim Speichern der Änderungen.');
+        }
+      } catch (error) {
+        alert('Ein Fehler ist aufgetreten.');
+      }
+    }
+
+    function addNewItem() {
+      alert('Item hinzugefügt!');
+      closeOverlay('addOverlay');
     }
 
     // Call fetchMenu on page load
