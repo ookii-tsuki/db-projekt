@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, session, jsonify
 from werkzeug.exceptions import BadRequest, NotFound
 from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem
+from datetime import datetime
 # Import the blueprint
 from app.order import order_bp
 
@@ -266,7 +267,7 @@ def api_order_history():
                 "items": items,
                 "total": order.total,
                 "status": order.status,
-                "date": order.date
+                "date": int(order.date.timestamp())
             })
 
         return jsonify(order_history), 200
@@ -289,33 +290,40 @@ def api_order_history():
 @order_bp.route("/api/order/status", methods=["GET"])
 def api_order_status():
     try:
+        user_id = session.get("user_id")
 
-        # Dummy data
-        order_status = [
-          {
-            "order_id": "1000",
-            "restaurant_id": "1999",
-            "name": "Doge's Pizza",
-            "address": "Doge Street 24",
-            "city": "Doge City",
-            "zip": "12345",
-            "items": [
-              {
-                "item_id": "1000",
-                "name": "Cheese Pizza",
-                "price": 10.99,
-                "quantity": 2,
-                "notes": "Extra cheese."
-              }
-            ],
-            "total": 21.98,
-            "status": 0,
-            "date": 1734600213
-          }
-        ]
+        if not user_id:
+            raise BadRequest("User not logged in.")
 
-        if len(order_status) == 0:
+        # Fetch orders with status not equal to 3 (delivered) or 4 (rejected)
+        orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])).all()
+
+        if not orders:
             raise NotFound("No active orders found.")
+
+        order_status = []
+        for order in orders:
+            items = [
+                {
+                    "item_id": item.item_id,
+                    "name": item.menu_item.name,
+                    "price": item.menu_item.price,
+                    "quantity": item.quantity,
+                    "notes": item.notes
+                } for item in order.order_items
+            ]
+            order_status.append({
+                "order_id": order.order_id,
+                "restaurant_id": order.restaurant_id,
+                "name": order.restaurant.name,
+                "address": order.restaurant.address,
+                "city": order.restaurant.city,
+                "zip": order.restaurant.zip_code,
+                "items": items,
+                "total": order.total,
+                "status": order.status,
+                "timestamp": int(order.date.timestamp())
+            })
 
         return jsonify(order_status), 200
     
@@ -323,6 +331,10 @@ def api_order_status():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except BadRequest as e:
+        print(e)
+        return jsonify({"message": e.description}), 400
+    
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
