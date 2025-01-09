@@ -4,97 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lieferplatz</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            background-color: white;
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main/index.css') }}">
 
-        .mainarea {
-            width: 90%;
-            max-width: 600px;
-            margin: 20px auto;
-        }
-
-        .photo {
-            width: 100%;
-            max-width: 300px;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .text {
-            font-size: 16px;
-            color: black;
-            margin: 10px 0 20px;
-        }
-
-        hr {
-            width: 100%;
-            border: none;
-            border-top: 2px solid #ddd;
-            margin: 20px 0;
-        }
-
-        .buttonsarea {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .inlinebuttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .button {
-            width: 100%;
-            max-width: 250px;
-            padding: 15px;
-            border: 2px solid black;
-            border-radius: 5px;
-            background-color: white;
-            color: black;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .button:hover {
-            background-color: black;
-            color: white;
-        }
-    </style>
 </head>
 <body>
     <div class="mainarea">
         <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
         <div class="text">
-            Wir freuen uns, dass Du dich für uns entschieden hast.<br>
-            Um sofort loszulegen, wähle bitte aus, ob Du einen Kunden Account erstellen möchtest<br>
-            oder Dein Restaurant bei Lieferplatz registrieren möchtest.
+            {% if is_logged_in %}
+                {% if is_restaurant %}
+                    Willkommen zurück! 🎉 Du bist eingeloggt und kannst jetzt dein Restaurant über das Dashboard verwalten.
+                {% else %}
+                    Willkommen zurück! 🌟 Du bist eingeloggt und kannst jetzt nach Restaurants in deiner Nähe suchen.
+                {% endif %}
+            {% else %}
+                Wir freuen uns, dass Du dich für uns entschieden hast.<br>
+                Um sofort loszulegen, wähle bitte aus, ob Du einen Kunden Account erstellen möchtest<br>
+                oder Dein Restaurant bei Lieferplatz registrieren möchtest.
+            {% endif %}
         </div>
         <hr>
         <div class="buttonsarea">
-            <div class="inlinebuttons">
-                 <button class="button"onclick="window.location.href='/users/login'">als kunde Einloggen</button>
-                 <button class="button"onclick="window.location.href='/restaurant/login'">als geschaft Einloggen</button>
-            </div>
-            <div class="inlinebuttons">
-                <button class="button"onclick="window.location.href='/users/register'">Als Kunde anmelden</button>
-                <button class="button"onclick="window.location.href='/restaurant/register'">Restaurant registrieren</button>   
-            </div>
+
+            {% if is_logged_in %}
+                {% if is_restaurant %}
+                    <button class="button"onclick="window.location.href='/restaurant/dashboard'">Dashboard</button>
+                {% else %}
+                    <button class="button"onclick="window.location.href='/search'">Suchen</button>
+                {% endif %}
+            {% else %}
+                <div class="inlinebuttons">
+                    <button class="button"onclick="window.location.href='/users/login'">als kunde Einloggen</button>
+                    <button class="button"onclick="window.location.href='/restaurant/login'">als geschaft Einloggen</button>
+                </div>
+                <div class="inlinebuttons">
+                   <button class="button"onclick="window.location.href='/users/register'">Als Kunde anmelden</button>
+                   <button class="button"onclick="window.location.href='/restaurant/register'">Restaurant registrieren</button>   
+                </div>
+            {% endif %}
+
         </div>
     </div>
 </body>
