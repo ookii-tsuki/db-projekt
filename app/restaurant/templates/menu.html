@@ -40,6 +40,13 @@
       text-align: center;
       font-weight: bold;
     }
+    .back-button {
+      position: absolute;
+      top: 100px; /* Adjusted to align with heading */
+      left: 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
     .sub-heading {
       text-align: center;
       font-size: 16px;
@@ -102,6 +109,7 @@
     Es gibt momentan keine Neuigkeiten
   </div>
   <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+  <button class="btn btn-outline-dark back-button" onclick="history.back()">Zurück</button> <!-- Back Button -->
   <div class="container">
     <h1 class="main-heading">Ihre Speisekarte</h1>
     <p class="sub-heading">Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen</p>

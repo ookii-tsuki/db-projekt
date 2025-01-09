@@ -135,16 +135,17 @@
         <div class="line"></div>
         <div class="row">
           <div class="col-md-6">
+            <p><strong>Öffnungszeiten:</strong> <span id="restaurantOpeningHours">...</span></p>
             <p><strong>Adresse:</strong> <span id="restaurantAddress">...</span></p>
           </div>
         </div>
       </div>
     </div>
     <div class="buttons-grid">
-      <button class="btn btn-dark btn-custom">Speisekarte bearbeiten</button>
-      <button class="btn btn-dark btn-custom">aktuelle Bestellungen</button>
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/menu'">Speisekarte bearbeiten</button>
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/orders'">aktuelle Bestellungen</button>
       <button class="btn btn-dark btn-custom" onclick="showGuthabenModal()">Guthaben verwalten</button>
-      <button class="btn btn-dark btn-custom">Historie</button>
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/order_history'">Historie</button>
     </div>
   </div>
 
@@ -198,6 +199,7 @@
           document.getElementById('restaurantNameDisplay').textContent = data.name;
           document.getElementById('restaurantAddress').textContent = `${data.address}, ${data.zip} ${data.city}`;
           document.getElementById('restaurantWallet').textContent = `${data.wallet} EUR` || '0 EUR';
+          document.getElementById('restaurantOpeningHours').textContent = data.opening_hours || 'Nicht verfügbar';
           // If there's an image, display it (assuming it could be a URL or base64)
           if (data.banner) {
             document.getElementById('restaurantImage').src = data.banner;
