@@ -34,9 +34,6 @@ def order_history():
 ############################ API ROUTES ################################
 ########################################################################
 
-# This section is still under construction
-# It will only return dummy data for now
-
 
 # A route for the cart API
 # Returns the user cart
