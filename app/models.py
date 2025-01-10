@@ -55,6 +55,7 @@ class Restaurant(db.Model):
 
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
+    opening_hours = db.relationship('OpeningHour', backref='restaurant', lazy=True)
 
     def __repr__(self):
         return (
@@ -159,3 +160,21 @@ class LieferspatzRevenue(db.Model):
 
     def __repr__(self):
         return f"<LieferspatzRevenue ID: {self.revenue_id}, Total Revenue: {self.total_revenue:.2f}>"
+        
+
+class OpeningHour(db.Model):
+    __tablename__ = 'opening_hours'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    day_of_week = db.Column(db.String(10), nullable=False)  # e.g., 'Monday'
+    open_time = db.Column(db.Time, nullable=False)
+    close_time = db.Column(db.Time, nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<OpeningHour ID: {self.id}, "
+            f"Day: {self.day_of_week}, "
+            f"Open: {self.open_time}, "
+            f"Close: {self.close_time}>"
+        )
