@@ -51,7 +51,7 @@ class Restaurant(db.Model):
     wallet = db.Column(db.Float, nullable=False, default=0.0)
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
-    cuisine = db.Column(db.String(100), nullable=True)  # Art der Küche (z. B. "Pizza")
+    cuisine = db.Column(db.Integer, nullable=True, default=0) # 0: Sonstiges, 1: Pizza, 2: Sushi, 3: Burger, 4: Döner, 5: Pasta, 6: Italienisch, 7: Asiatisch, 8: Indisch, 9: Mexikanisch
 
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
