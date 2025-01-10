@@ -126,6 +126,7 @@
       width: 80%;
       max-width: 600px;
       text-align: center;
+      position: relative;
     }
     .file-upload {
       margin: 20px 0;
@@ -180,7 +181,7 @@
     Es gibt momentan keine Neuigkeiten
   </div>
   <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
-  <button class="btn btn-outline-dark back-button" onclick="history.back()">Zurück</button> <!-- Back Button -->
+  <button class="btn btn-outline-dark back-button" onclick="history.back()">Zurück</button>
   <div class="container">
     <h1 class="main-heading">Ihre Speisekarte</h1>
     <p class="sub-heading">Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen</p>
@@ -197,16 +198,18 @@
   <!-- Item bearbeiten Overlay -->
   <div class="overlay" id="editOverlay">
     <div class="overlay-content">
+      <button class="btn btn-outline-dark" style="position: absolute; top: 10px; left: 10px;" onclick="closeOverlay('editOverlay')">Zurück</button>
       <h2>Item bearbeiten</h2>
       <input type="text" class="form-control" id="editName" placeholder="Name">
       <textarea class="form-control" id="editDescription" placeholder="Beschreibung" style="height: 150px;"></textarea>
       <div class="file-upload btn-spacing">
         <label for="editImage">Bild hochladen</label>
-        <input type="file" id="editImage">
+        <input type="file" id="editImage" accept="image/*" onchange="previewImage(event, 'editImagePreview')">
+        <img id="editImagePreview" src="#" alt="Preview" style="display: none; margin-top: 10px; width: 150px; height: 150px; object-fit: cover; border: 1px solid #ccc; border-radius: 5px;">
       </div>
       <input type="number" class="form-control btn-spacing" id="editPrice" placeholder="Preis">
       <div class="button-container">
-        <button class="btn btn-black" onclick="closeOverlay('editOverlay')">Abbrechen</button>
+        <button class="btn btn-black" onclick="deleteItem()">Item löschen</button>
         <button class="btn btn-black" onclick="saveEditItem()">Änderungen speichern</button>
       </div>
     </div>
@@ -220,7 +223,8 @@
       <textarea class="form-control" id="addDescription" placeholder="Beschreibung" style="height: 150px;"></textarea>
       <div class="file-upload btn-spacing">
         <label for="addImage">Bild hochladen</label>
-        <input type="file" id="addImage">
+        <input type="file" id="addImage" accept="image/*" onchange="previewImage(event, 'addImagePreview')">
+        <img id="addImagePreview" src="#" alt="Preview" style="display: none; margin-top: 10px; width: 150px; height: 150px; object-fit: cover; border: 1px solid #ccc; border-radius: 5px;">
       </div>
       <input type="number" class="form-control btn-spacing" id="addPrice" placeholder="Preis">
       <div class="button-container">
@@ -239,16 +243,31 @@
       message.style.display = message.style.display === 'block' ? 'none' : 'block';
     }
 
+    function previewImage(event, previewId) {
+      const input = event.target;
+      const preview = document.getElementById(previewId);
+
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
     function showEditOverlay(item) {
-      // Store the item being edited
       currentEditingItem = item;
 
-      // Populate the overlay fields with the item's existing data
       document.getElementById('editName').value = item.name;
       document.getElementById('editDescription').value = item.description;
       document.getElementById('editPrice').value = item.price;
 
-      // Display the overlay
+      const editPreview = document.getElementById('editImagePreview');
+      editPreview.src = item.image;
+      editPreview.style.display = 'block';
+
       document.getElementById('editOverlay').style.display = 'flex';
     }
 
@@ -262,14 +281,14 @@
 
     async function fetchMenu() {
       try {
-        const response = await fetch('/api/restaurant/items'); // Replace with your actual API endpoint
+        const response = await fetch('/api/restaurant/items');
         if (response.status === 200) {
           const menuItems = await response.json();
           renderMenu(menuItems);
         } else if (response.status === 404) {
           const error = await response.json();
           alert(`Error ${response.status}: ${error.message}`);
-          clearMenu(); // Clear existing content if no items are found
+          clearMenu();
         } else {
           alert(`Error ${response.status}: Unexpected error occurred.`);
         }
@@ -280,7 +299,7 @@
 
     function renderMenu(menuItems) {
       const container = document.getElementById('foodItemsContainer');
-      container.innerHTML = ''; // Clear existing content to replace it with JSON data
+      container.innerHTML = '';
       menuItems.forEach(item => {
         const foodItemHTML = `
           <div class="food-item">
@@ -312,37 +331,124 @@
         name: document.getElementById('editName').value,
         description: document.getElementById('editDescription').value,
         price: parseFloat(document.getElementById('editPrice').value),
-        // Handle image upload if necessary
       };
 
-      try {
-        const response = await fetch(`/api/restaurant/item/${currentEditingItem.item_id}`, {
-          method: 'PUT', // Or POST depending on your API
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedItem),
-        });
+      const editImageInput = document.getElementById('editImage');
+      let base64Image = null;
 
-        if (response.ok) {
-          alert('Änderungen gespeichert!');
-          closeOverlay('editOverlay');
-          fetchMenu(); // Refresh the menu after saving the changes
-        } else {
-          alert('Fehler beim Speichern der Änderungen.');
-        }
-      } catch (error) {
-        alert('Ein Fehler ist aufgetreten.');
+      if (editImageInput.files && editImageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          base64Image = e.target.result.split(',')[1];
+          updatedItem.banner = base64Image;
+          sendUpdatedItem(updatedItem);
+        };
+        reader.readAsDataURL(editImageInput.files[0]);
+      } else {
+        updatedItem.banner = currentEditingItem.image;
+        sendUpdatedItem(updatedItem);
       }
     }
 
-    function addNewItem() {
-      alert('Item hinzugefügt!');
-      closeOverlay('addOverlay');
+    function sendUpdatedItem(updatedItem) {
+      fetch(`/api/restaurant/item/${currentEditingItem.item_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedItem),
+      })
+        .then(response => {
+          if (response.status === 200) {
+            alert('Änderungen gespeichert.');
+            closeOverlay('editOverlay');
+            fetchMenu();
+          } else {
+            response.json().then(error => {
+              alert(`Error ${response.status}: ${error.message}`);
+            });
+          }
+        })
+        .catch(error => {
+          alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+        });
     }
 
-    // Call fetchMenu on page load
-    window.onload = fetchMenu;
+    async function deleteItem() {
+      if (!currentEditingItem) return;
+
+      const confirmDeletion = confirm('Sind Sie sicher, dass Sie dieses Item löschen möchten?');
+      if (!confirmDeletion) return;
+
+      try {
+        const response = await fetch(`/api/restaurant/item/${currentEditingItem.item_id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.status === 200) {
+          const result = await response.json();
+          alert(result.message); // "Item successfully deleted."
+          closeOverlay('editOverlay');
+          fetchMenu(); // Refresh the menu
+        } else if (response.status === 404) {
+          const error = await response.json();
+          alert(`Error ${response.status}: ${error.message}`); // "Item not found."
+        } else {
+          alert(`Error ${response.status}: Ein unerwarteter Fehler ist aufgetreten.`);
+        }
+      } catch (error) {
+        alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+      }
+    }
+
+    async function addNewItem() {
+      const newItem = {
+        name: document.getElementById('addName').value,
+        description: document.getElementById('addDescription').value,
+        price: parseFloat(document.getElementById('addPrice').value),
+      };
+
+      const addImageInput = document.getElementById('addImage');
+      if (addImageInput.files && addImageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const base64Image = e.target.result.split(',')[1];
+          newItem.image = base64Image;
+          sendNewItem(newItem);
+        };
+        reader.readAsDataURL(addImageInput.files[0]);
+      } else {
+        sendNewItem(newItem);
+      }
+    }
+
+    function sendNewItem(newItem) {
+      fetch('/api/restaurant/item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newItem),
+      })
+        .then(response => {
+          if (response.status === 200) {
+            alert('Item hinzugefügt.');
+            closeOverlay('addOverlay');
+            fetchMenu();
+          } else {
+            response.json().then(error => {
+              alert(`Error ${response.status}: ${error.message}`);
+            });
+          }
+        })
+        .catch(error => {
+          alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchMenu();
+    });
   </script>
 </body>
 </html>
