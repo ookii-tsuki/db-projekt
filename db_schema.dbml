@@ -26,7 +26,7 @@ Table restaurants {
   wallet Float [not null, default: 0.0]
   banner Text
   rating Float
-  cuisine String
+  cuisine Integer
 
   Indexes {
     (email) [unique]
