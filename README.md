@@ -3,6 +3,7 @@
 This is a web platform that allows users to order food from various restaurants. It includes features like user registration, menu browsing, placing orders, and viewing order history.
 
 See the [Documentation](Documentation/DOCUMENTATION.md) for details on the available endpoints and routes.
+See the [Database Documentation](https://dbdocs.io/Mohamed%20Amine%20Ben%20Chrifa/db-projekt) for details on the database schema and access a visualization.
 
 ## Getting Started
 
