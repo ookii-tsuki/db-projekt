@@ -51,10 +51,11 @@ class Restaurant(db.Model):
     wallet = db.Column(db.Float, nullable=False, default=0.0)
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
-    cuisine = db.Column(db.String(100), nullable=True)  # Art der Küche (z. B. "Pizza")
+    cuisine = db.Column(db.Integer, nullable=True, default=0) # 0: Sonstiges, 1: Pizza, 2: Sushi, 3: Burger, 4: Döner, 5: Pasta, 6: Italienisch, 7: Asiatisch, 8: Indisch, 9: Mexikanisch
 
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
+    opening_hours = db.relationship('OpeningHour', backref='restaurant', lazy=True)
 
     def __repr__(self):
         return (
@@ -159,3 +160,21 @@ class LieferspatzRevenue(db.Model):
 
     def __repr__(self):
         return f"<LieferspatzRevenue ID: {self.revenue_id}, Total Revenue: {self.total_revenue:.2f}>"
+        
+
+class OpeningHour(db.Model):
+    __tablename__ = 'opening_hours'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    day_of_week = db.Column(db.Integer, nullable=False, default=0)  # 0: 'Monday' - 6: 'Sunday'
+    open_time = db.Column(db.Time, nullable=False)
+    close_time = db.Column(db.Time, nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<OpeningHour ID: {self.id}, "
+            f"Day: {self.day_of_week}, "
+            f"Open: {self.open_time}, "
+            f"Close: {self.close_time}>"
+        )
