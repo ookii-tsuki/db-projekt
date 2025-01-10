@@ -172,8 +172,23 @@ Registers a new restaurant.
   "zip": "12345",
   "description": "The best pizza in town.",
   "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
+  "opening_hours": [
+        {
+            "day_of_week": 0,
+            "open_time": "09:00",
+            "close_time": "17:00"
+        },
+        {
+            "day_of_week": 1,
+            "open_time": "09:00",
+            "close_time": "17:00"
+        }
+    ],
+    "cuisine": 1
 }
 ```
+
+> 🗒 Note: The cuisine values mean: 0: Sonstiges, 1: Pizza, 2: Sushi, 3: Burger, 4: Döner, 5: Pasta, 6: Italienisch, 7: Asiatisch, 8: Indisch, 9: Mexikanisch
 
 **Response:**
 
@@ -268,15 +283,28 @@ Returns the restaurant's information.
 * `200 OK`
   ```json
   {
-    "restaurant_id": "1999",
-    "name": "Doge's Pizza",
-    "email": "dogespizza@biteandsavor.com",
     "address": "Doge Street 24",
+    "banner": "image",
     "city": "Doge City",
-    "zip": "12345",
+    "cuisine": 1,
     "description": "The best pizza in town.",
-    "wallet": 100.00,
-    "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
+    "email": "dogespizza@biteandsavor.com",
+    "name": "Doges Pizza",
+    "opening_hours": [
+      {
+        "close_time": "17:00",
+        "day_of_week": 0,
+        "open_time": "09:00"
+      },
+      {
+        "close_time": "17:00",
+        "day_of_week": 1,
+        "open_time": "09:00"
+      }
+    ],
+    "restaurant_id": 1,
+    "wallet": 0.0,
+    "zip": "12345"
   }
   ```
 

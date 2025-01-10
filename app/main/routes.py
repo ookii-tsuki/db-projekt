@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, jsonify
+from flask import render_template, Blueprint, request, session, jsonify
 from werkzeug.exceptions import BadRequest, NotFound
 
 # Import the blueprint
@@ -14,13 +14,21 @@ from app.main import main_bp
 # The route will return the index.html template
 @main_bp.route("/")
 def index():
-    return render_template("index.html")
+
+    is_logged_in = bool(session.get("user_id") or session.get("restaurant_id"))
+
+    is_restaurant = bool(session.get("restaurant_id"))
+
+    return render_template("index.html", is_logged_in=is_logged_in, is_restaurant=is_restaurant)
 
 # Create a route for the about page
 # The route will return the about.html template
 @main_bp.route("/search")
 def search():
-    return render_template("search.html")
+
+    is_logged_in = bool(session.get("user_id") or session.get("restaurant_id"))
+
+    return render_template("search.html", is_logged_in=is_logged_in)
 
 # Create a route for the menu page
 # The route will return the menu.html template

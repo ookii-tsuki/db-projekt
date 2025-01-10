@@ -51,10 +51,11 @@ class Restaurant(db.Model):
     wallet = db.Column(db.Float, nullable=False, default=0.0)
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
-    cuisine = db.Column(db.String(100), nullable=True)  # Art der Küche (z. B. "Pizza")
+    cuisine = db.Column(db.Integer, nullable=True, default=0) # 0: Sonstiges, 1: Pizza, 2: Sushi, 3: Burger, 4: Döner, 5: Pasta, 6: Italienisch, 7: Asiatisch, 8: Indisch, 9: Mexikanisch
 
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
+    opening_hours = db.relationship('OpeningHour', backref='restaurant', lazy=True)
 
     def __repr__(self):
         return (
@@ -86,23 +87,41 @@ class MenuItem(db.Model):
         )
 
 
-class CartItem(db.Model):
-    __tablename__ = 'cart_items'
+class Cart(db.Model):
+    __tablename__ = 'carts'
 
-    item_id = db.Column(db.Integer, db.ForeignKey('menu_items.item_id'), primary_key=True)
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+
+    # Beziehungen
+    user = db.relationship('User', backref=db.backref('cart', uselist=False))
+    cart_items = db.relationship('OrderItem', backref='cart', lazy=True)
+
+    def __repr__(self):
+        return f"<Cart ID: {self.cart_id}, User ID: {self.user_id}>"
+    
+    
+class OrderItem(db.Model):
+    __tablename__ = 'order_items'
+
+    order_item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'), nullable=True)
+    cart_id = db.Column(db.Integer, db.ForeignKey('carts.cart_id'), nullable=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_items.item_id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.String(255), nullable=True)
 
     # Beziehungen
-    menu_item = db.relationship('MenuItem', backref='cart_items', lazy=True)
+    order = db.relationship('Order', backref=db.backref('order_items', lazy=True))
+    menu_item = db.relationship('MenuItem', backref='order_items', lazy=True)
 
     def __repr__(self):
         return (
-            f"<CartItem Item ID: {self.item_id}, "
+            f"<OrderItem Order ID: {self.order_id}, "
+            f"Cart ID: {self.cart_id}, "
+            f"Item ID: {self.item_id}, "
             f"Restaurant ID: {self.restaurant_id}, "
-            f"User ID: {self.user_id}, "
             f"Quantity: {self.quantity}, "
             f"Notes: {self.notes}>"
         )
@@ -141,3 +160,21 @@ class LieferspatzRevenue(db.Model):
 
     def __repr__(self):
         return f"<LieferspatzRevenue ID: {self.revenue_id}, Total Revenue: {self.total_revenue:.2f}>"
+        
+
+class OpeningHour(db.Model):
+    __tablename__ = 'opening_hours'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    day_of_week = db.Column(db.Integer, nullable=False, default=0)  # 0: 'Monday' - 6: 'Sunday'
+    open_time = db.Column(db.Time, nullable=False)
+    close_time = db.Column(db.Time, nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<OpeningHour ID: {self.id}, "
+            f"Day: {self.day_of_week}, "
+            f"Open: {self.open_time}, "
+            f"Close: {self.close_time}>"
+        )

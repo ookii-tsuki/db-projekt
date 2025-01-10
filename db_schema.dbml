@@ -1,0 +1,85 @@
+Table users {
+  user_id Integer [pk, increment]
+  email String [unique, not null]
+  password_hash String [not null]
+  first_name String [not null]
+  last_name String [not null]
+  address String [not null]
+  city String [not null]
+  zip_code String [not null]
+  wallet Float [not null, default: 0.0]
+
+  Indexes {
+    (email) [unique]
+  }
+}
+
+Table restaurants {
+  restaurant_id Integer [pk, increment]
+  name String [not null]
+  email String [unique, not null]
+  password_hash String [not null]
+  address String [not null]
+  city String [not null]
+  zip_code String [not null]
+  description String
+  wallet Float [not null, default: 0.0]
+  banner Text
+  rating Float
+  cuisine Integer
+
+  Indexes {
+    (email) [unique]
+  }
+}
+
+Table menu_items {
+  item_id Integer [pk, increment]
+  name String [not null]
+  price Float [not null]
+  description String
+  image Text
+  restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
+}
+
+Table carts {
+  cart_id Integer [pk, increment]
+  user_id Integer [ref: > users.user_id, not null]
+}
+
+Table order_items {
+  order_item_id Integer [pk, increment]
+  order_id Integer [ref: > orders.order_id]
+  cart_id Integer [ref: > carts.cart_id]
+  item_id Integer [ref: > menu_items.item_id, not null]
+  restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
+  quantity Integer [not null, default: 1]
+  notes String
+}
+
+Table orders {
+  order_id Integer [pk, increment]
+  user_id Integer [ref: > users.user_id, not null]
+  restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
+  total Float [not null]
+  status Integer [not null, default: 0]
+  date DateTime [not null, default: `now()`]
+}
+
+Table lieferspatz_revenue {
+  revenue_id Integer [pk, increment]
+  total_revenue Float [not null, default: 0.0]
+}
+
+Table favorites {
+  user_id Integer [ref: > users.user_id, pk]
+  restaurant_id Integer [ref: > restaurants.restaurant_id, pk]
+}
+
+Table opening_hours {
+  id Integer [pk, increment]
+  day_of_week Integer [not null]
+  open_time Time [not null]
+  close_time Time [not null]
+  restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
+}
