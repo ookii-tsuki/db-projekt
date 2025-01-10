@@ -166,7 +166,7 @@ class OpeningHour(db.Model):
     __tablename__ = 'opening_hours'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    day_of_week = db.Column(db.String(10), nullable=False)  # e.g., 'Monday'
+    day_of_week = db.Column(db.Integer, nullable=False, default=0)  # 0: 'Monday' - 6: 'Sunday'
     open_time = db.Column(db.Time, nullable=False)
     close_time = db.Column(db.Time, nullable=False)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)

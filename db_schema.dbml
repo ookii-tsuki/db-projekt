@@ -78,7 +78,7 @@ Table favorites {
 
 Table opening_hours {
   id Integer [pk, increment]
-  day_of_week String [not null]
+  day_of_week Integer [not null]
   open_time Time [not null]
   close_time Time [not null]
   restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
