@@ -1,7 +1,8 @@
+from datetime import datetime
 from flask import jsonify, render_template, Blueprint, request, session
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import User, Restaurant
+from app.models import User, Restaurant, OpeningHour
 from app import db
 
 # Import the blueprint
@@ -194,17 +195,22 @@ def api_restaurant_register():
         zip_code = data.get("zip")
         description = data.get("description")
         banner = data.get("banner")
+        opening_hours = data.get("opening_hours")
+        cuisine = data.get("cuisine")
 
-        required_fields = [name, email, password, address, city, zip_code]
+        required_fields = [name, email, password, address, city, zip_code, opening_hours]
 
         # Check if any of the required fields are empty
         if not all(required_fields):
             raise BadRequest("Not all required fields are filled.")
+        
+        if not isinstance(opening_hours, list) or len(opening_hours) == 0 or not all(isinstance(oh, dict) for oh in opening_hours):
+            raise BadRequest("Opening hours must be a non-empty list.")
             
         restaurant_exists = Restaurant.query.filter_by(email=email).first()
 
         # Check if the restaurant already exists
-        if restaurant_exists:
+        if (restaurant_exists):
             return jsonify({"message": "Restaurant already exists."}), 409
         
         new_restaurant = Restaurant(
@@ -215,17 +221,28 @@ def api_restaurant_register():
             city=city,
             zip_code=zip_code,
             description=description,
-            wallet=100.00,
-            banner=banner
+            wallet=0.00,
+            banner=banner,
+            cuisine=cuisine
         )
         # Add the restaurant to the database
-
         db.session.add(new_restaurant)
+        db.session.commit()
+
+        # Add opening hours to the database
+        for oh in opening_hours:
+            new_opening_hour = OpeningHour(
+                day_of_week=oh.get("day_of_week"),
+                open_time=datetime.strptime(oh.get("open_time"), "%H:%M").time(),
+                close_time=datetime.strptime(oh.get("close_time"), "%H:%M").time(),
+                restaurant_id=new_restaurant.restaurant_id
+            )
+            db.session.add(new_opening_hour)
+
         db.session.commit()
 
         # Restaurant does not exist, create the restaurant
         return jsonify({"message": "Restaurant successfully registered."}), 201
-
 
     except BadRequest as e:
         print(e)
@@ -294,6 +311,15 @@ def api_restaurant_profile():
         
         restaurant = Restaurant.query.get(restaurant_logged_in)
         
+        opening_hours = restaurant.opening_hours
+        opening_hours_data = [
+            {
+                "day_of_week": oh.day_of_week,
+                "open_time": oh.open_time.strftime("%H:%M"),
+                "close_time": oh.close_time.strftime("%H:%M")
+            } for oh in opening_hours
+        ]
+        
         restaurant_data = {
           "restaurant_id": restaurant.restaurant_id,
           "name": restaurant.name,
@@ -304,6 +330,8 @@ def api_restaurant_profile():
           "description": restaurant.description,
           "wallet": restaurant.wallet,
           "banner": restaurant.banner,
+          "opening_hours": opening_hours_data,
+          "cuisine": restaurant.cuisine
         }
 
         return jsonify(restaurant_data), 200
