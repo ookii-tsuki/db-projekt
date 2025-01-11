@@ -295,14 +295,21 @@
 </head>
 <body>
     <!-- zurück-Knopf auf der Detailseite um zur Hauptseite zurückzukehren -->
-    <a href="LS Hauptseite.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+    <a id="back-button" href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
+
+    <script>
+        document.getElementById('back-button').addEventListener('click', function(event) {
+            event.preventDefault();
+            window.location.href = '/search.html';
+        });
+    </script>
 
     <!-- Header Container -->
     <div class="header">
         <!-- Container für Logo und Profil -->
         <div class="logo-profile">
             <!-- Bild oben links -->
-            <img src="LS Logo.jpg" alt="Photo" class="photo" id="logo">
+            <img id="logo" src="{{ url_for('static', filename='images/LS_Logo.jpg') }}" alt="Photo" class="photo">
             <!-- Profil -->
             <button class="button icon-button" id="profile-button"><i class="fas fa-user"></i></button>
         </div>
@@ -329,7 +336,7 @@
 
     <!-- Vergangene Bestellungen container -->
     <div class="past-orders" id="past-orders">
-        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+        <button class="back-button" id="past-orders-back-button"><i class="fas fa-arrow-left"></i></button>
     </div>
 
     <!-- Main Inhalt Container -->
@@ -431,7 +438,7 @@
                 location.reload();
             });
 
-            document.getElementById('back-button').addEventListener('click', function() {
+            document.getElementById('past-orders-back-button').addEventListener('click', function() {
                 var pastOrders = document.getElementById('past-orders');
                 pastOrders.style.display = 'none';
             });
@@ -457,16 +464,11 @@
                     guthabenButton.id = 'guthaben-button';
                     guthabenButton.innerText = 'Guthaben';
                     profileButton.parentNode.appendChild(guthabenButton);
-
-                    // für die Guthabenseite
-                    guthabenButton.addEventListener('click', function() {
-                        window.location.href = 'Guthaben.html';
-                    });
                 }
             });
 
             document.getElementById('logo').addEventListener('click', function() {
-                window.location.href = 'LS Hauptseite.html';
+                window.location.href = '/search.html';
             });
         </script>
     </div>
