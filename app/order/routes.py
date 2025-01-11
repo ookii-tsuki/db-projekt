@@ -24,9 +24,9 @@ def checkout():
 
 # Create a route for the order history page
 # The route will return the order_history.html template
-@order_bp.route("/order_history")
+@order_bp.route("/past_orders")
 def order_history():
-    return render_template("history.html")
+    return render_template("past_orders.html")
 
 
 
