@@ -1,5 +1,6 @@
 from flask import render_template, Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, NotFound
+from app.models import MenuItem
 
 # Import the blueprint
 from app.restaurant import restaurant_bp
@@ -48,30 +49,32 @@ def order_history():
 @restaurant_bp.route("/api/restaurant/items", methods=["GET"])
 def api_menu():
     try:
+        # Menü-Items aus der Datenbank abrufen
+        menu_items = MenuItem.query.all()
 
-        # Dummy data
-        menu = [
-          {
-            "item_id": "1090",
-            "name": "Shoyu Ramen",
-            "price": 14.99,
-            "description": "A soy sauce-based noodle soup with a clear brown broth, thin wheat noodles, and toppings like green onions, bamboo shoots, boiled egg, and fish cake.",
-            "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
-          }
-        ]
-
-        if len(menu) == 0:
+        # Wenn keine Menü-Items gefunden wurden
+        if not menu_items:
             raise NotFound(description="Menu is empty.")
 
-        return jsonify(menu), 200
-    
-    except NotFound as e:
-        print(e)
-        return jsonify({"message": e.description}), 404
+        # JSON-Antwort formatieren
+        menu = [
+            {
+                "item_id": item.item_id,
+                "name": item.name,
+                "price": item.price,
+                "description": item.description,
+                "image": item.image,
+            }
+            for item in menu_items
+        ]
 
+        return jsonify(menu), 200
+
+    except NotFound as e:
+        return jsonify({"message": e.description}), 404
     except Exception as e:
-        print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
+
     
 
 
@@ -80,18 +83,33 @@ def api_menu():
 @restaurant_bp.route("/api/restaurant/add_item", methods=["POST"])
 def api_add_item():
     try:
+        # JSON-Daten aus der Anfrage abrufen
         data = request.get_json()
 
+        # Benötigte Felder aus den Daten extrahieren
         name = data.get("name")
         price = data.get("price")
         description = data.get("description")
         image = data.get("image")
 
+        # Überprüfen, ob die erforderlichen Felder vorhanden sind
         required_fields = [name, price]
-
         if not all(required_fields):
             raise BadRequest("Missing required fields.")
 
+        # Neues Menü-Item erstellen
+        new_item = MenuItem(
+            name=name,
+            price=price,
+            description=description,
+            image=image
+        )
+
+        # Das Menü-Item zur Datenbank hinzufügen und speichern
+        db.session.add(new_item)
+        db.session.commit()
+
+        # Erfolgsmeldung zurückgeben
         return jsonify({"message": "Item successfully added to the menu."}), 201
     
     except BadRequest as e:
@@ -100,31 +118,41 @@ def api_add_item():
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
-    
-
+        return jsonify({"message": "An error occurred."}), 500
 
 # A route for the restaurant update item API
 # Updates an existing item in the restaurant menu
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["PUT"])
 def api_update_item(item_id):
     try:
-        item_exists = True
+        # Prüfen, ob das Item existiert
+        item = MenuItem.query.get(item_id)
 
-        if not item_exists or not item_id:
+        if not item:
             raise NotFound("Item not found.")
         
+        # JSON-Daten vom Client abrufen
         data = request.get_json()
 
+        # Neue Werte aus den Eingaben abrufen
         name = data.get("name")
         price = data.get("price")
         description = data.get("description")
         image = data.get("image")
 
+        # Überprüfen, ob die erforderlichen Felder vorhanden sind
         required_fields = [name, price]
-
         if not all(required_fields):
             raise BadRequest("Missing required fields.")
+
+        # Das bestehende Menü-Item aktualisieren
+        item.name = name
+        item.price = price
+        item.description = description
+        item.image = image
+
+        # Änderungen in der Datenbank speichern
+        db.session.commit()
 
         return jsonify({"message": "Item successfully updated."}), 200
     
@@ -138,19 +166,23 @@ def api_update_item(item_id):
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
-    
-
+        return jsonify({"message": "An error occurred."}), 500
 
 # A route for the restaurant delete item API
 # Deletes an existing item from the restaurant menu
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["DELETE"])
 def api_delete_item(item_id):
     try:
-        item_exists = True
+        # Suche das Menü-Item in der Datenbank basierend auf item_id
+        menu_item = MenuItem.query.get(item_id)
 
-        if not item_exists or not item_id:
+        # Wenn das Menü-Item nicht existiert, löse eine NotFound-Exception aus
+        if not menu_item:
             raise NotFound("Item not found.")
+
+        # Menü-Item löschen
+        db.session.delete(menu_item)
+        db.session.commit()
 
         return jsonify({"message": "Item successfully deleted."}), 200
     
@@ -160,7 +192,7 @@ def api_delete_item(item_id):
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
     
 
 
@@ -169,43 +201,46 @@ def api_delete_item(item_id):
 @restaurant_bp.route("/api/restaurant/orders/status", methods=["GET"])
 def api_orders_status():
     try:
+        # Suche aktive Bestellungen in der Datenbank (Status: 0)
+        orders = Order.query.filter_by(status=0).all()
 
-        # Dummy data
-        orders = [
-          {
-            "order_id": "1000",
-            "user_id": "1000",
-            "name": "Doge Mustermann",
-            "address": "Doge Street 23",
-            "city": "Doge City",
-            "zip": "12345",
-            "items": [
-              {
-                "item_id": "1000",
-                "name": "Cheese Pizza",
-                "price": 10.99,
-                "quantity": 2,
-                "notes": "Extra cheese."
-              }
-            ],
-            "total": 21.98,
-            "status": 0,
-            "date": 1734600213
-          }
-        ]
-
-        if len(orders) == 0:
+        # Wenn keine aktiven Bestellungen gefunden wurden, löse eine NotFound-Exception aus
+        if not orders:
             raise NotFound(description="No active orders.")
 
-        return jsonify(orders), 200
-    
+        # Formatiere die Antwort als JSON
+        orders_data = []
+        for order in orders:
+            orders_data.append({
+                "order_id": order.order_id,
+                "user_id": order.user_id,
+                "name": f"{order.user.first_name} {order.user.last_name}",
+                "address": order.user.address,
+                "city": order.user.city,
+                "zip": order.user.zip_code,
+                "items": [
+                    {
+                        "item_id": item.menu_item.item_id,
+                        "name": item.menu_item.name,
+                        "price": item.menu_item.price,
+                        "quantity": item.quantity,
+                        "notes": item.notes,
+                    } for item in order.order_items
+                ],
+                "total": order.total,
+                "status": order.status,
+                "date": order.date.timestamp()  # Unix-Timestamp
+            })
+
+        return jsonify(orders_data), 200
+
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
     
 
 # A route for the update order status API
@@ -213,17 +248,22 @@ def api_orders_status():
 @restaurant_bp.route("/api/restaurant/orders/order/<order_id>", methods=["PUT"])
 def api_update_order_status(order_id):
     try:
-        order_exists = True
+        # Überprüfen, ob die Bestellung existiert
+        order = Order.query.get(order_id)
 
-        if not order_exists or not order_id:
+        if not order:
             raise NotFound("Order not found.")
         
+        # JSON-Daten aus der Anfrage abrufen
         data = request.get_json()
-
         status = data.get("status")
 
-        if not status:
+        if status is None:  # Sicherstellen, dass ein Status übergeben wurde
             raise BadRequest("Missing required fields.")
+
+        # Status aktualisieren
+        order.status = status
+        db.session.commit()
 
         return jsonify({"message": "Order status successfully updated."}), 200
     
@@ -237,51 +277,52 @@ def api_update_order_status(order_id):
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
-    
-
+        return jsonify({"message": "An error occurred."}), 500
 
 # A route for the restaurant order history API
 # Returns the restaurant's order history
 @restaurant_bp.route("/api/restaurant/orders/history", methods=["GET"])
 def api_order_history():
     try:
+        # Bestellhistorie aus der Datenbank abrufen
+        orders = Order.query.all()
 
-        # Dummy data
-        orders = [
-          {
-            "order_id": "1000",
-            "user_id": "1000",
-            "name": "Doge Mustermann",
-            "address": "Doge Street 23",
-            "city": "Doge City",
-            "zip": "12345",
-            "items": [
-              {
-                "item_id": "1000",
-                "name": "Cheese Pizza",
-                "price": 10.99,
-                "quantity": 2,
-                "notes": "Extra cheese."
-              }
-            ],
-            "total": 21.98,
-            "status": 3,
-            "date": 1734600213
-          }
-        ]
-        if len(orders) == 0:
+        if not orders:
             raise NotFound(description="No order history.")
 
-        return jsonify(orders), 200
-    
+        # JSON-Antwort formatieren
+        order_history = [
+            {
+                "order_id": order.order_id,
+                "user_id": order.user_id,
+                "restaurant_id": order.restaurant_id,
+                "total": order.total,
+                "status": order.status,
+                "date": order.date,
+                "items": [
+                    {
+                        "item_id": item.item_id,
+                        "name": item.menu_item.name,
+                        "price": item.menu_item.price,
+                        "quantity": item.quantity,
+                        "notes": item.notes,
+                    }
+                    for item in order.order_items
+                ],
+            }
+            for order in orders
+        ]
+
+        return jsonify(order_history), 200
+
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
+
     
 
 
@@ -290,16 +331,24 @@ def api_order_history():
 @restaurant_bp.route("/api/restaurant/stats", methods=["GET"])
 def api_stats():
     try:
+        # Gesamtzahl der Bestellungen berechnen
+        total_orders = Order.query.count()
 
-        # Dummy data
+        # Gesamtumsatz berechnen
+        total_revenue = db.session.query(db.func.sum(Order.total)).scalar() or 0.0
+
+        # Durchschnittliche Bewertung berechnen
+        average_rating = db.session.query(db.func.avg(Restaurant.rating)).scalar() or 0.0
+
+        # JSON-Antwort formatieren
         stats = {
-          "total_orders": 100,
-          "total_revenue": 10000.00,
-          "average_rating": 4.5
+            "total_orders": total_orders,
+            "total_revenue": float(total_revenue),
+            "average_rating": round(float(average_rating), 2),
         }
 
         return jsonify(stats), 200
-    
+
     except Exception as e:
         print(e)
-        return jsonify({"message": "An error occured."}), 500
+        return jsonify({"message": "An error occurred."}), 500
