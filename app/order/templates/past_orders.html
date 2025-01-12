@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <!-- Basic metadata -->
     <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- für mobiles rendering -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LS Bestellhistorie</title> <!-- Text der auf dem Tab im Browser steht -->
 
     <!-- Font Awesome für die Icons -->
     <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
 
-    <!-- CSS Referenz -->
+    <!-- CSS Referenz: past_orders.css -->
     <link href="{{ url_for('static', filename='css/order/past_orders.css') }}" rel="stylesheet">
 
 </head>
@@ -69,7 +68,7 @@
         <!-- Container für die Buttons -->
         <div class="buttonsarea">
         
-        <!-- Referenz zum JS -->
+        <!-- Referenz zum JS: past_orders.js -->
         <script src="{{ url_for('static', filename='js/order/past_orders.js') }}"></script>
 
     </div>

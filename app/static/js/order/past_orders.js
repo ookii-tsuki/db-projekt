@@ -1,35 +1,20 @@
-// JSON Daten
-    const jsonData = [
-        {
-            "order_id": "1000",
-            "restaurant_id": "1999",
-            "name": "Doge's Pizza",
-            "address": "Doge Street 24",
-            "city": "Doge City",
-            "zip": "12345",
-            "items": [
-                {
-                    "item_id": "1000",
-                    "name": "Cheese Pizza",
-                    "price": 10.99,
-                    "quantity": 2,
-                    "notes": "Extra cheese."
-                }
-            ],
-            "total": 21.98,
-            "status": 0,
-            "date": 1734600213
-        }
-    ];
+document.addEventListener("DOMContentLoaded", () => {
+    const mainArea = document.querySelector('.mainarea');
 
-    // Funktion für vergangene Bestellungen
+    // Funktion zum Anzeigen von einer Fehlermeldung
+    function displayErrorMessage(message) {
+        mainArea.innerHTML = ''; // Vorherige Inhalte löschen
+        const errorMessage = document.createElement('div');
+        errorMessage.classList.add('order-item');
+        errorMessage.innerHTML = `<p>${message}</p>`;
+        mainArea.appendChild(errorMessage);
+    }
+
+    // Funktion zum Anzeigen vergangener Bestellungen anzuzeigen
     function displayPastOrders(data) {
-        const mainArea = document.querySelector('.mainarea');
+        mainArea.innerHTML = ''; // Vorherige Inhalte löschen
         if (data.length === 0) {
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('order-item');
-            errorMessage.innerHTML = `<p>No order history found.</p>`;
-            mainArea.appendChild(errorMessage);
+            displayErrorMessage("keine vergangenen Bestellungen gefunden.");
         } else {
             data.forEach(order => {
                 const orderItemDiv = document.createElement('div');
@@ -38,7 +23,7 @@
                     <div class="order-header">
                         <p>Date: ${new Date(order.date * 1000).toLocaleString()}</p>
                         <p>Order ID: ${order.order_id}</p>
-                        <p>Status: ${order.status}</p>
+                        <p>Status: ${getStatusText(order.status)}</p>
                     </div>
                     <hr>
                     <div class="order-details">
@@ -52,7 +37,7 @@
                             </ul>
                         </div>
                         <div class="right">
-                            <p>Total: $${order.total}</p>
+                            <p>Total: $${order.total.toFixed(2)}</p>
                         </div>
                     </div>
                 `;
@@ -61,51 +46,82 @@
         }
     }
 
-    displayPastOrders(jsonData);
+    // Logik, um die Zahlen in Text umzuwandeln
+    function getStatusText(status) {
+        const statusMap = {
+            0: "ausstehend",
+            1: "in Zubereitung",
+            2: "in Zustellung",
+            3: "geliefert",
+            4: "storniert"
+        };
+        return statusMap[status] || "unbekannt";
+    }
 
-    document.getElementById('bell-button').addEventListener('click', function() {
-        var notifications = document.getElementById('notifications');
-        if (notifications.style.display === 'none' || notifications.style.display === '') {
-            notifications.style.display = 'block';
-        } else {
-            notifications.style.display = 'none';
+    // Funktion zum Abrufen vergangener Bestellungen vom Server
+    async function fetchPastOrders() {
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            displayErrorMessage("Du musst angemeldet sein, um deine vergangenen Bestellungen einsehen zu können.");
+            return;
         }
-    });
 
-    document.getElementById('more-button').addEventListener('click', function() {
-        var moreButtons = document.getElementById('more-buttons');
-        if (moreButtons.style.display === 'none' || moreButtons.style.display === '') {
-            moreButtons.style.display = 'flex';
-        } else {
-            moreButtons.style.display = 'none';
-        }
-    });
+        try {
+            const response = await fetch('/api/order/history', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
-    document.getElementById('past-orders-button').addEventListener('click', function() {
-        location.reload();
-    });
+            if (!response.ok) {
+                if (response.status === 404) {
+                    displayErrorMessage("keine Bestellhistorie gefunden.");
+                } else if (response.status === 401 || response.status === 403) {
+                    displayErrorMessage("Unauthorisiert, bitte melden Sie sich erneut an.");
+                } else {
+                    throw new Error(`unerwarteter Fehler: ${response.status}`);
+                }
+                return;
+            }
 
-    document.getElementById('past-orders-back-button').addEventListener('click', function() {
-        var pastOrders = document.getElementById('past-orders');
-        pastOrders.style.display = 'none';
-    });
-
-    function toggleDetails(detailsId) {
-        var details = document.getElementById(detailsId);
-        if (details.style.display === 'none' || details.style.display === '') {
-            details.style.display = 'block';
-        } else {
-            details.style.display = 'none';
+            const data = await response.json();
+            displayPastOrders(data);
+        } catch (error) {
+            console.error("Fehler beim Abrufen vergangener Bestellungen.", error);
+            displayErrorMessage("Abruf vergangener Bestellungen fehlgeschlagen. Bitte versuchen Sie es später erneut.");
         }
     }
 
-    // Profilbutton soll den Guthabenknopf auslösen
-    document.getElementById('profile-button').addEventListener('click', function() {
-        var guthabenButton = document.getElementById('guthaben-button');
+    // Bestellungen abrufen, wenn die Seite geladen wird
+    fetchPastOrders();
+
+    document.getElementById('bell-button').addEventListener('click', function () {
+        const notifications = document.getElementById('notifications');
+        notifications.style.display = notifications.style.display === 'none' || notifications.style.display === '' ? 'block' : 'none';
+    });
+
+    document.getElementById('more-button').addEventListener('click', function () {
+        const moreButtons = document.getElementById('more-buttons');
+        moreButtons.style.display = moreButtons.style.display === 'none' || moreButtons.style.display === '' ? 'flex' : 'none';
+    });
+
+    document.getElementById('past-orders-button').addEventListener('click', function () {
+        location.reload();
+    });
+
+    document.getElementById('past-orders-back-button').addEventListener('click', function () {
+        const pastOrders = document.getElementById('past-orders');
+        pastOrders.style.display = 'none';
+    });
+
+    document.getElementById('profile-button').addEventListener('click', function () {
+        let guthabenButton = document.getElementById('guthaben-button');
         if (guthabenButton) {
             guthabenButton.remove();
         } else {
-            var profileButton = document.getElementById('profile-button');
+            const profileButton = document.getElementById('profile-button');
             guthabenButton = document.createElement('button');
             guthabenButton.classList.add('guthaben-button');
             guthabenButton.id = 'guthaben-button';
@@ -114,6 +130,7 @@
         }
     });
 
-    document.getElementById('logo').addEventListener('click', function() {
+    document.getElementById('logo').addEventListener('click', function () {
         window.location.href = '/search.html';
     });
+});
