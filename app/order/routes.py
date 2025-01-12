@@ -103,14 +103,20 @@ def api_add_cart():
             db.session.add(cart)
             db.session.flush()  # Ensure cart_id is generated
 
-        order_item = OrderItem(
-            cart_id=cart.cart_id,
-            item_id=item_id,
-            restaurant_id=menu_item.restaurant_id,
-            quantity=quantity,
-            notes=notes
-        )
-        db.session.add(order_item)
+        order_item = OrderItem.query.filter_by(cart_id=cart.cart_id, item_id=item_id).first()
+        if order_item:
+            order_item.quantity = quantity
+            order_item.notes = notes
+        else:
+            order_item = OrderItem(
+                cart_id=cart.cart_id,
+                item_id=item_id,
+                restaurant_id=menu_item.restaurant_id,
+                quantity=quantity,
+                notes=notes
+            )
+            db.session.add(order_item)
+        
         db.session.commit()
 
         return jsonify({"message": "Item added to cart."}), 201
@@ -182,12 +188,28 @@ def api_checkout():
         if not cart or not cart.cart_items:
             raise NotFound("Cart is empty.")
 
+        user = User.query.get(user_id)
+        if not user:
+            raise NotFound("User not found.")
+
         # Group cart items by restaurant_id
         cart_items_by_restaurant = {}
         for item in cart.cart_items:
             if item.restaurant_id not in cart_items_by_restaurant:
                 cart_items_by_restaurant[item.restaurant_id] = []
             cart_items_by_restaurant[item.restaurant_id].append(item)
+
+        # Calculate total amount for all orders
+        total_amount = sum(
+            item.menu_item.price * item.quantity for items in cart_items_by_restaurant.values() for item in items
+        )
+
+        # Check if user has sufficient funds
+        if user.wallet < total_amount:
+            return jsonify({"message": "Insufficient funds."}), 402
+
+        # Deduct the total amount from user's wallet
+        user.wallet -= total_amount
 
         # Create an order for each restaurant
         for restaurant_id, items in cart_items_by_restaurant.items():
