@@ -112,8 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('past-orders-back-button').addEventListener('click', function () {
-        const pastOrders = document.getElementById('past-orders');
-        pastOrders.style.display = 'none';
+        window.location.href = '/search';
     });
 
     document.getElementById('profile-button').addEventListener('click', function () {
@@ -131,6 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('logo').addEventListener('click', function () {
-        window.location.href = '/search.html';
+        window.location.href = '/search';
     });
 });
