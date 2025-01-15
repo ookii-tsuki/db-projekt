@@ -60,18 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Funktion zum Abrufen vergangener Bestellungen vom Server
     async function fetchPastOrders() {
-        const token = localStorage.getItem('authToken');
-
-        if (!token) {
-            displayErrorMessage("Du musst angemeldet sein, um deine vergangenen Bestellungen einsehen zu können.");
-            return;
-        }
-
         try {
             const response = await fetch('/api/order/history', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json',
                 }
             });
 
@@ -79,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.status === 404) {
                     displayErrorMessage("keine Bestellhistorie gefunden.");
                 } else if (response.status === 401 || response.status === 403) {
-                    displayErrorMessage("Unauthorisiert, bitte melden Sie sich erneut an.");
+                    displayErrorMessage("Sie sind nicht authorisiert, bitte melden Sie sich erneut an.");
                 } else {
                     throw new Error(`unerwarteter Fehler: ${response.status}`);
                 }
