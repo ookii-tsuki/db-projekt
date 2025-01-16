@@ -7,6 +7,10 @@
         }
     });
 
+    document.getElementById('cart-button').addEventListener('click', function() {
+        window.location.href = '/cart';
+    });
+
     document.getElementById('more-button').addEventListener('click', function() {
         var moreButtons = document.getElementById('more-buttons');
         if (moreButtons.style.display === 'none' || moreButtons.style.display === '') {
