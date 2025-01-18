@@ -54,14 +54,11 @@ def api_menu():
         ]
         return jsonify(menu), 200
 
-    except BadRequest as e:
-        print("BadRequest Error:", e)
-        return jsonify({"message": e.description}), 400
+    except Unauthorized as e:
+        return jsonify({"message": str(e)}), 401
     except NotFound as e:
-        print("NotFound Error:", e)
-        return jsonify({"message": e.description}), 404
+        return jsonify({"message": "No items found."}), 404
     except Exception as e:
-        print("General Error:", e)
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
     
@@ -69,6 +66,7 @@ def api_menu():
 @restaurant_bp.route("/api/restaurant/add_item", methods=["POST"])
 def api_add_item():
     try:
+       
         # Aktuelles Restaurant aus der Session abrufen
         restaurant_id = session.get("restaurant_id")
         if not restaurant_id:
@@ -88,13 +86,12 @@ def api_add_item():
         if not all(required_fields):
             raise BadRequest("Missing required fields.")
 
-        # Neues Menü-Item erstellen, inklusive restaurant_id
+        # Neues Menü-Item erstellen
         new_item = MenuItem(
             name=name,
             price=price,
             description=description,
-            image=image,
-            restaurant_id=restaurant_id  # Restaurant-Zuordnung hinzufügen
+            image=image
         )
 
         # Das Menü-Item zur Datenbank hinzufügen und speichern
@@ -105,11 +102,13 @@ def api_add_item():
         return jsonify({"message": "Item successfully added to the menu."}), 201
 
     except BadRequest as e:
-        print(e)
-        return jsonify({"message": e.description}), 400
+        return jsonify({"message": "Invalid request body."}), 400
+
+    except NotFound as e:
+        return jsonify({"message": "Restaurant not found."}), 404
 
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
 
 # API-Route für das Aktualisieren eines Menü-Items
@@ -134,17 +133,18 @@ def api_update_item(item_id):
         item.description = description
         item.image = image
 
-        db.session.commit()
         return jsonify({"message": "Item successfully updated."}), 200
 
-    except NotFound as e:
-        return jsonify({"message": e.description}), 404
     except BadRequest as e:
-        return jsonify({"message": e.description}), 400
+        return jsonify({"message": "Invalid request body."}), 400
+
+    except NotFound as e:
+        return jsonify({"message": "Item not found."}), 404
+
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
-
+    
 # API-Route für das Löschen eines Menü-Items
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["DELETE"])
 def api_delete_item(item_id):
@@ -158,7 +158,8 @@ def api_delete_item(item_id):
         return jsonify({"message": "Item successfully deleted."}), 200
 
     except NotFound as e:
-        return jsonify({"message": e.description}), 404
+        return jsonify({"message": "Item not found."}), 404
+
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
@@ -183,31 +184,35 @@ def api_orders_status():
             {
                 "order_id": order.order_id,
                 "user_id": order.user_id,
-                "user_email": order.user.email if order.user else None,
-                "user_first_name": order.user.first_name if order.user else None,
-                "user_last_name": order.user.last_name if order.user else None,
-                "user_address": order.user.address if order.user else None,
-                "user_city": order.user.city if order.user else None,
-                "user_zip_code": order.user.zip_code if order.user else None,
-                "status": order.status,
+                "name": f"{order.user.first_name} {order.user.last_name}" if order.user else None,
+                "address": order.user.address if order.user else None,
+                "city": order.user.city if order.user else None,
+                "zip": order.user.zip_code if order.user else None,
+                "items": [
+                    {
+                        "item_id": item.menu_item.item_id,
+                        "name": item.menu_item.name,
+                        "price": item.menu_item.price,
+                        "quantity": item.quantity,
+                        "notes": item.notes if hasattr(item, 'notes') else None
+                    }
+                    for item in order.order_items
+                ],
                 "total": order.total,
+                "status": order.status,
+                "date": int(order.date.timestamp()) if order.date else None
             }
             for order in orders
         ]
         return jsonify(orders_data), 200
 
     except BadRequest as e:
-        print("BadRequest Error:", e)  # Debugging
-        return jsonify({"message": e.description}), 400
+        return jsonify({"message": "Invalid request body."}), 400
     except Unauthorized as e:
-        print("Unauthorized Error:", e)  # Debugging
-        return jsonify({"message": e.description}), 401
+        return jsonify({"message": "No restaurant is logged in."}), 401
     except NotFound as e:
-        print("NotFound Error:", e)  # Debugging
-        return jsonify({"message": e.description}), 404
+        return jsonify({"message": "Order not found."}), 404
     except Exception as e:
-        print("General Error:", e)  # Debugging
-        print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
     
 # API-Route für das Aktualisieren des Bestellstatus
@@ -271,10 +276,10 @@ def api_stats():
         return jsonify(stats), 200
 
     except BadRequest as e:
-        print("BadRequest Error:", e)
-        return jsonify({"message": e.description}), 400
+        return jsonify({"message": "Invalid request body."}), 400
+    except NotFound as e:
+        return jsonify({"message": "No statistics found."}), 404
     except Exception as e:
-        print("General Error:", e)
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
     
@@ -316,11 +321,8 @@ def api_order_history():
         return jsonify(order_history), 200
 
     except BadRequest as e:
-        print("BadRequest Error:", e)
-        return jsonify({"message": e.description}), 400
+        return jsonify({"message": "Invalid request body."}), 400
     except NotFound as e:
-        print("NotFound Error:", e)
-        return jsonify({"message": e.description}), 404
+        return jsonify({"message": "No order history found."}), 404
     except Exception as e:
-        print("General Error:", e)
         return jsonify({"message": "An error occurred."}), 500
