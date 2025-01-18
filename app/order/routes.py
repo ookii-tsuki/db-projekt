@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, request, session, jsonify
 from werkzeug.exceptions import BadRequest, NotFound
-from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem
+from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem, LieferspatzRevenue
 from datetime import datetime
 # Import the blueprint
 from app.order import order_bp
@@ -220,6 +220,20 @@ def api_checkout():
                 total=total,
                 status=0
             )
+            # add 85% revenue to restaurant wallet
+            restaurant = Restaurant.query.get(restaurant_id)
+            restaurant.wallet += total * 0.85
+
+            # add 15% revenue to the platform wallet
+            platform = LieferspatzRevenue.query.get(1)
+
+            if not platform:
+                platform = LieferspatzRevenue(total_revenue=0)
+                db.session.add(platform)
+                db.session.flush()
+
+            platform.total_revenue += total * 0.15
+
             db.session.add(order)
             db.session.flush()  # Ensure order_id is generated
 

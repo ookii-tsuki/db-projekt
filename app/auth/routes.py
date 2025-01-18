@@ -145,6 +145,17 @@ def api_user_login():
         return jsonify({"message": "An error occured."}), 500
     
 
+# A route for the user logout API
+# logs out the user
+@auth_bp.route("/api/auth/user/logout", methods=["POST"])
+def api_user_logout():
+    try:
+        session.pop("user_id", None)
+        return jsonify({"message": "User successfully logged out."}), 200
+    
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occured."}), 500
 
 # A route for getting the user profile
 # returns the user profile
@@ -292,6 +303,19 @@ def api_restaurant_login():
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
+    
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "An error occured."}), 500
+    
+
+# A route for the restaurant logout API
+# logs out the restaurant
+@auth_bp.route("/api/auth/restaurant/logout", methods=["POST"])
+def api_restaurant_logout():
+    try:
+        session.pop("restaurant_id", None)
+        return jsonify({"message": "Restaurant successfully logged out."}), 200
     
     except Exception as e:
         print(e)
