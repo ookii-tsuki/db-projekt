@@ -102,27 +102,45 @@ def api_search():
         )
         
         restaurants = restaurants_query.all()
-        if not restaurants:
-            raise NotFound("No restaurants found.")
 
-        # Build results
-        results = []
+        if not restaurants:
+            raise NotFound("No restaurants found nearby.")
+        
+        # Sort by distance (ascending), favorites first, rating (descending), newer restaurants first
+        sorted_restaurants = []
         for r in restaurants:
+            dist = next(z[1] for z in nearby_zips if z[0] == r.zip_code)
             is_fav = r in user.favorites
-            delivery_min_time, delivery_max_time = estimate_delivery_time_range(next(z[1] for z in nearby_zips if z[0] == r.zip_code))
+            sorted_restaurants.append((r, dist, is_fav))
+        
+        sorted_restaurants.sort(
+            key=lambda x: (
+                x[1],                # distance ascending
+                not x[2],            # favorites first
+                -x[0].rating,        # rating descending
+                -x[0].restaurant_id  # newer (higher ID) first
+            )
+        )
+                
+        results = []
+        for r in sorted_restaurants:
+            is_fav = r[2]
+            delivery_min_time, delivery_max_time = estimate_delivery_time_range(r[1])
+            restaurant = r[0]
+
             results.append({
-                "restaurant_id": r.restaurant_id,
-                "name": r.name,
-                "address": r.address,
-                "city": r.city,
-                "zip": r.zip_code,
-                "description": r.description,
-                "rating": r.rating,
+                "restaurant_id": restaurant.restaurant_id,
+                "name": restaurant.name,
+                "address": restaurant.address,
+                "city": restaurant.city,
+                "zip": restaurant.zip_code,
+                "description": restaurant.description,
+                "rating": restaurant.rating,
                 "approx_delivery_time": f"{delivery_min_time}-{delivery_max_time} Min.",
                 "is_favorite": is_fav,
-                "banner": r.banner,
+                "banner": restaurant.banner,
             })
-
+        
         return jsonify(results), 200
     
     except NotFound as e:
