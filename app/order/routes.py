@@ -1,5 +1,5 @@
 from flask import render_template, Blueprint, request, session, jsonify
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem, LieferspatzRevenue
 from datetime import datetime
 # Import the blueprint
@@ -43,7 +43,7 @@ def api_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         cart = Cart.query.filter_by(user_id=user_id).first()
 
@@ -66,6 +66,10 @@ def api_cart():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -83,7 +87,7 @@ def api_add_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         data = request.get_json()
         item_id = data.get("item_id")
@@ -125,6 +129,10 @@ def api_add_cart():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -141,7 +149,7 @@ def api_remove_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         data = request.get_json()
         item_id = data.get("item_id")
@@ -166,6 +174,10 @@ def api_remove_cart():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -181,7 +193,7 @@ def api_checkout():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         cart = Cart.query.filter_by(user_id=user_id).first()
 
@@ -254,6 +266,10 @@ def api_checkout():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -272,7 +288,7 @@ def api_order_history():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         orders = Order.query.filter_by(user_id=user_id).all()
 
@@ -309,6 +325,10 @@ def api_order_history():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -326,7 +346,7 @@ def api_order_status():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         # Fetch orders with status not equal to 3 (delivered) or 4 (rejected)
         orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])).all()
@@ -363,6 +383,10 @@ def api_order_status():
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
+    
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
     
     except BadRequest as e:
         print(e)
