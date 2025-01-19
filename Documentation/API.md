@@ -557,6 +557,13 @@ Returns the user's cart.
   }
   ```
 
+* `402 Payment required`
+  ```json
+  {
+    "message": "Insufficient funds."
+  }
+  ```
+
 * `404 Not found`
   ```json
   {

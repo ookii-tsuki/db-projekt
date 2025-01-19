@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, request, session, jsonify
-from werkzeug.exceptions import BadRequest, NotFound
-from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem
+from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
+from app.models import db, Cart, MenuItem, Restaurant, User, Order, OrderItem, LieferspatzRevenue
 from datetime import datetime
 # Import the blueprint
 from app.order import order_bp
@@ -24,9 +24,9 @@ def checkout():
 
 # Create a route for the order history page
 # The route will return the order_history.html template
-@order_bp.route("/past_orders")
+@order_bp.route("/order-history")
 def order_history():
-    return render_template("past_orders.html")
+    return render_template("order_history.html")
 
 
 
@@ -43,7 +43,7 @@ def api_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         cart = Cart.query.filter_by(user_id=user_id).first()
 
@@ -66,6 +66,10 @@ def api_cart():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -83,7 +87,7 @@ def api_add_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         data = request.get_json()
         item_id = data.get("item_id")
@@ -103,14 +107,20 @@ def api_add_cart():
             db.session.add(cart)
             db.session.flush()  # Ensure cart_id is generated
 
-        order_item = OrderItem(
-            cart_id=cart.cart_id,
-            item_id=item_id,
-            restaurant_id=menu_item.restaurant_id,
-            quantity=quantity,
-            notes=notes
-        )
-        db.session.add(order_item)
+        order_item = OrderItem.query.filter_by(cart_id=cart.cart_id, item_id=item_id).first()
+        if order_item:
+            order_item.quantity = quantity
+            order_item.notes = notes
+        else:
+            order_item = OrderItem(
+                cart_id=cart.cart_id,
+                item_id=item_id,
+                restaurant_id=menu_item.restaurant_id,
+                quantity=quantity,
+                notes=notes
+            )
+            db.session.add(order_item)
+        
         db.session.commit()
 
         return jsonify({"message": "Item added to cart."}), 201
@@ -118,6 +128,10 @@ def api_add_cart():
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
+    
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
     
     except BadRequest as e:
         print(e)
@@ -135,7 +149,7 @@ def api_remove_cart():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         data = request.get_json()
         item_id = data.get("item_id")
@@ -160,6 +174,10 @@ def api_remove_cart():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -175,12 +193,16 @@ def api_checkout():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         cart = Cart.query.filter_by(user_id=user_id).first()
 
         if not cart or not cart.cart_items:
             raise NotFound("Cart is empty.")
+
+        user = User.query.get(user_id)
+        if not user:
+            raise NotFound("User not found.")
 
         # Group cart items by restaurant_id
         cart_items_by_restaurant = {}
@@ -188,6 +210,18 @@ def api_checkout():
             if item.restaurant_id not in cart_items_by_restaurant:
                 cart_items_by_restaurant[item.restaurant_id] = []
             cart_items_by_restaurant[item.restaurant_id].append(item)
+
+        # Calculate total amount for all orders
+        total_amount = sum(
+            item.menu_item.price * item.quantity for items in cart_items_by_restaurant.values() for item in items
+        )
+
+        # Check if user has sufficient funds
+        if user.wallet < total_amount:
+            return jsonify({"message": "Insufficient funds."}), 402
+
+        # Deduct the total amount from user's wallet
+        user.wallet -= total_amount
 
         # Create an order for each restaurant
         for restaurant_id, items in cart_items_by_restaurant.items():
@@ -198,6 +232,20 @@ def api_checkout():
                 total=total,
                 status=0
             )
+            # add 85% revenue to restaurant wallet
+            restaurant = Restaurant.query.get(restaurant_id)
+            restaurant.wallet += total * 0.85
+
+            # add 15% revenue to the platform wallet
+            platform = LieferspatzRevenue.query.get(1)
+
+            if not platform:
+                platform = LieferspatzRevenue(total_revenue=0)
+                db.session.add(platform)
+                db.session.flush()
+
+            platform.total_revenue += total * 0.15
+
             db.session.add(order)
             db.session.flush()  # Ensure order_id is generated
 
@@ -218,6 +266,10 @@ def api_checkout():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -236,7 +288,7 @@ def api_order_history():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         orders = Order.query.filter_by(user_id=user_id).all()
 
@@ -273,6 +325,10 @@ def api_order_history():
         print(e)
         return jsonify({"message": e.description}), 404
     
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
@@ -290,7 +346,7 @@ def api_order_status():
         user_id = session.get("user_id")
 
         if not user_id:
-            raise BadRequest("User not logged in.")
+            raise Unauthorized("User not logged in.")
 
         # Fetch orders with status not equal to 3 (delivered) or 4 (rejected)
         orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])).all()
@@ -327,6 +383,10 @@ def api_order_status():
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
+    
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
     
     except BadRequest as e:
         print(e)
