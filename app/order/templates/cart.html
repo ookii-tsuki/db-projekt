@@ -15,13 +15,6 @@
     <!-- zurück-Knopf auf der Detailseite um zur Hauptseite zurückzukehren -->
     <a id="back-button" href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
 
-    <script>
-        document.getElementById('back-button').addEventListener('click', function(event) {
-            event.preventDefault();
-            window.location.href = '/search';
-        });
-    </script>
-    
     <!-- Header Container -->
     <div class="header">
         <!-- Container für Logo und Profil -->
@@ -33,6 +26,7 @@
             <!-- Guthaben Container -->
             <div class="guthaben-container" id="guthaben-container">
                 <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
             </div>
         </div>
         

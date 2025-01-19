@@ -188,6 +188,17 @@
         border-bottom: none;
     }
 
+    .new-notification::after {
+        content: '';
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+    }
+
     /* Layout für den Mehr-Knöpfe Container */
     .more-buttons {
         display: none; 
@@ -267,6 +278,7 @@
         position: absolute;
         bottom: -30px;
         right: -70px;
+        height: 30px;
         background-color: white;
         border: 1px solid #ddd;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

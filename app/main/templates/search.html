@@ -23,6 +23,7 @@
             <!-- Guthaben Container -->
             <div class="guthaben-container" id="guthaben-container">
                 <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
             </div>
         </div>
         
@@ -42,10 +43,7 @@
     </div>
 
     <!-- Benachrichtigungen Container -->
-    <div class="notifications" id="notifications">
-        <!-- Auf Default -->
-        <div class="notification-item">Keine neuen Benachrichtigungen.</div>
-    </div>
+    <div class="notifications" id="notifications"></div>
 
     <!-- Vergangene Bestellungen Container -->
     <div class="past-orders" id="past-orders">
@@ -58,14 +56,15 @@
         <div class="text">
             Restaurants in deiner Nähe<br>
         </div>
-    
-        <!-- Suchleiste Container -->
+        
+        <!-- Container für die Suche -->
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Adresse eingeben"> <!-- was default in der Suchleiste steht -->
-            <button class="search-button">Suchen</button>
+            <input type="text" id="search-query" class="search-input" placeholder="Restaurant Name eingeben">
+            <input type="text" id="search-cuisine" class="search-input" placeholder="Küche eingeben">
+            <button class="search-button" id="search-button">Suchen</button>
         </div>
 
-        <!-- Container für die neuen Buttons -->
+        <!-- Container für die Filter-Buttons -->
         <div class="food-buttons-container">
             <button class="food-button">Burger</button>
             <button class="food-button">Pizza</button>
@@ -86,7 +85,6 @@
 
             <div id="modal" style="display: none;">
                 <div id="modal-content">
-                    <p>Ihr aktuelles Guthaben auf Lieferspatz beträgt 100,00 EUR</p>  <!-- später mit Daten aus Datenbank füllen -->
                     <button id="close-modal">Schließen</button>
                 </div>
             </div>
