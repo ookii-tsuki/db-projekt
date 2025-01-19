@@ -1,11 +1,11 @@
 import csv
 from math import radians, sin, cos, sqrt, atan2, ceil
-from app.data import csv_path
+from app.data import geocoord_csv_path
 
 # Function to load ZIP codes and coordinates from a CSV file
 def __load_zip_coordinates():
     zip_to_coords = {}
-    with open(csv_path, "r") as csvfile:
+    with open(geocoord_csv_path, "r") as csvfile:
         reader = csv.reader(csvfile)
         next(reader)  # Skip the header row if it exists
         for row in reader:
@@ -45,7 +45,6 @@ def find_nearby(zip_code, radius_km):
 
 # Estimate delivery time range based on distance in kilometers
 def estimate_delivery_time_range(distance_km):
-    from math import ceil
 
     base_time = 20
     travel_time_per_km = 4
@@ -60,5 +59,15 @@ def estimate_delivery_time_range(distance_km):
     max_time = ceil(max_time / 5) * 5
 
     return min_time, max_time
+
+
+def find_distance(zip_code1, zip_code2):
+    if zip_code1 not in zip_to_coords or zip_code2 not in zip_to_coords:
+        return None
+
+    lat1, lon1 = zip_to_coords[zip_code1]
+    lat2, lon2 = zip_to_coords[zip_code2]
+
+    return __haversine(lat1, lon1, lat2, lon2)
 
 

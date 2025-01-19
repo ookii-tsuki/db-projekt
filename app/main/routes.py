@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import render_template, Blueprint, request, session, jsonify
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
-from .nearby_finder import find_nearby, estimate_delivery_time_range
+from .nearby_finder import find_nearby, estimate_delivery_time_range, find_distance
 from app.models import User, Restaurant, OpeningHour
 from app import db
 
@@ -120,7 +120,7 @@ def api_search():
                 "rating": r.rating,
                 "approx_delivery_time": f"{delivery_min_time}-{delivery_max_time} Min.",
                 "is_favorite": is_fav,
-                "banner": r.banner or "",
+                "banner": r.banner,
             })
 
         return jsonify(results), 200
@@ -153,19 +153,26 @@ def api_add_favorite():
         if not restaurant_id:
             raise BadRequest("No restaurant ID provided.")
 
-        # Dummy data
-        restaurant_found = True
+        # Replace with logic to get the current user's ID (e.g., from session or JWT)
+        user_id = session.get("user_id")
 
-        if not restaurant_found:
+        if not user_id:
+            raise Unauthorized("User not logged in.")
+        
+        user = User.query.get(user_id)
+
+        restaurant = Restaurant.query.get(restaurant_id)
+        if not restaurant:
             raise NotFound("Restaurant not found.")
 
-        is_favorite = True
-
-        if is_favorite:
+        if restaurant in user.favorites:
+            user.favorites.remove(restaurant)
+            db.session.commit()
+            return jsonify({"message": "Restaurant removed from favorites."}), 200
+        else:
+            user.favorites.append(restaurant)
+            db.session.commit()
             return jsonify({"message": "Restaurant added to favorites."}), 201
-        
-        # Restaurant is already in favorites, remove it
-        return jsonify({"message": "Restaurant removed from favorites."}), 200
         
 
     
@@ -176,6 +183,10 @@ def api_add_favorite():
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
+    
+    except Unauthorized as e:
+        print(e)
+        return jsonify({"message": e.description}), 401
     
     except Exception as e:
         print(e)
@@ -188,43 +199,43 @@ def api_add_favorite():
 @main_bp.route("/api/main/restaurant/favorite", methods=["GET"])
 def api_favorite_restaurants():
     try:
-        # Dummy data
-        favorite_restaurants = [
-          {
-            "restaurant_id": "1999",
-            "name": "Doge's Pizza",
-            "address": "Doge Street 24",
-            "city": "Doge City",
-            "zip": "12345",
-            "description": "The best pizza in town.",
-            "rating": 4.5,
-            "approx_delivery_time": "30-45 minutes",
-            "is_favorite": True,
-            "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
-          },
-          {
-            "restaurant_id": "2879",
-            "name": "Naruto's Ramen",
-            "address": "Naruto Street 42",
-            "city": "Naruto City",
-            "zip": "54321",
-            "description": "The best ramen in town.",
-            "rating": 4.8,
-            "approx_delivery_time": "20-30 minutes",
-            "is_favorite": True,
-            "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
-          }
-        ]
+        user_id = session.get("user_id")
+        if not user_id:
+            raise Unauthorized("User not logged in.")
 
-        if len(favorite_restaurants) == 0:
+        user = User.query.get(user_id)
+
+        favorited_restaurants = user.favorites
+        if not favorited_restaurants:
             raise NotFound("No favorite restaurants found.")
-        
-        return jsonify(favorite_restaurants), 200
-    
+
+        favorite_restaurants_data = []
+        for restaurant in favorited_restaurants:
+            distance = find_distance(user.zip_code, restaurant.zip_code)
+            delivery_min_time, delivery_max_time = estimate_delivery_time_range(distance)
+            favorite_restaurants_data.append({
+                "restaurant_id": restaurant.restaurant_id,
+                "name": restaurant.name,
+                "address": restaurant.address,
+                "city": restaurant.city,
+                "zip": restaurant.zip_code,
+                "description": restaurant.description,
+                "rating": restaurant.rating,
+                "approx_delivery_time": f"{delivery_min_time}-{delivery_max_time} Min.",
+                "is_favorite": True,
+                "banner": restaurant.banner
+            })
+
+        return jsonify(favorite_restaurants_data), 200
+
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
-    
+
+    except BadRequest as e:
+        print(e)
+        return jsonify({"message": e.description}), 400
+
     except Exception as e:
         print(e)
         return jsonify({"message": "An error occured."}), 500
@@ -239,49 +250,42 @@ def api_restaurant_profile():
 
         if not restaurant_id:
             raise BadRequest("No restaurant ID provided.")
-        
-        restaurant_exists = True
 
-        if not restaurant_exists:
+        restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
+        if not restaurant:
             raise NotFound("Restaurant not found.")
 
-        # Dummy data
+        menu_items_data = []
+        for item in restaurant.menu_items:
+            menu_items_data.append({
+                "item_id": item.item_id,
+                "name": item.name,
+                "price": item.price,
+                "description": item.description,
+                "image": item.image
+            })
+
         restaurant_data = {
-          "restaurant_id": "1999",
-          "name": "Doge's Pizza",
-          "address": "Doge Street 24",
-          "city": "Doge City",
-          "zip": "12345",
-          "description": "The best pizza in town.",
-          "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
-          "menu": [
-            {
-              "item_id": "1000",
-              "name": "Cheese Pizza",
-              "price": 10.99,
-              "description": "A classic cheese pizza.",
-              "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
-            },
-            {
-              "item_id": "1001",
-              "name": "Pepperoni Pizza",
-              "price": 12.99,
-              "description": "A classic pepperoni pizza.",
-              "image": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)"
-            }
-          ]
+            "restaurant_id": restaurant.restaurant_id,
+            "name": restaurant.name,
+            "address": restaurant.address,
+            "city": restaurant.city,
+            "zip": restaurant.zip_code,
+            "description": restaurant.description,
+            "banner": restaurant.banner,
+            "menu": menu_items_data
         }
 
         return jsonify(restaurant_data), 200
-    
+
     except NotFound as e:
         print(e)
         return jsonify({"message": e.description}), 404
-    
+
     except BadRequest as e:
         print(e)
         return jsonify({"message": e.description}), 400
-    
+
     except Exception as e:
         print(e)
         return jsonify({"message": "An error occured."}), 500
