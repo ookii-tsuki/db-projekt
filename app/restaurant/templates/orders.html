@@ -27,6 +27,11 @@
       font-size: 16px;
       text-decoration: none;
       color: black;
+      background-color: transparent;
+      border: none;
+    }
+    .back-button:hover {
+      color: gray;
     }
     .back-button svg {
       margin-right: 5px;
@@ -59,12 +64,76 @@
       color: #6c757d;
       margin: 20px 0;
     }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      display: none; /* Hidden by default */
+    }
+    .overlay.active {
+      display: flex; /* Show overlay when active */
+    }
+    .overlay-content {
+      background-color: #f8f9fa;
+      padding: 40px; /* Increased padding */
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px; /* Increased size */
+      position: relative;
+    }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      left: 10px; /* Adjusted position to top-left */
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: black;
+      cursor: pointer;
+    }
+    .btn-outline-dark,
+    .back-button,
+    .overlay button {
+      background-color: transparent;
+      border: 1px solid black;
+      padding: 8px 16px;
+      font-size: 14px;
+      color: black;
+    }
+    .back-button:hover,
+    .overlay button:hover {
+      background-color: black;
+      color: white;
+    }
+    .btn-danger,
+    .btn-success {
+      background-color: transparent;
+      border: 1px solid;
+      color: black;
+      padding: 8px 16px;
+    }
+    .btn-danger:hover {
+      background-color: red;
+      color: white;
+    }
+    .btn-success:hover {
+      background-color: green;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <!-- Restaurant Logo -->
   <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Logo" id="restaurantLogo" class="photo">
-  <!-- Back Button -->
+  
+  <!-- Back Button (Modified) -->
   <a href="#" class="back-button" onclick="history.back()">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
       <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
@@ -87,51 +156,65 @@
       </div>
     </div>
 
-      <!-- Debug Example Order -->
-      <div class="card shadow mb-4" id="exampleOrder">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Bestellung B-19-13-3</h5>
-            <span class="text-danger">nicht bestätigt</span>
-          </div>
-          <p class="mb-2"><strong>Datum:</strong> 30.11.2024, 15:48 Uhr</p>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between">
-              <span>BH Main Burger</span>
-              <span>6.49 EUR x 1Stk.</span>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span>BH Main Burger</span>
-              <span>6.49 EUR x 1Stk.</span>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span>Limonade</span>
-              <span>2.98 EUR x 1Stk.</span>
-            </div>
-          </div>
-          <p class="mb-3"><strong>Summe:</strong> 15.96 EUR</p>
-          <button class="btn btn-outline-dark">Details</button>
+    <!-- Example Order -->
+    <div class="card shadow mb-4" id="exampleOrder">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5>Bestellung B-19-13-3</h5>
+          <span class="text-danger">nicht bestätigt</span>
         </div>
+        <p class="mb-2"><strong>Datum:</strong> 30.11.2024, 15:48 Uhr</p>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between">
+            <span>BH Main Burger</span>
+            <span>6.49 EUR x 1Stk.</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Limonade</span>
+            <span>2.98 EUR x 1Stk.</span>
+          </div>
+        </div>
+        <p class="mb-3"><strong>Summe:</strong> 15.96 EUR</p>
+        <button class="btn btn-outline-dark" onclick="showOverlay('B-19-13-3', '30.11.2024, 15:48 Uhr', [{name: 'BH Main Burger', price: 6.49, quantity: 1}, {name: 'Limonade', price: 2.98, quantity: 1}], 15.96, 'nicht bestätigt')">Details</button>
       </div>
     </div>
 
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
   </div>
 
+  <!-- Overlay -->
+  <div class="overlay" id="orderOverlay">
+    <div class="overlay-content">
+      <!-- Back Button in Overlay (First Item in Overlay) -->
+      <button class="back-button close-button" onclick="closeOverlay()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+        </svg>
+        Zurück
+      </button>
+      <h5 id="overlayOrderId">Order ID</h5>
+      <p><strong>Datum:</strong> <span id="overlayOrderDate">Date</span></p>
+      <div id="overlayItems">
+        <!-- Items will be dynamically inserted here -->
+      </div>
+      <p><strong>Summe:</strong> <span id="overlayTotal">Total</span> EUR</p>
+      <p><strong>Status:</strong> <span id="overlayStatus">Status</span></p>
+      <div class="d-flex justify-content-between mt-3">
+        <button class="btn btn-danger" onclick="cancelOrder()">Stornieren</button>
+        <button class="btn btn-success" onclick="confirmOrder()">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Fetch Restaurant Data
     async function fetchRestaurantData() {
       try {
-        const response = await fetch('/api/auth/restaurant'); // Fetch restaurant data
+        const response = await fetch('/api/auth/restaurant'); 
         if (response.status === 200) {
           const data = await response.json();
-
-          // Populate page with restaurant data
           document.getElementById('restaurantNameDisplay').innerText = data.name;
           document.getElementById('restaurantAddress').innerText = data.address;
           document.getElementById('restaurantHours').innerText = data.opening_hours;
-
-          // Decode and display banner image
           const bannerImage = `data:image/jpeg;base64,${data.banner}`;
           document.getElementById('restaurantImage').src = bannerImage;
           document.getElementById('restaurantLogo').src = bannerImage;
@@ -143,13 +226,12 @@
       }
     }
 
-    // Fetch Orders Data
     async function fetchOrderData() {
       try {
-        const response = await fetch('/api/order/status'); // Fetch orders data
+        const response = await fetch('/api/order/status');
         if (response.status === 200) {
           const data = await response.json();
-          displayOrders(data); // Function to display orders
+          displayOrders(data);
         } else if (response.status === 404) {
           const error = await response.json();
           showError(error.message || 'No active orders found.');
@@ -159,26 +241,21 @@
       } catch (error) {
         showError('Failed to fetch orders. Please try again later.');
       } finally {
-        // Remove loading placeholder
         document.getElementById('ordersLoading').style.display = 'none';
-        document.getElementById('exampleOrder').style.display = 'none'; // Hide debug example order
+        document.getElementById('exampleOrder').style.display = 'none';
       }
     }
 
-    // Display Orders
     function displayOrders(orders) {
       const ordersContainer = document.getElementById('ordersContainer');
-      ordersContainer.innerHTML = ''; // Clear any existing content
-
+      ordersContainer.innerHTML = ''; 
       if (orders.length === 0) {
         ordersContainer.innerHTML = '<p class="text-center">No orders found.</p>';
         return;
       }
-
       orders.forEach(order => {
         const orderCard = document.createElement('div');
         orderCard.className = 'card shadow mb-4';
-
         let statusText = '';
         let statusClass = '';
         switch (order.status) {
@@ -190,7 +267,7 @@
           default: statusText = 'Unbekannter Status'; statusClass = 'text-secondary'; break;
         }
 
-        orderCard.innerHTML = `
+        orderCard.innerHTML = `  
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5>Bestellung ${order.order_id}</h5>
@@ -198,15 +275,16 @@
             </div>
             <p class="mb-2"><strong>Datum:</strong> ${new Date(order.date * 1000).toLocaleString()}</p>
             <div class="mb-3">
-              ${order.items.map(item => `
+              ${order.items.map(item => `  
                 <div class="d-flex justify-content-between">
                   <span>${item.name}</span>
                   <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
                 </div>
               `).join('')}
+
             </div>
             <p class="mb-3"><strong>Summe:</strong> ${order.total.toFixed(2)} EUR</p>
-            <button class="btn btn-outline-dark">Details</button>
+            <button class="btn btn-outline-dark" onclick="showOverlay('${order.order_id}', '${new Date(order.date * 1000).toLocaleString()}', ${JSON.stringify(order.items)}, ${order.total.toFixed(2)}, '${statusText}')">Details</button>
           </div>
         `;
 
@@ -214,15 +292,48 @@
       });
     }
 
-    // Show error message
     function showError(message) {
       document.getElementById('errorMessage').innerText = message;
       document.getElementById('errorMessage').style.display = 'block';
     }
 
-    // Initialize data fetching
-    fetchRestaurantData(); // Fetch restaurant data
-    fetchOrderData(); // Fetch order data
+    function showOverlay(orderId, date, items, total, status) {
+      document.getElementById('overlayOrderId').innerText = `Bestellung ${orderId}`;
+      document.getElementById('overlayOrderDate').innerText = date;
+      document.getElementById('overlayTotal').innerText = total.toFixed(2);
+      document.getElementById('overlayStatus').innerText = status;
+
+      const itemsContainer = document.getElementById('overlayItems');
+      itemsContainer.innerHTML = '';
+      items.forEach(item => {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'd-flex justify-content-between';
+        itemRow.innerHTML = `
+          <span>${item.name}</span>
+          <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(itemRow);
+      });
+
+      document.getElementById('orderOverlay').classList.add('active');
+    }
+
+    function closeOverlay() {
+      document.getElementById('orderOverlay').classList.remove('active');
+    }
+
+    function cancelOrder() {
+      alert('Bestellung wurde storniert.');
+      closeOverlay();
+    }
+
+    function confirmOrder() {
+      alert('Bestellung wurde bestätigt.');
+      closeOverlay();
+    }
+
+    fetchRestaurantData();
+    fetchOrderData();
   </script>
 </body>
 </html>
