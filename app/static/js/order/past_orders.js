@@ -170,8 +170,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const data = await response.json();
+                const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ',');  // Formatierung des Geldbetrags
                 modalContent.innerHTML = `
-                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${data.wallet} EUR.</p>
+                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${formattedWallet} EUR.</p>
                     <button id="close-modal">Schließen</button>
                 `;
             } else if (response.status === 401) {
