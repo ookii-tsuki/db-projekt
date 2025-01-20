@@ -1,5 +1,3 @@
-/* css Layout */
-    /* Generelles Layout der Seite */
     body {
         font-family: Arial, sans-serif; /* Schriftart */
         margin: 0; 
@@ -33,6 +31,7 @@
         width: 60px; 
         height: auto; 
         border-radius: 8px;
+        cursor: pointer;
     }
 
     /* Generelles Button-Layout */
@@ -82,7 +81,6 @@
         width: 90%;
         max-width: 600px;
         margin: 20px auto;
-        position: relative;
     }
 
     /* Layout des Texts */
@@ -161,6 +159,17 @@
         border-bottom: none;
     }
 
+    .new-notification::after {
+        content: '';
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+    }
+
     /* Styles für den Mehr-Knöpfe Container */
     .more-buttons {
         display: none; 
@@ -194,11 +203,11 @@
 
     /* Layout für die einzelnen Bestellungen */
     .order-item {
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: left;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .order-header {
@@ -255,7 +264,21 @@
         color: black;
     }
 
-    /* Klasse für Guthaben Button */
+    /* Layout für den Guthaben-Container */
+    .guthaben-container {
+        display: none;
+        position: absolute;
+        bottom: -30px;
+        right: -70px;
+        height: 30px;
+        background-color: white;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 5px;
+        z-index: 1000;
+    }
+
     .guthaben-button {
         padding: 5px;
         border: 1px solid black;
@@ -268,14 +291,39 @@
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        width: 120px; 
-        height: 50px; 
-        position: absolute;
-        top: 70px;
-        right: -80px;
+        width: 100px;
+        height: 40px;
     }
 
     .guthaben-button:hover {
         background-color: black; 
         color: white; 
+    }
+
+    /* Overlay */
+    #modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    /* Modal */
+    #modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    #modal-content {
+        text-align: center;
     }
