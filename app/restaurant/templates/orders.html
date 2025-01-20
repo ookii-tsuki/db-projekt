@@ -87,11 +87,32 @@
       </div>
     </div>
 
-    <!-- Orders Section -->
-    <div class="line"></div>
-    <div id="ordersContainer">
-      <!-- Loading Placeholder -->
-      <div class="loading-placeholder" id="ordersLoading">Loading orders, please wait...</div>
+      <!-- Debug Example Order -->
+      <div class="card shadow mb-4" id="exampleOrder">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Bestellung B-19-13-3</h5>
+            <span class="text-danger">nicht bestätigt</span>
+          </div>
+          <p class="mb-2"><strong>Datum:</strong> 30.11.2024, 15:48 Uhr</p>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>BH Main Burger</span>
+              <span>6.49 EUR x 1Stk.</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>BH Main Burger</span>
+              <span>6.49 EUR x 1Stk.</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Limonade</span>
+              <span>2.98 EUR x 1Stk.</span>
+            </div>
+          </div>
+          <p class="mb-3"><strong>Summe:</strong> 15.96 EUR</p>
+          <button class="btn btn-outline-dark">Details</button>
+        </div>
+      </div>
     </div>
 
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
@@ -140,6 +161,7 @@
       } finally {
         // Remove loading placeholder
         document.getElementById('ordersLoading').style.display = 'none';
+        document.getElementById('exampleOrder').style.display = 'none'; // Hide debug example order
       }
     }
 
@@ -155,33 +177,39 @@
 
       orders.forEach(order => {
         const orderCard = document.createElement('div');
-        orderCard.className = 'card';
+        orderCard.className = 'card shadow mb-4';
 
         let statusText = '';
+        let statusClass = '';
         switch (order.status) {
-          case 0: statusText = 'Pending'; break;
-          case 1: statusText = 'Preparing'; break;
-          case 2: statusText = 'Being delivered'; break;
-          case 3: statusText = 'Delivered'; break;
-          case 4: statusText = 'Rejected'; break;
-          default: statusText = 'Unknown status'; break;
+          case 0: statusText = 'nicht bestätigt'; statusClass = 'text-danger'; break;
+          case 1: statusText = 'in Zubereitung'; statusClass = 'text-warning'; break;
+          case 2: statusText = 'in Lieferung'; statusClass = 'text-primary'; break;
+          case 3: statusText = 'abgeschlossen'; statusClass = 'text-success'; break;
+          case 4: statusText = 'abgelehnt'; statusClass = 'text-danger'; break;
+          default: statusText = 'Unbekannter Status'; statusClass = 'text-secondary'; break;
         }
 
         orderCard.innerHTML = `
           <div class="card-body">
-            <h3>Bestellung ${order.order_id}</h3>
-            <p><strong>Datum:</strong> ${new Date(order.date * 1000).toLocaleString()}</p>
-            <p><strong>Details:</strong></p>
-            <ul>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5>Bestellung ${order.order_id}</h5>
+              <span class="${statusClass}">${statusText}</span>
+            </div>
+            <p class="mb-2"><strong>Datum:</strong> ${new Date(order.date * 1000).toLocaleString()}</p>
+            <div class="mb-3">
               ${order.items.map(item => `
-                <li>${item.name} - ${item.price} EUR x ${item.quantity}</li>
+                <div class="d-flex justify-content-between">
+                  <span>${item.name}</span>
+                  <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
+                </div>
               `).join('')}
-            </ul>
-            <p><strong>Summe:</strong> ${order.total} EUR</p>
-            <p><strong>Status:</strong> ${statusText}</p>
+            </div>
+            <p class="mb-3"><strong>Summe:</strong> ${order.total.toFixed(2)} EUR</p>
             <button class="btn btn-outline-dark">Details</button>
           </div>
         `;
+
         ordersContainer.appendChild(orderCard);
       });
     }
@@ -198,4 +226,3 @@
   </script>
 </body>
 </html>
- 
