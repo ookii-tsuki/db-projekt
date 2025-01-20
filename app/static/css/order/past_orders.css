@@ -159,15 +159,16 @@ hr {
     border-bottom: none;
 }
 
-.new-notification::after {
+#bell-button.new-notification::after {
     content: '';
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 0px;
+    right: 0px;
     width: 10px;
     height: 10px;
     background-color: red;
     border-radius: 50%;
+    transform: translate(50%, -50%);
 }
 
 /* Styles für den Mehr-Knöpfe Container */

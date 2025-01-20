@@ -49,13 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Logik, um die Zahlen in Text umzuwandeln
     function getStatusText(status) {
         const statusMap = {
-            0: "ausstehend",
-            1: "in Zubereitung",
-            2: "in Zustellung",
-            3: "geliefert",
-            4: "storniert"
+            0: "ausstehend.",
+            1: "in Zubereitung.",
+            2: "in Zustellung.",
+            3: "geliefert.",
+            4: "storniert."
         };
-        return statusMap[status] || "unbekannt";
+        return statusMap[status] || "unbekannt.";
     }
 
     // Funktion zum Abrufen vergangener Bestellungen vom Server
@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             notifications.style.display = 'none';
         }
+        this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
     });
 
     document.getElementById('cart-button').addEventListener('click', function() {
@@ -262,10 +263,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Funktion zum Anzeigen des Bestellstatus
     function displayOrderStatus(orders) {
         const notifications = document.getElementById('notifications');
+        const bellButton = document.getElementById('bell-button');
         notifications.innerHTML = '';
 
         if (orders.length === 0) {
             notifications.innerHTML = '<div class="notification-item">Keine neuen Benachrichtigungen.</div>';
+            bellButton.classList.remove('new-notification');
             return;
         }
 
@@ -277,6 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             notifications.appendChild(orderItemDiv);
         });
+
+        bellButton.classList.add('new-notification');
     }
 
     // Polling zum regelmäßigen Abrufen des Bestellstatus
