@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 orderItemDiv.classList.add('order-item');
                 orderItemDiv.innerHTML = `
                     <div class="order-header">
-                        <p>Date: ${new Date(order.date * 1000).toLocaleString()}</p>
-                        <p>Order ID: ${order.order_id}</p>
+                        <h3>Items</h3>
+                        <p>Datum: ${new Date(order.date * 1000).toLocaleDateString()}, ${new Date(order.date * 1000).toLocaleTimeString()}</p>
                         <p>Status: ${getStatusText(order.status)}</p>
                     </div>
                     <hr>
@@ -32,16 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             <h3>Items:</h3>
                             <ul>
                                 ${order.items.map(item => `
-                                    <li>${item.name} - ${item.quantity} x $${item.price} (${item.notes})</li>
+                                    <p>${order.name} ${item.name} ${item.price.toFixed(2)} EUR</p>
                                 `).join('')}
-                            </ul>
                         </div>
-                        <div class="right">
-                            <p>Total: $${order.total.toFixed(2)}</p>
-                        </div>
-                    </div>
-                `;
-                mainArea.appendChild(orderItemDiv);
+                        <p>${order.name} ${item.name} ${item.price.toFixed(2)} EUR</p>
+                    `;
+                    mainArea.appendChild(orderItemDiv);
             });
         }
     }

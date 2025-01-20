@@ -204,43 +204,49 @@ hr {
 
 /* Layout für die einzelnen Bestellungen */
 .order-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .order-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+}
+
+.order-header h3 {
+    margin: 0;
+    font-size: 18px;
 }
 
 .order-header p {
     margin: 0;
+    font-size: 14px;
 }
 
 .order-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    margin-top: 10px;
 }
 
-.order-details .left {
-    flex: 1;
+.order-details p {
+    margin: 5px 0;
+    font-size: 14px;
 }
 
-.order-details .right {
-    flex: 0 0 150px;
+.order-total {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
     text-align: right;
 }
 
 hr {
-    width: 100%;
     border: none;
-    border-top: 2px solid #ddd;
+    border-top: 1px solid #ddd;
     margin: 10px 0;
 }
 
