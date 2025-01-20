@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('notification-item');
             orderItemDiv.innerHTML = `
-                <p>Bestellung ${order.order_id} von ${order.name} hat den Status ${order.status}.</p>
+                <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
             `;
             notifications.appendChild(orderItemDiv);
         });
