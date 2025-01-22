@@ -6,6 +6,7 @@
         } else {
             notifications.style.display = 'none';
         }
+        this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
     });
 
     document.getElementById('cart-button').addEventListener('click', function() {
@@ -74,6 +75,7 @@
 
     // Öffnen des Fensters und Abrufen der Guthaben-Informationen
     document.getElementById('guthaben-button').addEventListener('click', async function () {
+
         const modal = document.getElementById('modal');
         const overlay = document.getElementById('modal-overlay');
         const modalContent = document.getElementById('modal-content');
@@ -88,8 +90,9 @@
 
             if (response.ok) {
                 const data = await response.json();
+                const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ',');  // Formatierung des Geldbetrags
                 modalContent.innerHTML = `
-                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${data.wallet} EUR.</p>
+                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${formattedWallet} EUR.</p>
                     <button id="close-modal">Schließen</button>
                 `;
             } else if (response.status === 401) {
@@ -133,10 +136,10 @@
     document.getElementById('search-button').addEventListener('click', async function() {
         const query = document.getElementById('search-query').value;
     
-        console.log(`Search Query: ${query}, Cuisine: ${cuisine}`);
+        console.log(`Search Query: ${query}`);
     
         try {
-            const response = await fetch(`/api/main/search?query=${encodeURIComponent(query)}&cuisine=${encodeURIComponent(cuisine)}`, {
+            const response = await fetch(`/api/main/search?query=${encodeURIComponent(query)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,13 +207,32 @@
         }
     }
     
+    document.getElementById('back-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        window.location.href = '/search';
+    });
+
+    // Logik, um die Zahlen in Text umzuwandeln
+    function getStatusText(status) {
+        const statusMap = {
+            0: "ausstehend.",
+            1: "in Zubereitung.",
+            2: "in Zustellung.",
+            3: "geliefert.",
+            4: "storniert."
+        };
+        return statusMap[status] || "unbekannt.";
+    }
+
     // Funktion zum Anzeigen des Bestellstatus
     function displayOrderStatus(orders) {
         const notifications = document.getElementById('notifications');
+        const bellButton = document.getElementById('bell-button');
         notifications.innerHTML = '';
 
         if (orders.length === 0) {
             notifications.innerHTML = '<div class="notification-item">Keine neuen Benachrichtigungen.</div>';
+            bellButton.classList.remove('new-notification');
             return;
         }
 
@@ -218,10 +240,12 @@
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('notification-item');
             orderItemDiv.innerHTML = `
-                <p>Bestellung ${order.order_id} von ${order.name} hat den Status ${order.status}.</p>
+                <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
             `;
             notifications.appendChild(orderItemDiv);
         });
+
+        bellButton.classList.add('new-notification');
     }
 
     // Polling zum regelmäßigen Abrufen des Bestellstatus
@@ -271,12 +295,15 @@
             const restaurantCard = document.createElement('div');
             restaurantCard.classList.add('restaurant-card');
             restaurantCard.innerHTML = `
+            <a href="/menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
                 <img src="data:image/jpeg;base64,${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
-                <h3>${restaurant.name}</h3>
+                <div class="restaurant-info">
+                    <h3>${restaurant.name}</h3>
+                    <p class="restaurant-rating">Bewertung: ${restaurant.rating}</p>
+                </div>
                 <p>${restaurant.description}</p>
-                <p>Rating: ${restaurant.rating}</p>
-                <p>Delivery Time: ${restaurant.approx_delivery_time}</p>
-                <button onclick="navigateToRestaurant('${restaurant.restaurant_id}')">zum Menü</button>
+                <p class="restaurant-delivery-time">Lieferzeit: ${restaurant.approx_delivery_time}</p>
+            </a>
             `;
             container.appendChild(restaurantCard);
         });
@@ -336,16 +363,18 @@
             return;
         }
 
+        data.sort((a, b) => b.date - a.date); // sortieren nach aktuellstem Datum (absteigend)
+
         data.forEach((order, index) => {
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('order-item');
             orderItemDiv.innerHTML = `
                 <div style="flex-grow: 1;">
-                    <p style="font-size: 14px;">Date: ${new Date(order.date * 1000).toLocaleString()}</p>
+                    <p style="font-size: 14px;">Datum: ${new Date(order.date * 1000).toLocaleString()}</p>
                     <p style="font-size: 14px;">Restaurant: ${order.name}</p>
-                    <p style="font-size: 14px;">Total: $${order.total}</p>
+                    <p style="font-size: 14px;">Summe: $${order.total}</p>
                 </div>
-                <button class="arrow-button" onclick="navigateToNewPage('vergangene Bestellungen Detail.html?order_id=${order.order_id}')">
+                <button class="arrow-button" onclick="navigateToNewPage('/past_orders?order_id=${order.order_id}')">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             `;
