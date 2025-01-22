@@ -1,0 +1,336 @@
+body {
+    font-family: Arial, sans-serif; /* Schriftart */
+    margin: 0; 
+    padding: 0; 
+    display: flex; /* Flexbox layout */
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+    background-color: white;
+}
+
+/* Layout für den header-Container */
+.header {
+    width: 100%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px 20px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Container für Logo und Profil */
+.logo-profile {
+    display: flex; 
+    align-items: center; 
+    position: relative;
+}
+
+/* Foto Layout */
+.photo {
+    width: 60px; 
+    height: auto; 
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Generelles Button-Layout */
+.button {
+    padding: 10px; 
+    border: 2px solid black; 
+    border-radius: 50%; 
+    background-color: white; 
+    color: black; 
+    font-size: 24px; 
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 50px; 
+    height: 50px; 
+}
+
+.more-button {
+    padding: 10px;
+    border: 2px solid black; 
+    border-radius: 8px; 
+    background-color: white; 
+    color: black; 
+    font-size: 24px; 
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 200px;
+    height: 80px; 
+}
+
+.more-button:hover {
+    background-color: black; 
+    color: white; 
+}
+
+.button:hover {
+    background-color: black;
+    color: white;
+}
+
+.mainarea {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+/* Layout des Texts */
+.text {
+    font-size: 32px;
+    color: black; 
+    margin: 100px 0 80px; /* Erster Parameter ist der Abstand zur oben Grenze, dritter Parameter der Abstand nach unten */
+    font-weight: bold;
+}
+
+/* Layout der horizontalen Linie */
+hr {
+    width: 100%; 
+    border: none; 
+    border-top: 2px solid #ddd; 
+    margin: 20px 0; 
+}
+
+/* Layout für den Button-Container */
+.buttonsarea {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+}
+
+.inlinebuttons {
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; 
+    width: 100%; 
+}
+
+/* Layout für die Icons */
+.icon-button {
+    width: 40px; 
+    height: 40px; 
+    padding: 0;
+    border-radius: 50%; /* macht die Schaltfläche rund */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 24px; 
+    margin-left: 10px; 
+}
+
+/* Layout für den Header-Knöpfe-Container */
+.header-buttons {
+    display: flex;
+    gap: 10px; /* Abstand der Knöpfe zueinander */
+}
+
+/* Layout für den Benachrichtigungen-Container */
+.notifications {
+    display: none;
+    position: absolute; 
+    top: 70px; 
+    right: 20px; 
+    width: 300px; 
+    background-color: white; 
+    border: 1px solid #ddd; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px; 
+    padding: 10px; 
+    z-index: 1000; 
+}
+
+/* Layout für die individuellen Notifikationen */
+.notification-item {
+    padding: 10px; 
+    border-bottom: 1px solid #ddd; /* untere Grenze zum separieren der einzelnen Benachrichtigungen */
+}
+
+/* Die letzte Benachrichtigung soll keine untere Grenze haben */
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+#bell-button.new-notification::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
+/* Styles für den Mehr-Knöpfe Container */
+.more-buttons {
+    display: none; 
+    position: absolute; 
+    top: 70px; 
+    right: 20px; 
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    border-radius: 1px;
+    padding: 10px; 
+    z-index: 1000; 
+    flex-direction: column; /* um die Knöpfe vertikal zu stapeln */
+    gap: none; 
+}
+
+/* Styles für den vergangene-Bestellungen-Container */
+.past-orders {
+    display: none;
+    position: absolute; 
+    top: 150px;
+    right: 20px; 
+    width: 400px; 
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; 
+    padding: 20px; 
+    z-index: 1000; 
+}
+
+/* Layout für die einzelnen Bestellungen */
+.order-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.order-header p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.order-details {
+    margin-top: 10px;
+}
+
+.order-details p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.order-total {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: right;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+/* Layout des zurück-Buttons nach "vergangene Bestellungen" */
+.back-button {
+    position: absolute;
+    top: 120px; 
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: black;
+}
+
+/* Styles für die Buttons auf den einzelnen vergangene-Bestellungen-Elementen */
+.arrow-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: black;
+}
+
+/* Layout für den Guthaben-Container */
+.guthaben-container {
+    display: none;
+    position: absolute;
+    bottom: -30px;
+    right: -70px;
+    height: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 1000;
+}
+
+.guthaben-button {
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: white; 
+    color: black; 
+    font-size: 16px;
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 100px;
+    height: 40px;
+}
+
+.guthaben-button:hover {
+    background-color: black; 
+    color: white; 
+}
+
+/* Overlay */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Modal */
+#modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+#modal-content {
+    text-align: center;
+}
