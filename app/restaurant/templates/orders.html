@@ -147,36 +147,12 @@
     <p class="sub-heading">Hier können Sie die aktuell eingegangenen Bestellungen einsehen und verwalten.</p>
     
     <!-- Restaurant Card -->
-    <div class="card shadow">
-      <div class="card-body">
-        <h2 id="restaurantNameDisplay">Loading...</h2>
-        <img id="restaurantImage" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Restaurant Photo" class="mt-3" style="width: 100%; height: auto; object-fit: cover;">
-        <p><strong>Adresse:</strong> <span id="restaurantAddress">Loading...</span></p>
-        <p><strong>Öffnungszeiten:</strong> <span id="restaurantHours">Loading...</span></p>
-      </div>
-    </div>
+    {% include 'components/restaurant_card.html' %}
+
 
     <!-- Example Order -->
-    <div class="card shadow mb-4" id="exampleOrder">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5>Bestellung B-19-13-3</h5>
-          <span class="text-danger">nicht bestätigt</span>
-        </div>
-        <p class="mb-2"><strong>Datum:</strong> 30.11.2024, 15:48 Uhr</p>
-        <div class="mb-3">
-          <div class="d-flex justify-content-between">
-            <span>BH Main Burger</span>
-            <span>6.49 EUR x 1Stk.</span>
-          </div>
-          <div class="d-flex justify-content-between">
-            <span>Limonade</span>
-            <span>2.98 EUR x 1Stk.</span>
-          </div>
-        </div>
-        <p class="mb-3"><strong>Summe:</strong> 15.96 EUR</p>
-        <button class="btn btn-outline-dark" onclick="showOverlay('B-19-13-3', '30.11.2024, 15:48 Uhr', [{name: 'BH Main Burger', price: 6.49, quantity: 1}, {name: 'Limonade', price: 2.98, quantity: 1}], 15.96, 'nicht bestätigt')">Details</button>
-      </div>
+    <div id="ordersContainer">
+
     </div>
 
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
@@ -193,12 +169,14 @@
         Zurück
       </button>
       <h5 id="overlayOrderId">Order ID</h5>
+      <hr>
       <p><strong>Datum:</strong> <span id="overlayOrderDate">Date</span></p>
       <div id="overlayItems">
         <!-- Items will be dynamically inserted here -->
       </div>
       <p><strong>Summe:</strong> <span id="overlayTotal">Total</span> EUR</p>
       <p><strong>Status:</strong> <span id="overlayStatus">Status</span></p>
+      <p><strong>notes:</strong> <span id="overlaynotes">notes</span></p>
       <div class="d-flex justify-content-between mt-3">
         <button class="btn btn-danger" onclick="cancelOrder()">Stornieren</button>
         <button class="btn btn-success" onclick="confirmOrder()">Bestätigen</button>
@@ -207,45 +185,6 @@
   </div>
 
   <script>
-    async function fetchRestaurantData() {
-      try {
-        const response = await fetch('/api/auth/restaurant'); 
-        if (response.status === 200) {
-          const data = await response.json();
-          document.getElementById('restaurantNameDisplay').innerText = data.name;
-          document.getElementById('restaurantAddress').innerText = data.address;
-          document.getElementById('restaurantHours').innerText = data.opening_hours;
-          const bannerImage = `data:image/jpeg;base64,${data.banner}`;
-          document.getElementById('restaurantImage').src = bannerImage;
-          document.getElementById('restaurantLogo').src = bannerImage;
-        } else {
-          showError('Failed to fetch restaurant data. Please try again later.');
-        }
-      } catch (error) {
-        showError('Failed to fetch restaurant data. Please try again later.');
-      }
-    }
-
-    async function fetchOrderData() {
-      try {
-        const response = await fetch('/api/order/status');
-        if (response.status === 200) {
-          const data = await response.json();
-          displayOrders(data);
-        } else if (response.status === 404) {
-          const error = await response.json();
-          showError(error.message || 'No active orders found.');
-        } else {
-          showError('An unexpected error occurred.');
-        }
-      } catch (error) {
-        showError('Failed to fetch orders. Please try again later.');
-      } finally {
-        document.getElementById('ordersLoading').style.display = 'none';
-        document.getElementById('exampleOrder').style.display = 'none';
-      }
-    }
-
     function displayOrders(orders) {
       const ordersContainer = document.getElementById('ordersContainer');
       ordersContainer.innerHTML = ''; 
@@ -284,12 +223,34 @@
 
             </div>
             <p class="mb-3"><strong>Summe:</strong> ${order.total.toFixed(2)} EUR</p>
-            <button class="btn btn-outline-dark" onclick="showOverlay('${order.order_id}', '${new Date(order.date * 1000).toLocaleString()}', ${JSON.stringify(order.items)}, ${order.total.toFixed(2)}, '${statusText}')">Details</button>
+            <button class="btn btn-outline-dark" onclick="showOverlay(${JSON.stringify(order).replace(/"/g, '&quot;')})">Details</button>
           </div>
         `;
         ordersContainer.appendChild(orderCard);
       });
     }
+
+    async function fetchOrderData() {
+      try {
+        const response = await fetch('/api/restaurant/orders/status');
+        if (response.status === 200) {
+          const data = await response.json();
+          displayOrders(data);
+        } else if (response.status === 404) {
+          const error = await response.json();
+          showError(error.message || 'No active orders found.');
+        } else {
+          showError('An unexpected error occurred.');
+        }
+      } catch (error) {
+        showError('Failed to fetch orders. Please try again later.');
+      } finally {
+        document.getElementById('ordersLoading').style.display = 'none';
+        document.getElementById('exampleOrder').style.display = 'none';
+      }
+    }
+
+
 
     function showError(message) {
       const errorMessageElement = document.getElementById('errorMessage');
@@ -297,14 +258,14 @@
       errorMessageElement.style.display = 'block';
     }
 
-    function showOverlay(orderId, orderDate, orderItems, totalPrice, status) {
-      document.getElementById('overlayOrderId').innerText = `Bestellung ${orderId}`;
-      document.getElementById('overlayOrderDate').innerText = orderDate;
-      document.getElementById('overlayTotal').innerText = totalPrice.toFixed(2);
-      document.getElementById('overlayStatus').innerText = status;
+    function showOverlay(details) {
+      document.getElementById('overlayOrderId').innerText = `Bestellung ${details.order_id}`;
+      document.getElementById('overlayOrderDate').innerText = new Date(details.date * 1000).toLocaleString();
+      document.getElementById('overlayTotal').innerText = details.total.toFixed(2);
+      document.getElementById('overlayStatus').innerText = ['nicht bestätigt', 'in Zubereitung', 'in Lieferung', 'abgeschlossen', 'abgelehnt'][details.status] || 'Unbekannter Status';
 
       const overlayItemsContainer = document.getElementById('overlayItems');
-      overlayItemsContainer.innerHTML = orderItems.map(item => `  
+      overlayItemsContainer.innerHTML = details.items.map(item => `  
         <div class="d-flex justify-content-between">
           <span>${item.name}</span>
           <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
@@ -383,8 +344,8 @@
     }
 
     // Call to fetch restaurant data and order data on page load
-    fetchRestaurantData();
     fetchOrderData();
   </script>
+  <script src="{{ url_for('static', filename='js/restaurant/restaurant_card.js') }}"></script>
 </body>
 </html>

@@ -30,7 +30,7 @@ def orders():
 
 # Create a route for the restaurant order history page
 # The route will return the order_history.html template
-@restaurant_bp.route("/restaurant/order-history")
+@restaurant_bp.route("/restaurant/order_history")
 def order_history():
     return render_template("order_history.html")
 

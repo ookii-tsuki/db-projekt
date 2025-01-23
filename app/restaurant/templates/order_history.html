@@ -115,9 +115,11 @@
   </a>
 
   <div class="container">
-    <h1 id="restaurantNameDisplay" class="main-heading">Restaurant Name</h1>
-    <p id="restaurantAddress" class="sub-heading">Restaurant Address</p>
-    <p id="restaurantHours" class="sub-heading">Opening Hours</p>
+    <h1 class="main-heading">Ihre Bestellhistorie</h1>
+    <p class="sub-heading">Hier können Sie Ihre Bestellhistorie einsehen.</p>
+    
+    <!-- Restaurant Card -->
+    {% include 'components/restaurant_card.html' %}
     
     <div id="ordersContainer"></div>
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
@@ -126,7 +128,12 @@
   <!-- Order Details Overlay -->
   <div class="overlay" id="orderOverlay">
     <div class="overlay-content">
-      <button class="close-button" onclick="closeOverlay()">×</button>
+      <button class="back-button close-button" onclick="closeOverlay()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+        </svg>
+        Zurück
+      </button>
       <h5 id="overlayOrderId">Order ID</h5>
       <p><strong>Datum:</strong> <span id="overlayOrderDate">Date</span></p>
       <div id="overlayItems">
@@ -134,32 +141,11 @@
       </div>
       <p><strong>Summe:</strong> <span id="overlayTotal">Total</span> EUR</p>
       <p><strong>Status:</strong> <span id="overlayStatus">Status</span></p>
-      <div class="d-flex justify-content-between mt-3">
-        <button class="btn btn-danger" onclick="cancelOrder()">Stornieren</button>
-        <button class="btn btn-success" onclick="confirmOrder()">Bestätigen</button>
-      </div>
     </div>
   </div>
 
   <script>
-    async function fetchRestaurantData() {
-      try {
-        const response = await fetch('/api/auth/restaurant');
-        if (response.ok) {
-          const data = await response.json();
-          document.getElementById('restaurantNameDisplay').innerText = data.name;
-          document.getElementById('restaurantAddress').innerText = data.address;
-          document.getElementById('restaurantHours').innerText = data.opening_hours;
-          const bannerImage = `data:image/jpeg;base64,${data.banner}`;
-          document.getElementById('restaurantImage').src = bannerImage;
-          document.getElementById('restaurantLogo').src = bannerImage;
-        } else {
-          alert(`HTTP ${response.status}: Failed to fetch restaurant data.`);
-        }
-      } catch (error) {
-        alert('Failed to fetch restaurant data. Please try again later.');
-      }
-    }
+
 
     async function fetchOrderData() {
       try {
@@ -231,8 +217,9 @@
       closeOverlay();
     }
 
-    fetchRestaurantData();
     fetchOrderData();
   </script>
+  <script src="{{ url_for('static', filename='js/restaurant/restaurant_card.js') }}"></script>
+
 </body>
 </html>
