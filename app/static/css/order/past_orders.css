@@ -162,8 +162,8 @@ hr {
 #bell-button.new-notification::after {
     content: '';
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 55px;
+    right: 125px;
     width: 10px;
     height: 10px;
     background-color: red;
@@ -210,6 +210,46 @@ hr {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-bottom: 20px;
+    text-align: left;
+    font-size: 16px;
+}
+
+.order-details ul {
+    list-style-type: none;
+    padding: 0; 
+    margin: 0; 
+}
+
+.order-details li {
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.order-details .restaurant-name {
+    font-weight: bold; 
+    margin-bottom: 10px; 
+    font-size: 18px;
+}
+
+.order-details .total {
+    text-align: right; /* Summe */
+    font-size: 18px; 
+}
+
+.order-header, .order-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-details .left {
+    flex: 1;
+}
+
+.order-details .right {
+    text-align: right;
 }
 
 .order-header {
@@ -220,12 +260,12 @@ hr {
 
 .order-header h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 22px;
 }
 
 .order-header p {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .order-details {
@@ -234,13 +274,13 @@ hr {
 
 .order-details p {
     margin: 5px 0;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .order-total {
     margin-top: 10px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
     text-align: right;
 }
 
