@@ -3,12 +3,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Funktion zum Anzeigen von einer Fehlermeldung
     function displayErrorMessage(message) {
-        mainArea.innerHTML = ''; // Vorherige Inhalte löschen
+        mainArea.innerHTML = '';
         const errorMessage = document.createElement('div');
         errorMessage.classList.add('order-item');
         errorMessage.innerHTML = `<p>${message}</p>`;
         mainArea.appendChild(errorMessage);
     }
+
+    document.getElementById('logo').addEventListener('click', function () {
+        window.location.href = '/search';
+    });
+
+    document.getElementById('cart-button').addEventListener('click', function() {
+        window.location.href = '/cart';
+    });
+
+    document.getElementById('more-button').addEventListener('click', function () {
+        const moreButtons = document.getElementById('more-buttons');
+        moreButtons.style.display = moreButtons.style.display === 'none' || moreButtons.style.display === '' ? 'flex' : 'none';
+    });
+
+    document.getElementById('past-orders-button').addEventListener('click', function () {
+        location.reload();
+    });
+
+    document.getElementById('back-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        window.history.back();
+    });
 
     // Funktion zum Anzeigen vergangener Bestellungen anzuzeigen
     function displayPastOrders(data) {
@@ -28,16 +50,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     <hr>
                     <div class="order-details">
                         <div class="left">
-                            <p>Restaurant: ${order.name}</p>
-                            <h3>Items:</h3>
+                            <p class="restaurant-name">${order.name}</p>
                             <ul>
                                 ${order.items.map(item => `
-                                    <p>${order.name} ${item.name} ${item.price.toFixed(2)} EUR</p>
+                                    <span class="item-name">${item.name} </span>
+                                    <span class="item-quantity">x${item.quantity} </span>
+                                    <span class="item-price">${item.price.toFixed(2)} EUR </span>
                                 `).join('')}
+                            </ul>
                         </div>
-                        <p>${order.name} ${item.name} ${item.price.toFixed(2)} EUR</p>
+                        <div class="right">
+                            <p class="total">Summe: ${order.total.toFixed(2)} EUR</p>
+                        </div>
+                    </div>
                     `;
-                    mainArea.appendChild(orderItemDiv);
+                    mainArea.prepend(orderItemDiv);
             });
         }
     }
@@ -45,13 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Logik, um die Zahlen in Text umzuwandeln
     function getStatusText(status) {
         const statusMap = {
-            0: "ausstehend.",
-            1: "in Zubereitung.",
-            2: "in Zustellung.",
-            3: "geliefert.",
-            4: "storniert."
+            0: "ausstehend",
+            1: "in Zubereitung",
+            2: "in Zustellung",
+            3: "geliefert",
+            4: "storniert"
         };
-        return statusMap[status] || "unbekannt.";
+        return statusMap[status] || "unbekannt";
     }
 
     // Funktion zum Abrufen vergangener Bestellungen vom Server
@@ -97,23 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
         this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
     });
 
-    document.getElementById('cart-button').addEventListener('click', function() {
-        window.location.href = '/cart';
-    });
-
-    document.getElementById('more-button').addEventListener('click', function () {
-        const moreButtons = document.getElementById('more-buttons');
-        moreButtons.style.display = moreButtons.style.display === 'none' || moreButtons.style.display === '' ? 'flex' : 'none';
-    });
-
-    document.getElementById('past-orders-button').addEventListener('click', function () {
-        location.reload();
-    });
-
-    document.getElementById('past-orders-back-button').addEventListener('click', function () {
-        window.location.href = '/search';
-    });
-
     document.getElementById('profile-button').addEventListener('click', function() {
         var guthabenContainer = document.getElementById('guthaben-container');
         var ausloggenButton = document.getElementById('ausloggen-button');
@@ -144,10 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error('Fehler beim Ausloggen:', error);
         }
-    });
-
-    document.getElementById('logo').addEventListener('click', function () {
-        window.location.href = '/search';
     });
 
     // Öffnen des Fensters und Abrufen der Guthaben-Informationen
@@ -250,11 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Fehler beim Abrufen des Bestellstatus.", error);
         }
     }
-    
-    document.getElementById('back-button').addEventListener('click', function(event) {
-        event.preventDefault();
-        window.location.href = '/search';
-    });
 
     // Funktion zum Anzeigen des Bestellstatus
     function displayOrderStatus(orders) {
@@ -271,10 +272,14 @@ document.addEventListener("DOMContentLoaded", () => {
         orders.forEach(order => {
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('notification-item');
-            orderItemDiv.innerHTML = `
-                <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
-            `;
-            notifications.appendChild(orderItemDiv);
+            if (order.message) {
+                orderItemDiv.innerHTML = `<p>${order.message}</p>`;
+            } else {
+                orderItemDiv.innerHTML = `
+                    <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
+                `;
+            }
+            notifications.prepend(orderItemDiv); // prepend, um die neuesten Benachrichtigungen zuerst anzuzeigen
         });
 
         bellButton.classList.add('new-notification');
@@ -296,13 +301,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (JSON.stringify(data) !== JSON.stringify(lastOrderStatus)) {
                     lastOrderStatus = data;
                     document.getElementById('bell-button').classList.add('new-notification');
+                    displayOrderStatus(data);
                 }
             } else if (response.status === 404) {
                 console.log('keine aktiven Bestellungen gefunden'); // ist optional, habe ich eingebaut um sicher zu gehen dass die API-Route funktioniert
                 lastOrderStatus = null;
                 document.getElementById('bell-button').classList.remove('new-notification');
+                displayOrderStatus([]);
             } else if (response.status === 401) {
                 console.log('Benutzer nicht angemeldet'); // ebenfalls optional
+                lastOrderStatus = null;
+                document.getElementById('bell-button').classList.remove('new-notification');
                 displayOrderStatus([{ message: 'Bitte melden Sie sich an, um Benachrichtigungen zu sehen.' }]);
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
