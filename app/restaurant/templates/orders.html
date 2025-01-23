@@ -287,33 +287,29 @@
             <button class="btn btn-outline-dark" onclick="showOverlay('${order.order_id}', '${new Date(order.date * 1000).toLocaleString()}', ${JSON.stringify(order.items)}, ${order.total.toFixed(2)}, '${statusText}')">Details</button>
           </div>
         `;
-
         ordersContainer.appendChild(orderCard);
       });
     }
 
     function showError(message) {
-      document.getElementById('errorMessage').innerText = message;
-      document.getElementById('errorMessage').style.display = 'block';
+      const errorMessageElement = document.getElementById('errorMessage');
+      errorMessageElement.innerText = message;
+      errorMessageElement.style.display = 'block';
     }
 
-    function showOverlay(orderId, date, items, total, status) {
+    function showOverlay(orderId, orderDate, orderItems, totalPrice, status) {
       document.getElementById('overlayOrderId').innerText = `Bestellung ${orderId}`;
-      document.getElementById('overlayOrderDate').innerText = date;
-      document.getElementById('overlayTotal').innerText = total.toFixed(2);
+      document.getElementById('overlayOrderDate').innerText = orderDate;
+      document.getElementById('overlayTotal').innerText = totalPrice.toFixed(2);
       document.getElementById('overlayStatus').innerText = status;
 
-      const itemsContainer = document.getElementById('overlayItems');
-      itemsContainer.innerHTML = '';
-      items.forEach(item => {
-        const itemRow = document.createElement('div');
-        itemRow.className = 'd-flex justify-content-between';
-        itemRow.innerHTML = `
+      const overlayItemsContainer = document.getElementById('overlayItems');
+      overlayItemsContainer.innerHTML = orderItems.map(item => `  
+        <div class="d-flex justify-content-between">
           <span>${item.name}</span>
           <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
-        `;
-        itemsContainer.appendChild(itemRow);
-      });
+        </div>
+      `).join('');
 
       document.getElementById('orderOverlay').classList.add('active');
     }
@@ -322,16 +318,71 @@
       document.getElementById('orderOverlay').classList.remove('active');
     }
 
-    function cancelOrder() {
-      alert('Bestellung wurde storniert.');
-      closeOverlay();
+    async function confirmOrder() {
+      const orderId = document.getElementById('overlayOrderId').innerText.replace('Bestellung ', '');
+      const data = { status: 1 }; // Status for "in Zubereitung" (in preparation)
+      
+      try {
+        const response = await fetch(`/api/restaurant/orders/order/${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.status === 200) {
+          const responseData = await response.json();
+          alert(responseData.message); // Success message
+          closeOverlay();
+          fetchOrderData(); // Refresh the order list
+        } else if (response.status === 400) {
+          const errorData = await response.json();
+          alert(errorData.message); // Error message
+        } else if (response.status === 404) {
+          const errorData = await response.json();
+          alert(errorData.message); // Error message
+        } else {
+          alert('An unexpected error occurred.');
+        }
+      } catch (error) {
+        alert('Failed to confirm the order. Please try again later.');
+      }
     }
 
-    function confirmOrder() {
-      alert('Bestellung wurde bestätigt.');
-      closeOverlay();
+    async function cancelOrder() {
+      const orderId = document.getElementById('overlayOrderId').innerText.replace('Bestellung ', '');
+      const data = { status: 4 }; // Status for "abgelehnt" (rejected)
+      
+      try {
+        const response = await fetch(`/api/restaurant/orders/order/${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.status === 200) {
+          const responseData = await response.json();
+          alert(responseData.message); // Success message
+          closeOverlay();
+          fetchOrderData(); // Refresh the order list
+        } else if (response.status === 400) {
+          const errorData = await response.json();
+          alert(errorData.message); // Error message
+        } else if (response.status === 404) {
+          const errorData = await response.json();
+          alert(errorData.message); // Error message
+        } else {
+          alert('An unexpected error occurred.');
+        }
+      } catch (error) {
+        alert('Failed to cancel the order. Please try again later.');
+      }
     }
 
+    // Call to fetch restaurant data and order data on page load
     fetchRestaurantData();
     fetchOrderData();
   </script>
