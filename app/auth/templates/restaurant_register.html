@@ -54,10 +54,33 @@
       </div>
 
       <div class="mb-3">
+        <label for="cuisine" class="form-label">Küche</label>
+        <select id="cuisine" class="form-control">
+          <option value="0">Sonstiges</option>
+          <option value="1">Pizza</option>
+          <option value="2">Sushi</option>
+          <option value="3">Burger</option>
+          <option value="4">Döner</option>
+          <option value="5">Pasta</option>
+          <option value="6">Italienisch</option>
+          <option value="7">Asiatisch</option>
+          <option value="8">Indisch</option>
+          <option value="9">Mexikanisch</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
         <label for="banner" class="form-label">Restaurant Bild (optional)</label>
         <button type="button" class="button" onclick="document.getElementById('banner').click()">Bild hochladen</button>
         <input type="file" id="banner" class="form-control" accept="image/*" onchange="previewImage(event)">
         <div id="imagePreview" class="mt-3"></div>
+      </div>
+
+      <div class="mb-3">
+        <label for="openingHoursContainer" class="form-label">Öffnungszeiten</label>
+        <button type="button" class="button" onclick="addOpeningHour()">+ Tag hinzufügen</button>
+        <div id="openingHoursContainer" class="mt-3"></div>
+        <div id="openingHoursError" class="error"></div>
       </div>
 
       <div class="mb-3">
