@@ -1,3 +1,7 @@
+    document.getElementById('logo').addEventListener('click', function() {
+        window.location.href = '/search';
+    });
+
     document.getElementById('bell-button').addEventListener('click', function() {
         var notifications = document.getElementById('notifications');
         if (notifications.style.display === 'none' || notifications.style.display === '') {
@@ -32,11 +36,6 @@
         }
     });
 
-    document.getElementById('back-button').addEventListener('click', function() {
-        var pastOrders = document.getElementById('past-orders');
-        pastOrders.style.display = 'none';
-    });
-
     document.getElementById('profile-button').addEventListener('click', function() {
         var guthabenContainer = document.getElementById('guthaben-container');
         var ausloggenButton = document.getElementById('ausloggen-button');
@@ -67,10 +66,6 @@
         } catch (error) {
             console.error('Fehler beim Ausloggen:', error);
         }
-    });
-
-    document.getElementById('logo').addEventListener('click', function() {
-        window.location.href = '/search';
     });
 
     // Öffnen des Fensters und Abrufen der Guthaben-Informationen
@@ -206,22 +201,17 @@
             console.error("Fehler beim Abrufen des Bestellstatus.", error);
         }
     }
-    
-    document.getElementById('back-button').addEventListener('click', function(event) {
-        event.preventDefault();
-        window.location.href = '/search';
-    });
 
     // Logik, um die Zahlen in Text umzuwandeln
     function getStatusText(status) {
         const statusMap = {
-            0: "ausstehend.",
-            1: "in Zubereitung.",
-            2: "in Zustellung.",
-            3: "geliefert.",
-            4: "storniert."
+            0: "ausstehend",
+            1: "in Zubereitung",
+            2: "in Zustellung",
+            3: "geliefert",
+            4: "storniert"
         };
-        return statusMap[status] || "unbekannt.";
+        return statusMap[status] || "unbekannt";
     }
 
     // Funktion zum Anzeigen des Bestellstatus
@@ -239,10 +229,14 @@
         orders.forEach(order => {
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('notification-item');
-            orderItemDiv.innerHTML = `
-                <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
-            `;
-            notifications.appendChild(orderItemDiv);
+            if (order.message) {
+                orderItemDiv.innerHTML = `<p>${order.message}</p>`;
+            } else {
+                orderItemDiv.innerHTML = `
+                    <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
+                `;
+            }
+            notifications.prepend(orderItemDiv); // prepend, um die neuesten Benachrichtigungen zuerst anzuzeigen
         });
 
         bellButton.classList.add('new-notification');
@@ -264,13 +258,17 @@
                 if (JSON.stringify(data) !== JSON.stringify(lastOrderStatus)) {
                     lastOrderStatus = data;
                     document.getElementById('bell-button').classList.add('new-notification');
+                    displayOrderStatus(data);
                 }
             } else if (response.status === 404) {
                 console.log('keine aktiven Bestellungen gefunden'); // ist optional, habe ich eingebaut um sicher zu gehen dass die API-Route funktioniert
                 lastOrderStatus = null;
                 document.getElementById('bell-button').classList.remove('new-notification');
+                displayOrderStatus([]);
             } else if (response.status === 401) {
                 console.log('Benutzer nicht angemeldet'); // ebenfalls optional
+                lastOrderStatus = null;
+                document.getElementById('bell-button').classList.remove('new-notification');
                 displayOrderStatus([{ message: 'Bitte melden Sie sich an, um Benachrichtigungen zu sehen.' }]);
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
@@ -311,7 +309,7 @@
 
     // Funktion für etwaige errors
     function handleError(error) {
-        const container = document.getElementById('restaurants-container');
+        const container = document.getElementById('error-container');
         container.innerHTML = `<p>${error.message}</p>`;
     }
 
@@ -371,10 +369,10 @@
             orderItemDiv.innerHTML = `
                 <div style="flex-grow: 1;">
                     <p style="font-size: 14px;">Datum: ${new Date(order.date * 1000).toLocaleString()}</p>
-                    <p style="font-size: 14px;">Restaurant: ${order.name}</p>
-                    <p style="font-size: 14px;">Summe: $${order.total}</p>
+                    <p style="font-size: 16px;">Restaurant: ${order.name}</p>
+                    <p style="font-size: 18px;">Summe: ${order.total.toFixed(2).replace('.', ',')} EUR </p>
                 </div>
-                <button class="arrow-button" onclick="navigateToNewPage('/past_orders?order_id=${order.order_id}')">
+                <button class="arrow-button" onclick="window.location.href='/past_orders?order_id=${order.order_id}'">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             `;
@@ -410,7 +408,3 @@
             pastOrdersDiv.innerHTML = '<p>Fehler beim Abrufen vergangener Bestellungen. Bitte versuchen Sie es später erneut.</p>';
         }
     }
-
-    document.getElementById('logo').addEventListener('click', function () {
-        window.location.href = '/search';
-    });
