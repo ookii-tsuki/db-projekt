@@ -3,12 +3,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Funktion zum Anzeigen von einer Fehlermeldung
     function displayErrorMessage(message) {
-        mainArea.innerHTML = ''; // Vorherige Inhalte löschen
+        mainArea.innerHTML = '';
         const errorMessage = document.createElement('div');
         errorMessage.classList.add('order-item');
         errorMessage.innerHTML = `<p>${message}</p>`;
         mainArea.appendChild(errorMessage);
     }
+
+    document.getElementById('logo').addEventListener('click', function () {
+        window.location.href = '/search';
+    });
+
+    document.getElementById('cart-button').addEventListener('click', function() {
+        window.location.href = '/cart';
+    });
+
+    document.getElementById('more-button').addEventListener('click', function () {
+        const moreButtons = document.getElementById('more-buttons');
+        moreButtons.style.display = moreButtons.style.display === 'none' || moreButtons.style.display === '' ? 'flex' : 'none';
+    });
+
+    document.getElementById('past-orders-button').addEventListener('click', function () {
+        location.reload();
+    });
+
+    document.getElementById('back-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        window.history.back();
+    });
 
     // Funktion zum Anzeigen vergangener Bestellungen anzuzeigen
     function displayPastOrders(data) {
@@ -21,27 +43,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 orderItemDiv.classList.add('order-item');
                 orderItemDiv.innerHTML = `
                     <div class="order-header">
-                        <p>Date: ${new Date(order.date * 1000).toLocaleString()}</p>
-                        <p>Order ID: ${order.order_id}</p>
+                        <h3>Items</h3>
+                        <p>Datum: ${new Date(order.date * 1000).toLocaleDateString()}, ${new Date(order.date * 1000).toLocaleTimeString()}</p>
                         <p>Status: ${getStatusText(order.status)}</p>
                     </div>
                     <hr>
                     <div class="order-details">
                         <div class="left">
-                            <p>Restaurant: ${order.name}</p>
-                            <h3>Items:</h3>
+                            <p class="restaurant-name">${order.name}</p>
                             <ul>
                                 ${order.items.map(item => `
-                                    <li>${item.name} - ${item.quantity} x $${item.price} (${item.notes})</li>
+                                    <span class="item-name">${item.name} </span>
+                                    <span class="item-quantity">x${item.quantity} </span>
+                                    <span class="item-price">${item.price.toFixed(2)} EUR </span>
                                 `).join('')}
                             </ul>
                         </div>
                         <div class="right">
-                            <p>Total: $${order.total.toFixed(2)}</p>
+                            <p class="total">Summe: ${order.total.toFixed(2)} EUR</p>
                         </div>
                     </div>
-                `;
-                mainArea.appendChild(orderItemDiv);
+                    `;
+                    mainArea.prepend(orderItemDiv);
             });
         }
     }
@@ -98,23 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             notifications.style.display = 'none';
         }
-    });
-
-    document.getElementById('cart-button').addEventListener('click', function() {
-        window.location.href = '/cart';
-    });
-
-    document.getElementById('more-button').addEventListener('click', function () {
-        const moreButtons = document.getElementById('more-buttons');
-        moreButtons.style.display = moreButtons.style.display === 'none' || moreButtons.style.display === '' ? 'flex' : 'none';
-    });
-
-    document.getElementById('past-orders-button').addEventListener('click', function () {
-        location.reload();
-    });
-
-    document.getElementById('past-orders-back-button').addEventListener('click', function () {
-        window.location.href = '/search';
+        this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
     });
 
     document.getElementById('profile-button').addEventListener('click', function() {
@@ -149,10 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.getElementById('logo').addEventListener('click', function () {
-        window.location.href = '/search';
-    });
-
     // Öffnen des Fensters und Abrufen der Guthaben-Informationen
     document.getElementById('guthaben-button').addEventListener('click', async function () {
 
@@ -170,8 +173,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const data = await response.json();
+                const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ',');  // Formatierung des Geldbetrags
                 modalContent.innerHTML = `
-                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${data.wallet} EUR.</p>
+                    <p>Ihr aktuelles Guthaben bei Lieferspatz: ${formattedWallet} EUR.</p>
                     <button id="close-modal">Schließen</button>
                 `;
             } else if (response.status === 401) {
@@ -252,30 +256,33 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Fehler beim Abrufen des Bestellstatus.", error);
         }
     }
-    
-    document.getElementById('back-button').addEventListener('click', function(event) {
-        event.preventDefault();
-        window.location.href = '/search';
-    });
 
     // Funktion zum Anzeigen des Bestellstatus
     function displayOrderStatus(orders) {
         const notifications = document.getElementById('notifications');
+        const bellButton = document.getElementById('bell-button');
         notifications.innerHTML = '';
 
         if (orders.length === 0) {
             notifications.innerHTML = '<div class="notification-item">Keine neuen Benachrichtigungen.</div>';
+            bellButton.classList.remove('new-notification');
             return;
         }
 
         orders.forEach(order => {
             const orderItemDiv = document.createElement('div');
             orderItemDiv.classList.add('notification-item');
-            orderItemDiv.innerHTML = `
-                <p>Bestellung ${order.order_id} von ${order.name} hat den Status ${order.status}.</p>
-            `;
-            notifications.appendChild(orderItemDiv);
+            if (order.message) {
+                orderItemDiv.innerHTML = `<p>${order.message}</p>`;
+            } else {
+                orderItemDiv.innerHTML = `
+                    <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
+                `;
+            }
+            notifications.prepend(orderItemDiv); // prepend, um die neuesten Benachrichtigungen zuerst anzuzeigen
         });
+
+        bellButton.classList.add('new-notification');
     }
 
     // Polling zum regelmäßigen Abrufen des Bestellstatus
@@ -294,13 +301,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (JSON.stringify(data) !== JSON.stringify(lastOrderStatus)) {
                     lastOrderStatus = data;
                     document.getElementById('bell-button').classList.add('new-notification');
+                    displayOrderStatus(data);
                 }
             } else if (response.status === 404) {
                 console.log('keine aktiven Bestellungen gefunden'); // ist optional, habe ich eingebaut um sicher zu gehen dass die API-Route funktioniert
                 lastOrderStatus = null;
                 document.getElementById('bell-button').classList.remove('new-notification');
+                displayOrderStatus([]);
             } else if (response.status === 401) {
                 console.log('Benutzer nicht angemeldet'); // ebenfalls optional
+                lastOrderStatus = null;
+                document.getElementById('bell-button').classList.remove('new-notification');
                 displayOrderStatus([{ message: 'Bitte melden Sie sich an, um Benachrichtigungen zu sehen.' }]);
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
