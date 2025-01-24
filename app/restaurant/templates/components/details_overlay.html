@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/restaurant/details_overlay.css') }}">
+
+<!-- Overlay -->
+<div class="overlay" id="orderOverlay">
+  <div class="overlay-content w-50 mx-auto">
+    <!-- Back Button in Overlay (First Item in Overlay) -->
+    <button class="btn p-0 border-0 bg-transparent text-reset text-decoration-none btn-link" onclick="closeOverlay()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+      </svg>
+      Zurück
+    </button>
+    <h5 id="overlayOrderId" class="text-center">Order ID</h5>
+    <hr>
+    <p><strong>Name:</strong> <span id="overlayname">Name</span></p>
+    <p><strong>Datum:</strong> <span id="overlayOrderDate">Date</span></p>
+    <p><strong>Lieferadresse:</strong> <span id="overlaylieferadresse">lieferadresse</span></p>
+    <p><strong>Status:</strong> <span id="overlayStatus">Status</span></p>
+    <p><strong> Items: </strong></p>
+    <div id="overlayItems">
+      <!-- Items will be dynamically inserted here -->
+    </div>
+    <hr>
+    <p class="d-flex justify-content-between">
+      <strong>Summe:</strong>
+      <span class="ms-auto" id="overlayTotal"></span>
+    </p>
+    <div class="d-flex justify-content-between mt-3">
+        {% if is_active %}
+        <button class="btn btn-danger" onclick="cancelOrder()">Stornieren</button>
+        <button class="btn btn-success active focus shadow-lg fw-bold" onclick="confirmOrder()">Bestätigen</button>
+        {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/restaurant/details_overlay.js') }}"></script>

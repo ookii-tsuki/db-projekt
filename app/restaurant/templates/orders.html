@@ -11,14 +11,8 @@
       background-color: white;
       color: black;
     }
-    .photo {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-    }
+    
+    
     .back-button {
       position: absolute;
       top: 90px;
@@ -65,62 +59,7 @@
       color: #6c757d;
       margin: 20px 0;
     }
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      display: none; /* Hidden by default */
-      opacity: 0; /* Start with opacity 0 */
-    }
-    .overlay.active {
-      display: flex; /* Show overlay when active */
-      opacity: 1; /* Set opacity to 1 when active */
-    }
-    .overlay.fadeIn {
-      animation: fadeIn 0.5s forwards; /* Add fadeIn animation */
-    }
-    .overlay.fadeOut {
-      animation: fadeOut 0.5s forwards; /* Add fadeOut animation */
-    }
-    .overlay-content {
-      background-color: #f8f9fa;
-      padding: 40px; /* Increased padding */
-      border-radius: 10px;
-      width: 90%;
-      max-width: 800px; /* Increased size */
-      position: relative;
-    }
-    .close-button {
-      position: absolute;
-      top: 10px;
-      left: 10px; /* Adjusted position to top-left */
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: black;
-      cursor: pointer;
-    }
-    .btn-outline-dark,
-    .back-button,
-    .overlay button {
-      background-color: transparent;
-      border: 1px solid black;
-      padding: 8px 16px;
-      font-size: 14px;
-      color: black;
-    }
-    .back-button:hover,
-    .overlay button:hover {
-      background-color: black;
-      color: white;
-    }
+
     .btn-danger,
     .btn-success {
       background-color: transparent;
@@ -167,39 +106,11 @@
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
   </div>
 
-  <!-- Overlay -->
-  <div class="overlay" id="orderOverlay">
-    <div class="overlay-content w-50 mx-auto">
-      <!-- Back Button in Overlay (First Item in Overlay) -->
-      <button class="btn p-0 border-0 bg-transparent text-reset text-decoration-none btn-link" onclick="closeOverlay()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
-        </svg>
-        Zurück
-</button>
-      <h5 id="overlayOrderId" class="text-center">Order ID</h5>
-      <hr>
-      <p><strong>Name:</strong> <span id="overlayname">Name</span></p>
-      <p><strong>Datum:</strong> <span id="overlayOrderDate">Date</span></p>
-      <p><strong>Lieferadresse:</strong> <span id="overlaylieferadresse">lieferadresse</span></p>
-      <p><strong>Status:</strong> <span id="overlayStatus">Status</span></p>
-      <p><strong> Items: </strong></p>
-      <div id="overlayItems">
-        <!-- Items will be dynamically inserted here -->
-      </div>
-      <hr>
-      <p class="d-flex justify-content-between">
-        <strong>Summe:</strong>
-        <span class="ms-auto" id="overlayTotal"></span>
-      </p>
-      <div class="d-flex justify-content-between mt-3">
-        <button class="btn btn-danger" onclick="cancelOrder()">Stornieren</button>
-        <button class="btn btn-success active focus shadow-lg fw-bold" onclick="confirmOrder()">Bestätigen</button>
-      </div>
-    </div>
-  </div>
+  <!-- Order Details Overlay -->
+  {% set is_active = True %}
+  {% include 'components/details_overlay.html' %}
 
-  <script>
+    <script>
     function displayOrders(orders) {
       const urlParams = new URLSearchParams(window.location.search);
       const order_id = urlParams.get('order_id');
@@ -284,101 +195,7 @@
       errorMessageElement.style.display = 'block';
     }
 
-    function showOverlay(details) {
-      const overlay = document.getElementById('orderOverlay');
-      overlay.classList.remove('fadeOut');
-      overlay.classList.add('fadeIn', 'active', 'animate__animated', 'animate__fadeIn');
-      document.getElementById('overlayOrderId').innerText = `Bestellung ${details.order_id}`;
-      document.getElementById('overlayname').innerText = details.name ;
-      document.getElementById('overlaylieferadresse').innerText = details.address + ', ' + details.zip + ' ' + details.city;
-      document.getElementById('overlayOrderDate').innerText = new Date(details.date * 1000).toLocaleString();
-      document.getElementById('overlayTotal').innerText = details.total.toFixed(2) + ' EUR';
-      document.getElementById('overlayStatus').innerText = ['nicht bestätigt', 'in Zubereitung', 'in Lieferung', 'abgeschlossen', 'abgelehnt'][details.status] || 'Unbekannter Status';
 
-      const overlayItemsContainer = document.getElementById('overlayItems');
-      overlayItemsContainer.innerHTML = details.items.map(item => `  
-        <div class="d-flex justify-content-between">
-          <span>${item.name}</span>
-          <span>${item.price.toFixed(2)} EUR x ${item.quantity}</span>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span class="small text-muted">${item.notes}</span>
-        </div>
-      `).join('');
-
-      document.getElementById('orderOverlay').classList.add('active');
-    }
-
-    function closeOverlay() {
-      const overlay = document.getElementById('orderOverlay');
-      overlay.classList.remove('fadeIn');
-      overlay.classList.add('fadeOut', 'animate__animated', 'animate__fadeOut');
-      setTimeout(() => {
-        overlay.classList.remove('active');
-      }, 500); // Match the duration of the fadeOut animation
-    }
-
-    async function confirmOrder() {
-      const orderId = document.getElementById('overlayOrderId').innerText.replace('Bestellung ', '');
-      const data = { status: 1 }; // Status for "in Zubereitung" (in preparation)
-      
-      try {
-        const response = await fetch(`/api/restaurant/orders/order/${orderId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (response.status === 200) {
-          const responseData = await response.json();
-          closeOverlay();
-          fetchOrderData(); // Refresh the order list
-        } else if (response.status === 400) {
-          const errorData = await response.json();
-          alert(errorData.message); // Error message
-        } else if (response.status === 404) {
-          const errorData = await response.json();
-          alert(errorData.message); // Error message
-        } else {
-          alert('An unexpected error occurred.');
-        }
-      } catch (error) {
-        alert('Failed to confirm the order. Please try again later.');
-      }
-    }
-
-    async function cancelOrder() {
-      const orderId = document.getElementById('overlayOrderId').innerText.replace('Bestellung ', '');
-      const data = { status: 4 }; // Status for "abgelehnt" (rejected)
-      
-      try {
-        const response = await fetch(`/api/restaurant/orders/order/${orderId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (response.status === 200) {
-          const responseData = await response.json();
-          closeOverlay();
-          fetchOrderData(); // Refresh the order list
-        } else if (response.status === 400) {
-          const errorData = await response.json();
-          alert(errorData.message); // Error message
-        } else if (response.status === 404) {
-          const errorData = await response.json();
-          alert(errorData.message); // Error message
-        } else {
-          alert('An unexpected error occurred.');
-        }
-      } catch (error) {
-        alert('Failed to cancel the order. Please try again later.');
-      }
-    }
 
     // Call to fetch restaurant data and order data on page load
     fetchOrderData();
