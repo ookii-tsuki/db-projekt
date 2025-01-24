@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LS Warenkorb</title>
+
+    <!-- Font Awesome für die Icons -->
+    <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
+
+    <!-- CSS Referenz: search.css -->
+    <link href="{{ url_for('static', filename='css/order/cart.css') }}" rel="stylesheet"> 
+</head>
+<body>
+    <!-- zurück-Knopf auf der Detailseite um zur Hauptseite zurückzukehren -->
+    <a id="back-button" href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
+
+    <!-- Header Container -->
+    <div class="header">
+        <!-- Container für Logo und Profil -->
+        <div class="logo-profile">
+            <!-- Bild oben links -->
+            <img id="logo" src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+            <!-- Profil -->
+            <button class="button icon-button" id="profile-button"><i class="fas fa-user"></i></button>
+            <!-- Guthaben Container -->
+            <div class="guthaben-container" id="guthaben-container">
+                <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
+            </div>
+        </div>
+        
+        <!-- nach drücken vom Mehr-Knopf -->
+        <div class="more-buttons" id="more-buttons">
+            <button class="more-button" id="past-orders-button">vergangene Bestellungen</button>
+            <button class="more-button">Einstellungen</button>
+            <button class="more-button">über Uns</button>
+        </div>
+
+        <!-- Container für die Header Knöpfe -->
+        <div class="header-buttons">
+            <button class="button icon-button" id="bell-button"><i class="fas fa-bell"></i></button> <!-- Glocke -->
+            <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
+        </div>
+    </div>
+
+    <!-- Benachrichtigungen Container -->
+    <div class="notifications" id="notifications">
+        <!-- Auf Default -->
+        <div class="notification-item">Keine neuen Benachrichtigungen.</div>
+    </div>
+
+    <!-- Vergangene Bestellungen Container -->
+    <div class="past-orders" id="past-orders">
+        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+    </div>
+
+    <!-- Container für den Warenkorb -->
+    <div class="mainarea">
+        <div class="text">Dein Warenkorb</div>
+        <div id="cart-container"></div>
+    </div>
+
+    <!-- Container für Fehlernachrichten -->
+    <div class="error-container" id="error-container"></div>
+
+    <!-- Main Inhalt Container -->
+    <div class="mainarea">
+
+        <!-- Container für die Buttons -->
+        <div class="buttonsarea">
+        
+            <div id="modal-overlay" style="display: none;"></div>
+
+            <div id="modal" style="display: none;">
+                <div id="modal-content">
+                    <button id="close-modal">Schließen</button>
+                </div>
+            </div>
+            
+        <!-- Referenz zum JS: search.js -->
+        <script src="{{ url_for('static', filename='js/order/cart.js') }}"></script>
+</body>
+</html>

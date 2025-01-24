@@ -10,11 +10,12 @@ document.getElementById('bell-button').addEventListener('click', function() {
     } else {
         notifications.style.display = 'none';
     }
-    this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
+    this.classList.remove('new-notification');
 });
 
-document.getElementById('cart-button').addEventListener('click', function() {
-    window.location.href = '/cart';
+document.getElementById('back-button').addEventListener('click', function(event) {
+    event.preventDefault();
+    window.history.back();
 });
 
 document.getElementById('more-button').addEventListener('click', function() {
@@ -128,37 +129,13 @@ document.getElementById('guthaben-button').addEventListener('click', async funct
     });
 });
 
-document.getElementById('search-button').addEventListener('click', async function() {
-    const query = document.getElementById('search-query').value;
+// Öffnen des Fensters
+document.getElementById('guthaben-button').addEventListener('click', function () {
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
 
-    console.log(`Search Query: ${query}`);
-
-    try {
-        const response = await fetch(`/api/main/search?query=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 400) {
-                handleError({ message: "Ungültige Abfrageparameter." });
-            } else if (response.status === 404) {
-                handleError({ message: "Es wurden keine Restaurants gefunden." });
-            } else {
-                throw new Error(`unerwarteter Fehler: ${response.status}`);
-            }
-            return;
-        }
-
-        const data = await response.json();
-        console.log('Response Data:', data); 
-        displayRestaurants(data);
-    } catch (error) {
-        console.error("Fehler beim Abruf von Restaurants.", error);
-        handleError({ message: "Fehler beim Abruf von Restaurants. Bitte versuchen Sie es später erneut." });
-    }
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
 });
 
 // Schließen des Fensters
@@ -281,47 +258,10 @@ async function pollOrderStatus() {
 // Polling alle 5 Sekunden
 setInterval(pollOrderStatus, 5000);
 
-// Funktion um die Restaurants anzuzeigen
-function displayRestaurants(data) {
-    const container = document.getElementById('restaurants-container');
-    container.innerHTML = '';
-
-    const searchText = document.getElementById('searchText');
-    searchText.textContent = `${data.length} Restaurants in deinem Umfeld`;   // um dynamisch die Anzahl der Restaurants im Umfeld anzuzeigen
-
-    data.forEach(restaurant => {
-        const restaurantCard = document.createElement('div');
-        restaurantCard.classList.add('restaurant-card');
-        restaurantCard.innerHTML = `
-        <a href="/menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
-            <img src="${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
-            <div class="restaurant-info">
-                <h3>${restaurant.name}</h3>
-                <p class="restaurant-rating">Bewertung: ${restaurant.rating}</p>
-            </div>
-            <p>${restaurant.description}</p>
-            <p class="restaurant-delivery-time">Lieferzeit: ${restaurant.approx_delivery_time}</p>
-        </a>
-        `;
-        container.appendChild(restaurantCard);
-    });
-}
-
-// Funktion für etwaige errors
-function handleError(error) {
-    const container = document.getElementById('error-container');
-    container.innerHTML = `<p>${error.message}</p>`;
-}
-
-// Funktion für Restaurant Details
-function navigateToRestaurant(restaurantId) {
-    window.location.href = `/menu?restaurant_id=${restaurantId}`; // Weiterleitung zur Restaurant-Details-Seite mittels ID
-}
-
-// Funktion zum Abrufen der Restaurants vom Server
-async function fetchRestaurants() {
+// Funktion zum Abrufen des Warenkorbs vom Server
+async function fetchCart() {
     try {
-        const response = await fetch('/api/main/search', {
+        const response = await fetch('/api/order/cart', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -329,26 +269,48 @@ async function fetchRestaurants() {
         });
 
         if (!response.ok) {
-            if (response.status === 400) {
-                handleError({ message: "Ungültige Abfrageparameter." });
-            } else if (response.status === 404) {
-                handleError({ message: "Es wurden keine Restaurants in der Nähe gefunden." });
+            if (response.status === 404) {
+                displayCart([]);
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
             return;
         }
 
-        const data = await response.json();
-        displayRestaurants(data);
+     const data = await response.json();
+     displayCart(data);
     } catch (error) {
-        console.error("Fehler beim Abruf von Restaurants.", error);
-        handleError({ message: "Fehler beim Abruf von Restaurants. Bitte versuchen Sie es später erneut." });
+        console.error("Fehler beim Abrufen des Warenkorbs.", error);
+        const cartContainer = document.getElementById('cart-container');
+        cartContainer.innerHTML = '<p>Fehler beim Abrufen des Warenkorbs. Bitte versuchen Sie es später erneut.</p>';
     }
 }
 
-// Abrufen der Restaurants, wenn die Seite geladen wird
-fetchRestaurants();
+// Funktion zum Anzeigen des Warenkorbs
+function displayCart(cart) {
+    const cartContainer = document.getElementById('cart-container');
+    cartContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartContainer.innerHTML = '<p>Der Warenkorb ist leer.</p>';
+        return;
+    }
+
+    cart.forEach(item => {
+        const cartItemDiv = document.createElement('div');
+        cartItemDiv.classList.add('cart-item');
+        cartItemDiv.innerHTML = `
+            <h3>${item.name}</h3>
+            <p>Preis: ${item.price} €</p>
+            <p>Menge: ${item.quantity}</p>
+            <p>Notizen: ${item.notes}</p>
+        `;
+        cartContainer.appendChild(cartItemDiv);
+    });
+}
+
+// Abrufen des Warenkorbs, wenn die Seite geladen wird
+fetchCart();
 
 // Funktion für vergangene Bestellungen
 function displayPastOrders(data) {
@@ -390,7 +352,6 @@ async function fetchPastOrders() {
                 'Content-Type': 'application/json',
             }
         });
-
         if (!response.ok) {
             if (response.status === 404) {
                 displayPastOrders([]);
@@ -399,7 +360,6 @@ async function fetchPastOrders() {
             }
             return;
         }
-
         const data = await response.json();
         displayPastOrders(data);
     } catch (error) {
@@ -407,4 +367,10 @@ async function fetchPastOrders() {
         const pastOrdersDiv = document.getElementById('past-orders');
         pastOrdersDiv.innerHTML = '<p>Fehler beim Abrufen vergangener Bestellungen. Bitte versuchen Sie es später erneut.</p>';
     }
+}
+
+// Funktion für etwaige errors
+function handleError(error) {
+    const container = document.getElementById('error-container');
+    container.innerHTML = `<p>${error.message}</p>`;
 }
