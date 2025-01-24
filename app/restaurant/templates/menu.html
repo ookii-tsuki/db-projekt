@@ -151,18 +151,17 @@
 </head>
 <body>
   {% include 'components/header.html' %}
-  <button class="btn btn-outline-dark back-button" onclick="history.back()">Zurück</button>
   <div class="container">
-    <h1 class="main-heading">Ihre Speisekarte</h1>
-    <p class="sub-heading">Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen</p>
-    <p class="sub-heading">bestehende Items anpassen, oder Items entfernen</p>
+    {% set heading = 'Ihre Speisekarte' %}
+    {% set sub_heading = 'Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen<br>bestehende Items anpassen, oder Items entfernen.' %}
+    {% include 'components/page_info.html' %}
+
     <div class="line"></div>
     <div id="foodItemsContainer"></div>
     <div class="line"></div>
     <div class="centered">
       <button class="btn btn-dark add-button" onclick="showAddOverlay()">Hinzufügen</button>
     </div>
-    <button class="btn btn-dark save-button">Speichern</button>
   </div>
 
   <!-- Item bearbeiten Overlay -->

@@ -78,10 +78,11 @@
 <body>
   {% include 'components/header.html' %}
   <div class="container">
-    <h1 class="main-heading" id="restaurantName">Ihr Restaurant</h1>
-    <p class="sub-heading">Hier können Sie Änderungen an Ihrer Speisekarte vornehmen,</p>
-    <p class="sub-heading">Ihr Restaurant bearbeiten, Ihre Historie einsehen und Bestellungen verwalten.</p>
     
+    {% set heading = 'Ihr Restaurant' %}
+    {% set sub_heading = 'Hier können Sie Änderungen an Ihrer Speisekarte vornehmen,<br>Ihr Restaurant bearbeiten, Ihre Historie einsehen und Bestellungen verwalten.' %}
+    {% include 'components/page_info.html' %}
+
     {% include 'components/restaurant_card.html' %}
     
     <div class="buttons-grid">
@@ -135,6 +136,5 @@
       document.getElementById('overlay').style.display = 'none';
     }
   </script>
-  <script src="{{ url_for('static', filename='js/restaurant/restaurant_card.js') }}"></script>
 </body>
 </html>
