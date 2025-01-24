@@ -1,10 +1,21 @@
+document.getElementById('logo').addEventListener('click', function() {
+    window.location.href = '/search';
+});
+
 document.getElementById('bell-button').addEventListener('click', function() {
     var notifications = document.getElementById('notifications');
     if (notifications.style.display === 'none' || notifications.style.display === '') {
         notifications.style.display = 'block';
+        fetchOrderStatus();
     } else {
         notifications.style.display = 'none';
     }
+    this.classList.remove('new-notification');
+});
+
+document.getElementById('back-button').addEventListener('click', function(event) {
+    event.preventDefault();
+    window.history.back();
 });
 
 document.getElementById('more-button').addEventListener('click', function() {
@@ -24,16 +35,6 @@ document.getElementById('past-orders-button').addEventListener('click', function
     } else {
         pastOrders.style.display = 'none';
     }
-});
-
-document.getElementById('back-button').addEventListener('click', function() {
-    var pastOrders = document.getElementById('past-orders');
-    pastOrders.style.display = 'none';
-});
-
-document.getElementById('back-button').addEventListener('click', function(event) {
-    event.preventDefault();
-    window.location.href = '/search';
 });
 
 document.getElementById('profile-button').addEventListener('click', function() {
@@ -58,30 +59,6 @@ document.getElementById('ausloggen-button').addEventListener('click', async func
         });
 
         if (response.ok) {
-            window.location.href = '/';
-        } else {
-            const data = await response.json();
-            console.error('Ausloggen fehlgeschlagen:', data.message);
-        }
-    } catch (error) {
-        console.error('Fehler beim Ausloggen:', error);
-    }
-});
-
-document.getElementById('logo').addEventListener('click', function() {
-    window.location.href = '/search';
-});
-
-document.getElementById('ausloggen-button').addEventListener('click', async function() {
-    try {
-        const response = await fetch('/api/auth/user/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (response.ok) {
             window.location.href = '/'; // zur Index-Seite weiterleiten
         } else {
             const data = await response.json();
@@ -92,12 +69,9 @@ document.getElementById('ausloggen-button').addEventListener('click', async func
     }
 });
 
-document.getElementById('logo').addEventListener('click', function() {
-    window.location.href = '/search';
-});
-
 // Öffnen des Fensters und Abrufen der Guthaben-Informationen
 document.getElementById('guthaben-button').addEventListener('click', async function () {
+
     const modal = document.getElementById('modal');
     const overlay = document.getElementById('modal-overlay');
     const modalContent = document.getElementById('modal-content');
@@ -112,8 +86,9 @@ document.getElementById('guthaben-button').addEventListener('click', async funct
 
         if (response.ok) {
             const data = await response.json();
+            const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ',');  // Formatierung des Geldbetrags
             modalContent.innerHTML = `
-                <p>Ihr aktuelles Guthaben bei Lieferspatz: ${data.wallet} EUR.</p>
+                <p>Ihr aktuelles Guthaben bei Lieferspatz: ${formattedWallet} EUR.</p>
                 <button id="close-modal">Schließen</button>
             `;
         } else if (response.status === 401) {
@@ -204,24 +179,44 @@ async function fetchOrderStatus() {
     }
 }
 
+// Logik, um die Zahlen in Text umzuwandeln
+function getStatusText(status) {
+    const statusMap = {
+        0: "ausstehend",
+        1: "in Zubereitung",
+        2: "in Zustellung",
+        3: "geliefert",
+        4: "storniert"
+    };
+    return statusMap[status] || "unbekannt";
+}
+
 // Funktion zum Anzeigen des Bestellstatus
 function displayOrderStatus(orders) {
     const notifications = document.getElementById('notifications');
+    const bellButton = document.getElementById('bell-button');
     notifications.innerHTML = '';
 
     if (orders.length === 0) {
         notifications.innerHTML = '<div class="notification-item">Keine neuen Benachrichtigungen.</div>';
+        bellButton.classList.remove('new-notification');
         return;
     }
 
     orders.forEach(order => {
         const orderItemDiv = document.createElement('div');
         orderItemDiv.classList.add('notification-item');
-        orderItemDiv.innerHTML = `
-            <p>Bestellung ${order.order_id} von ${order.name} hat den Status ${order.status}.</p>
-        `;
-        notifications.appendChild(orderItemDiv);
+        if (order.message) {
+            orderItemDiv.innerHTML = `<p>${order.message}</p>`;
+        } else {
+            orderItemDiv.innerHTML = `
+                <p>Deine Bestellung von ${order.name} hat den Status ${getStatusText(order.status)}.</p>
+            `;
+        }
+        notifications.prepend(orderItemDiv); // prepend, um die neuesten Benachrichtigungen zuerst anzuzeigen
     });
+
+    bellButton.classList.add('new-notification');
 }
 
 // Polling zum regelmäßigen Abrufen des Bestellstatus
@@ -240,13 +235,17 @@ async function pollOrderStatus() {
             if (JSON.stringify(data) !== JSON.stringify(lastOrderStatus)) {
                 lastOrderStatus = data;
                 document.getElementById('bell-button').classList.add('new-notification');
+                displayOrderStatus(data);
             }
         } else if (response.status === 404) {
             console.log('keine aktiven Bestellungen gefunden'); // ist optional, habe ich eingebaut um sicher zu gehen dass die API-Route funktioniert
             lastOrderStatus = null;
             document.getElementById('bell-button').classList.remove('new-notification');
+            displayOrderStatus([]);
         } else if (response.status === 401) {
             console.log('Benutzer nicht angemeldet'); // ebenfalls optional
+            lastOrderStatus = null;
+            document.getElementById('bell-button').classList.remove('new-notification');
             displayOrderStatus([{ message: 'Bitte melden Sie sich an, um Benachrichtigungen zu sehen.' }]);
         } else {
             throw new Error(`unerwarteter Fehler: ${response.status}`);
@@ -313,59 +312,65 @@ function displayCart(cart) {
 // Abrufen des Warenkorbs, wenn die Seite geladen wird
 fetchCart();
 
-    // Funktion für vergangene Bestellungen
-    function displayPastOrders(data) {
-        const pastOrdersDiv = document.getElementById('past-orders');
-        pastOrdersDiv.innerHTML = '';
+// Funktion für vergangene Bestellungen
+function displayPastOrders(data) {
+    const pastOrdersDiv = document.getElementById('past-orders');
+    pastOrdersDiv.innerHTML = '';
 
-        // wenn keine vergangenen Bestellungen vorhanden sind
-        if (data.length === 0) {     
-            pastOrdersDiv.innerHTML = '<p>Keine vergangenen Bestellungen gefunden.</p>';
+    // wenn keine vergangenen Bestellungen vorhanden sind
+    if (data.length === 0) {     
+        pastOrdersDiv.innerHTML = '<p>Keine vergangenen Bestellungen gefunden.</p>';
+        return;
+    }
+
+    data.sort((a, b) => b.date - a.date); // sortieren nach aktuellstem Datum (absteigend)
+
+    data.forEach((order, index) => {
+        const orderItemDiv = document.createElement('div');
+        orderItemDiv.classList.add('order-item');
+        orderItemDiv.innerHTML = `
+            <div style="flex-grow: 1;">
+                <p style="font-size: 14px;">Datum: ${new Date(order.date * 1000).toLocaleString()}</p>
+                <p style="font-size: 16px;">Restaurant: ${order.name}</p>
+                <p style="font-size: 18px;">Summe: ${order.total.toFixed(2).replace('.', ',')} EUR </p>
+            </div>
+            <button class="arrow-button" onclick="window.location.href='/past_orders?order_id=${order.order_id}'">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        pastOrdersDiv.appendChild(orderItemDiv);
+    });
+}
+
+// Funktion zum Abrufen vergangener Bestellungen vom Server
+async function fetchPastOrders() {
+    try {
+        const response = await fetch('/api/order/history', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (!response.ok) {
+            if (response.status === 404) {
+                displayPastOrders([]);
+            } else {
+                throw new Error(`unerwarteter Fehler: ${response.status}`);
+            }
             return;
         }
-
-        data.forEach((order, index) => {
-            const orderItemDiv = document.createElement('div');
-            orderItemDiv.classList.add('order-item');
-            orderItemDiv.innerHTML = `
-                <div style="flex-grow: 1;">
-                    <p style="font-size: 14px;">Date: ${new Date(order.date * 1000).toLocaleString()}</p>
-                    <p style="font-size: 14px;">Restaurant: ${order.name}</p>
-                    <p style="font-size: 14px;">Total: $${order.total}</p>
-                </div>
-                <button class="arrow-button" onclick="navigateToNewPage('vergangene Bestellungen Detail.html?order_id=${order.order_id}')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
-
-            pastOrdersDiv.appendChild(orderItemDiv);
-        });
+        const data = await response.json();
+        displayPastOrders(data);
+    } catch (error) {
+        console.error("Fehler beim Abrufen vergangener Bestellungen.", error);
+        const pastOrdersDiv = document.getElementById('past-orders');
+        pastOrdersDiv.innerHTML = '<p>Fehler beim Abrufen vergangener Bestellungen. Bitte versuchen Sie es später erneut.</p>';
     }
+}
 
-    // Funktion zum Abrufen vergangener Bestellungen vom Server
-    async function fetchPastOrders() {
-        try {
-            const response = await fetch('/api/order/history', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 404) {
-                    displayPastOrders([]);
-                } else {
-                    throw new Error(`unerwarteter Fehler: ${response.status}`);
-                }
-                return;
-            }
-
-            const data = await response.json();
-            displayPastOrders(data);
-        } catch (error) {
-            console.error("Fehler beim Abrufen vergangener Bestellungen.", error);
-            const pastOrdersDiv = document.getElementById('past-orders');
-            pastOrdersDiv.innerHTML = '<p>Fehler beim Abrufen vergangener Bestellungen. Bitte versuchen Sie es später erneut.</p>';
-        }
-    }
+// Funktion für etwaige errors
+function handleError(error) {
+    const container = document.getElementById('error-container');
+    container.innerHTML = `<p>${error.message}</p>`;
+}

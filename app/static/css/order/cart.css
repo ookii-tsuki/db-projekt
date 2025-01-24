@@ -1,8 +1,8 @@
 body {
-    font-family: Arial, sans-serif; /* Schriftart */
+    font-family: Arial, sans-serif;
     margin: 0; 
     padding: 0; 
-    display: flex; /* Flexbox layout */
+    display: flex;
     flex-direction: column; 
     align-items: center; 
     text-align: center; 
@@ -73,7 +73,7 @@ body {
 }
 
 .button:hover {
-    background-color: black; /* Wenn cursor drauf, wird der Button schwarz */
+    background-color: black;
     color: white;
 }
 
@@ -159,6 +159,18 @@ hr {
     border-bottom: none;
 }
 
+#bell-button.new-notification::after {
+    content: '';
+    position: absolute;
+    top: 55px;
+    right: 67px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
 /* Layout für den Mehr-Knöpfe Container */
 .more-buttons {
     display: none; 
@@ -212,7 +224,7 @@ hr {
     border-bottom: none;
 }
 
-/* Layout des zurück-Buttons nach "vergangene Bestellungen" */
+/* Layout des zurück-Buttons */
 .back-button {
     position: absolute;
     top: 130px;
@@ -308,4 +320,12 @@ z-index: 1000;
 
 #modal-content {
 text-align: center;
+}
+
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 20px; 
 }
