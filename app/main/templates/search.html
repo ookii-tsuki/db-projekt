@@ -23,6 +23,7 @@
             <!-- Guthaben Container -->
             <div class="guthaben-container" id="guthaben-container">
                 <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
             </div>
         </div>
         
@@ -36,15 +37,13 @@
         <!-- Container für die Header Knöpfe -->
         <div class="header-buttons">
             <button class="button icon-button" id="bell-button"><i class="fas fa-bell"></i></button> <!-- Glocke -->
+            <button class="button icon-button" id="cart-button"><i class="fas fa-shopping-cart"></i></button> <!-- Warenkorb -->
             <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
         </div>
     </div>
 
     <!-- Benachrichtigungen Container -->
-    <div class="notifications" id="notifications">
-        <!-- Auf Default -->
-        <div class="notification-item">Keine neuen Benachrichtigungen.</div>
-    </div>
+    <div class="notifications" id="notifications"></div>
 
     <!-- Vergangene Bestellungen Container -->
     <div class="past-orders" id="past-orders">
@@ -53,18 +52,16 @@
 
     <!-- Main Inhalt Container -->
     <div class="mainarea">
-        <!-- Text -->
-        <div class="text">
-            Restaurants in deiner Nähe<br>
+        <div class="text">Restaurants in deiner Nähe<br>
         </div>
-    
-        <!-- Suchleiste Container -->
+        
+        <!-- Container für die Suche -->
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Adresse eingeben"> <!-- was default in der Suchleiste steht -->
-            <button class="search-button">Suchen</button>
+            <input type="text" id="search-query" class="search-input" placeholder="Restaurant Name oder Küche eingeben">
+            <button class="search-button" id="search-button">Suchen</button>
         </div>
 
-        <!-- Container für die neuen Buttons -->
+        <!-- Container für die Filter-Buttons -->
         <div class="food-buttons-container">
             <button class="food-button">Burger</button>
             <button class="food-button">Pizza</button>
@@ -78,6 +75,9 @@
         <!-- Container für die Restaurants -->
         <div class="restaurants-container" id="restaurants-container"></div>
 
+        <!-- Container für Fehlernachrichten -->
+        <div class="error-container" id="error-container"></div>
+
         <!-- Container für die Buttons -->
         <div class="buttonsarea">
         
@@ -85,7 +85,6 @@
 
             <div id="modal" style="display: none;">
                 <div id="modal-content">
-                    <p>Ihr Guthaben beträgt 100,00 EUR</p>  <!-- später mit Daten aus Datenbank füllen -->
                     <button id="close-modal">Schließen</button>
                 </div>
             </div>
