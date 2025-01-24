@@ -140,7 +140,7 @@
 </head>
 <body>
   <!-- Restaurant Logo -->
-  <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Logo" id="restaurantLogo" class="photo">
+  {% include 'components/header.html' %}
   
   <!-- Back Button (Modified) -->
   <a href="#" class="back-button" onclick="history.back()">
@@ -201,6 +201,9 @@
 
   <script>
     function displayOrders(orders) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const order_id = urlParams.get('order_id');
+
       const ordersContainer = document.getElementById('ordersContainer');
       ordersContainer.innerHTML = ''; 
       
@@ -245,6 +248,10 @@
             <button class="btn btn-outline-dark" onclick="showOverlay(${JSON.stringify(order).replace(/"/g, '&quot;')})">Details</button>
           </div>
         `;
+
+        if (order_id && order_id === order.order_id.toString()) {
+          showOverlay(order);
+        }
         ordersContainer.appendChild(orderCard);
       });
     }

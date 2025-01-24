@@ -113,13 +113,7 @@
   </style>
 </head>
 <body>
-  <div class="bell-icon" onclick="toggleMessage()">
-    🔔
-  </div>
-  <div class="bell-message" id="bellMessage">
-    Es gibt momentan keine Neuigkeiten
-  </div>
-  <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Logo" class="photo">
+  {% include 'components/header.html' %}
   <div class="container">
     <h1 class="main-heading" id="restaurantName">Ihr Restaurant</h1>
     <p class="sub-heading">Hier können Sie Änderungen an Ihrer Speisekarte vornehmen,</p>
@@ -150,10 +144,7 @@
   </div>
 
   <script>
-    function toggleMessage() {
-      const message = document.getElementById('bellMessage');
-      message.style.display = message.style.display === 'block' ? 'none' : 'block';
-    }
+
 
     function showGuthabenModal() {
       fetch('/api/restaurant/stats')

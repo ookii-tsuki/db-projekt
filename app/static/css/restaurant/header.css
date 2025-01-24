@@ -1,0 +1,33 @@
+.icon-button {
+    position: relative;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    display: none;
+    pointer-events: none; /* This ensures clicks pass through the dot */
+}
+
+@keyframes shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.shake-bell {
+    animation: shake 0.5s ease-in-out;
+}

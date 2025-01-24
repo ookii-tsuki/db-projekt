@@ -1,0 +1,26 @@
+<link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/restaurant/header.css') }}" rel="stylesheet">
+
+
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" height="40" alt="Platform Logo">
+    </a>
+    <div class="ml-auto">
+        <button class="btn icon-button text-dark" id="bell-button" onclick="toggleMessage()">
+            <i class="fas fa-bell" style="font-size: 24px;"></i>
+        </button> <!-- Glocke -->
+    </div>
+</nav>
+
+<!-- Notification Panel -->
+<div id="notificationPanel" class="card shadow-sm" style="display: none; position: absolute; top: 50px; right: 10px; width: 400px; z-index: 1050;">
+    <div class="card-header bg-dark text-white">
+        Notifications
+    </div>
+    <div class="card-body" id="notificationsContainer">
+        <p class="card-text text-muted" id="noNotifications">Es gibt keine neuen Benachrichtigungen</p>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/restaurant/header.js') }}"></script>
