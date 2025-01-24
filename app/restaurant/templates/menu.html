@@ -174,13 +174,7 @@
   </style>
 </head>
 <body>
-  <div class="bell-icon" onclick="toggleMessage()">
-    🔔
-  </div>
-  <div class="bell-message" id="bellMessage">
-    Es gibt momentan keine Neuigkeiten
-  </div>
-  <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+  {% include 'components/header.html' %}
   <button class="btn btn-outline-dark back-button" onclick="history.back()">Zurück</button>
   <div class="container">
     <h1 class="main-heading">Ihre Speisekarte</h1>

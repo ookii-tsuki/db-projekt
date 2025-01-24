@@ -46,7 +46,11 @@ function fetchOrders() {
             const notificationsContainer = document.getElementById('notificationsContainer');
             notificationsContainer.innerHTML = ''; // Clear previous notifications
 
-            const activeOrders = data.filter(order => order.status === 0);
+            // Filter active orders and sort by date descending
+            const activeOrders = data
+                .filter(order => order.status === 0)
+                .sort((a, b) => b.date - a.date);  // Sort by timestamp descending
+
             let hasNewOrders = false;
 
             if (activeOrders.length === 0) {
@@ -60,7 +64,8 @@ function fetchOrders() {
                     const notificationTemplate = `
                         <div class="notification-template mb-3 p-2 border rounded">
                             <p class="card-text mb-1">${order.name} hat eine Bestellung aufgegeben</p>
-                            <a href="/restaurant/orders?order_id=${order.order_id}" class="btn btn-link text-muted text-decoration-none">Details</a>                            </div>
+                            <a href="/restaurant/orders?order_id=${order.order_id}" class="btn btn-link text-muted text-decoration-none">Details</a>
+                        </div>
                     `;
                     notificationsContainer.innerHTML += notificationTemplate;
                 });
@@ -72,7 +77,6 @@ function fetchOrders() {
                 setTimeout(() => {
                     bellIcon.classList.remove('shake-bell');
                 }, 500);
-
             }
         })
         .catch(error => console.error('Error fetching orders:', error));
