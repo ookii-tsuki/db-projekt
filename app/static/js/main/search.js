@@ -294,7 +294,7 @@ function displayRestaurants(data) {
         restaurantCard.classList.add('restaurant-card');
         restaurantCard.innerHTML = `
         <a href="/menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
-            <img src="data:image/jpeg;base64,${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
+            <img src="${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
             <div class="restaurant-info">
                 <h3>${restaurant.name}</h3>
                 <p class="restaurant-rating">Bewertung: ${restaurant.rating}</p>
