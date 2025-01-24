@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LS Hauptseite</title>
+    <title>LS Bestellhistorie</title> <!-- Text der auf dem Tab im Browser steht -->
 
     <!-- Font Awesome für die Icons -->
     <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
 
-    <!-- CSS Referenz: search.css -->
-    <link href="{{ url_for('static', filename='css/main/search.css') }}" rel="stylesheet"> 
+    <!-- CSS Referenz: past_orders.css -->
+    <link href="{{ url_for('static', filename='css/order/past_orders.css') }}" rel="stylesheet">
 </head>
 <body>
+    <!-- zurück-Knopf auf der Detailseite um zur Hauptseite zurückzukehren -->
+    <a id="back-button" href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
+
     <!-- Header Container -->
     <div class="header">
         <!-- Container für Logo und Profil -->
@@ -45,42 +48,20 @@
     <!-- Benachrichtigungen Container -->
     <div class="notifications" id="notifications"></div>
 
-    <!-- Vergangene Bestellungen Container -->
+    <!-- Vergangene Bestellungen container -->
     <div class="past-orders" id="past-orders">
-        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+        <button class="back-button" id="past-orders-back-button"><i class="fas fa-arrow-left"></i></button>
     </div>
 
     <!-- Main Inhalt Container -->
     <div class="mainarea">
-        <div class="text">Restaurants in deiner Nähe<br>
+        <div class="text">Deine Bestellhistorie</div>
+            <div id="past-orders"></div>
         </div>
-        
-        <!-- Container für die Suche -->
-        <div class="search-container">
-            <input type="text" id="search-query" class="search-input" placeholder="Restaurant Name oder Küche eingeben">
-            <button class="search-button" id="search-button">Suchen</button>
-        </div>
-
-        <!-- Container für die Filter-Buttons -->
-        <div class="food-buttons-container">
-            <button class="food-button">Burger</button>
-            <button class="food-button">Pizza</button>
-            <button class="food-button">Döner</button>
-            <button class="food-button">Pasta</button>
-            <button class="food-button">Asiatisch</button>
-        </div>
-
-        <p id="searchText" class="bold-text">Restaurants in deinem Umkreis</p>
-
-        <!-- Container für die Restaurants -->
-        <div class="restaurants-container" id="restaurants-container"></div>
-
-        <!-- Container für Fehlernachrichten -->
-        <div class="error-container" id="error-container"></div>
 
         <!-- Container für die Buttons -->
         <div class="buttonsarea">
-        
+
             <div id="modal-overlay" style="display: none;"></div>
 
             <div id="modal" style="display: none;">
@@ -88,8 +69,9 @@
                     <button id="close-modal">Schließen</button>
                 </div>
             </div>
-            
-        <!-- Referenz zum JS: search.js -->
-        <script src="{{ url_for('static', filename='js/main/search.js') }}"></script>
+        
+        <!-- Referenz zum JS: past_orders.js -->
+        <script src="{{ url_for('static', filename='js/order/past_orders.js') }}"></script>
+    </div>
 </body>
 </html>
