@@ -278,7 +278,7 @@ async function fetchCart() {
         }
 
      const data = await response.json();
-     displayCart(data.cart);
+     displayCart(data);
     } catch (error) {
         console.error("Fehler beim Abrufen des Warenkorbs.", error);
         const cartContainer = document.getElementById('cart-container');
