@@ -386,9 +386,10 @@ async function fetchWallet() {
 
         if (response.ok) {
             const data = await response.json();
-            const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ',');  // Formatierung des Geldbetrags
+            const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ','); 
             const walletContainer = document.getElementById('wallet-container');
             walletContainer.innerHTML = `<p>Ihr aktuelles Guthaben: ${formattedWallet} EUR</p>`;
+            return data.wallet;
         } else {
             throw new Error('Fehler beim Abrufen der Guthaben-Informationen.');
         }
@@ -396,47 +397,59 @@ async function fetchWallet() {
         console.error('Fehler beim Abrufen der Guthaben-Informationen:', error);
         const walletContainer = document.getElementById('wallet-container');
         walletContainer.innerHTML = '<p>Fehler beim Abrufen der Guthaben-Informationen. Bitte versuchen Sie es später erneut.</p>';
+        return null;
     }
 }
 
-fetchWallet();
-
 document.getElementById('pay-button').addEventListener('click', async function() {
-    const totalSumContainer = document.getElementById('total-sum');
-    if (!totalSumContainer) {
-        console.error('Summe nicht gefunden.');
-        return;
-    }
-    const totalSumText = totalSumContainer.innerText;
-    const totalSum = parseFloat(totalSumText.replace('Summe: ', '').replace(' EUR', '').replace(',', '.'));
-
     try {
-        const response = await fetch('/api/auth/user', {
+        const cartResponse = await fetch('/api/order/cart', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            const wallet = parseFloat(data.wallet);
-            const newWallet = wallet - totalSum;
-            const formattedNewWallet = newWallet.toFixed(2).replace('.', ',');
+        if (!cartResponse.ok) {
+            throw new Error('Fehler beim Abrufen des Warenkorbs.');
+        }
 
-            const paymentMessage = document.getElementById('payment-message');
-            paymentMessage.innerHTML = `Verfügbares Guthaben nach der Zahlung: ${formattedNewWallet} EUR`;
+        const cartData = await cartResponse.json();
+        const cartItems = cartData.cart;
 
-            const paymentModal = document.getElementById('payment-modal');
-            paymentModal.style.display = 'block';
-        } else {
+        let totalSum = 0;
+        cartItems.forEach(item => {
+            totalSum += item.price * item.quantity;
+        });
+
+        const userResponse = await fetch('/api/auth/user', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!userResponse.ok) {
             throw new Error('Fehler beim Abrufen der Guthaben-Informationen.');
         }
+
+        const userData = await userResponse.json();
+        const wallet = parseFloat(userData.wallet);
+        const newWallet = wallet - totalSum;
+        const formattedNewWallet = newWallet.toFixed(2).replace('.', ',');
+
+        const paymentMessage = document.getElementById('payment-message');
+        paymentMessage.innerHTML = `Dein verfügbares Guthaben nach der Zahlung: ${formattedNewWallet} EUR`;
+
+        const paymentModal = document.getElementById('payment-modal');
+        paymentModal.style.display = 'block';
     } catch (error) {
         console.error('Fehler beim Abrufen der Guthaben-Informationen:', error);
         alert('Fehler beim Abrufen der Guthaben-Informationen. Bitte versuchen Sie es später erneut.');
     }
 });
+
+fetchWallet();
 
 document.getElementById('close-payment-modal').addEventListener('click', function() {
     const paymentModal = document.getElementById('payment-modal');
