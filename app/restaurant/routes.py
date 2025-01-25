@@ -91,8 +91,7 @@ def api_add_item():
             name=name,
             price=price,
             description=description,
-            image=image,
-            restaurant_id=restaurant_id
+            image=image
         )
 
         # Das Menü-Item zur Datenbank hinzufügen und speichern
@@ -134,7 +133,6 @@ def api_update_item(item_id):
         item.description = description
         item.image = image
 
-        db.session.commit()
         return jsonify({"message": "Item successfully updated."}), 200
 
     except BadRequest as e:
@@ -151,10 +149,6 @@ def api_update_item(item_id):
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["DELETE"])
 def api_delete_item(item_id):
     try:
-        restaurant_id = session.get("restaurant_id")
-        if not restaurant_id:
-            raise Unauthorized("No restaurant is logged in.")
-        
         menu_item = MenuItem.query.get(item_id)
         if not menu_item:
             raise NotFound("Item not found.")
@@ -225,10 +219,6 @@ def api_orders_status():
 @restaurant_bp.route("/api/restaurant/orders/order/<order_id>", methods=["PUT"])
 def api_update_order_status(order_id):
     try:
-        restaurant_id = session.get("restaurant_id")
-        if not restaurant_id:
-            raise Unauthorized("No restaurant is logged in.")
-        
         order = Order.query.get(order_id)
         if not order:
             raise NotFound("Order not found.")
@@ -281,7 +271,6 @@ def api_stats():
             "total_orders": total_orders,
             "total_revenue": float(total_revenue),
             "rating": float(rating),
-            "average_rating": float(average_rating)
         }
 
         return jsonify(stats), 200
@@ -313,24 +302,16 @@ def api_order_history():
             {
                 "order_id": order.order_id,
                 "user_id": order.user_id,
-                "name": f"{order.user.first_name} {order.user.last_name}" if order.user else None,
-                "address": order.user.address if order.user else None,
-                "city": order.user.city if order.user else None,
-                "zip": order.user.zip_code if order.user else None,
+                "total": order.total,
+                "status": order.status,
+                "date": order.date.strftime("%Y-%m-%d %H:%M:%S"),
                 "items": [
                     {
                         "item_id": item.menu_item.item_id,
                         "name": item.menu_item.name,
                         "price": item.menu_item.price,
-                        "quantity": item.quantity,
-                        "notes": item.notes if hasattr(item, 'notes') else None
+                        "quantity": item.quantity
                     }
-                    for item in order.order_items
-                ],
-                "total": order.total,
-                "status": order.status,
-                "date": int(order.date.timestamp()) if order.date else None
-            }
                     for item in order.order_items
                 ]
             }
