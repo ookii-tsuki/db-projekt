@@ -1,8 +1,8 @@
 body {
-    font-family: Arial, sans-serif; /* Schriftart */
+    font-family: Arial, sans-serif;
     margin: 0; 
     padding: 0; 
-    display: flex; /* Flexbox layout */
+    display: flex;
     flex-direction: column; 
     align-items: center; 
     text-align: center; 
@@ -63,7 +63,7 @@ body {
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    width: 200px;
+    width: 200px; 
     height: 80px; 
 }
 
@@ -75,23 +75,6 @@ body {
 .button:hover {
     background-color: black;
     color: white;
-}
-
-/* Layout für den zurück Knopf auf der checkout Seite */
-.back-button {
-    position: absolute;
-    top: 210px;
-    left: 100px;
-    padding: 15px 50px;
-    font-size: 16px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.back-button:hover {
-    background-color: #e0e0e0;
 }
 
 .mainarea {
@@ -179,8 +162,8 @@ hr {
 #bell-button.new-notification::after {
     content: '';
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 55px;
+    right: 67px;
     width: 10px;
     height: 10px;
     background-color: red;
@@ -188,7 +171,7 @@ hr {
     transform: translate(50%, -50%);
 }
 
-/* Styles für den Mehr-Knöpfe Container */
+/* Layout für den Mehr-Knöpfe Container */
 .more-buttons {
     display: none; 
     position: absolute; 
@@ -204,52 +187,92 @@ hr {
     gap: none; 
 }
 
-/* Layout für die einzelnen Bestellungen */
-.order-item {
+/* Layout für die Box mit den Cart Items */
+.cart-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-left: -500px;
+    margin-top: -50px;
+}
+
+.cart-item {
+    flex: 1 1 calc(33.333% - 40px); /* Adjust the width of the items */
+    box-sizing: border-box;
+    padding: 20px;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
 }
 
-.order-header {
+.cart-item h3 {
+    margin-top: 0;
+}
+
+.cart-item p {
+    margin: 5px 0;
+}
+
+/* Layout für den vergangene-Bestellungen-Container */
+.past-orders {
+    display: none;
+    position: absolute; 
+    top: 150px;
+    right: 20px; 
+    width: 400px; 
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; 
+    padding: 20px; 
+    z-index: 1000; 
+}
+
+/* Layout für die einzelnen Bestellungen */
+.order-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.order-header h3 {
-    margin: 0;
-    font-size: 18px;
+/* Die letzte Bestellung soll keine untere Grenze haben */
+.order-item:last-child {
+    border-bottom: none;
 }
 
-.order-header p {
-    margin: 0;
-    font-size: 14px;
-}
-
-.order-details {
-    margin-top: 10px;
-}
-
-.order-details p {
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-.order-total {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 16px;
-    text-align: right;
-}
-
-hr {
+/* Layout des zurück-Buttons */
+.back-button {
+    position: absolute;
+    top: 130px;
+    left: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    background: none;
     border: none;
+    color: black;
+}
+
+/* Styles für die Buttons auf den einzelnen vergangene-Bestellungen-Elementen */
+.arrow-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: black;
+}
+
+/* Layout für die vergangene Bestellungen Details */
+.order-details {
+    display: block;
+    padding: 10px;
     border-top: 1px solid #ddd;
-    margin: 10px 0;
 }
 
 /* Layout für den Guthaben-Container */
@@ -288,19 +311,79 @@ hr {
     color: white; 
 }
 
+.bold-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 100px;
+}
+
 /* Overlay */
 #modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+z-index: 999;
 }
 
 /* Modal */
 #modal {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: #fff;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+z-index: 1000;
+}
+
+#modal-content {
+text-align: center;
+}
+
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 20px; 
+}
+
+.wallet-container {
+    margin-left: 250px;
+    margin-top: -115px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+    color: #333;
+}
+
+.pay-button {
+    padding: 10px 20px;
+    border: 2px solid black;
+    border-radius: 8px;
+    background-color: white;
+    color: black;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-top: 300px;
+    margin-left: 120px;
+}
+
+.pay-button:hover {
+    background-color: black;
+    color: white;
+}
+
+.payment-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -310,69 +393,34 @@ hr {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-}
-
-#modal-content {
+    width: 500px;
+    height: 500px;
     text-align: center;
 }
 
-.cart-item-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.payment-modal-content {
+    position: relative;
 }
 
-.cart-item-content {
-    flex: 1;
-    margin-right: 20px;
-}
-
-.cart-item-content h3 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-}
-
-.cart-item-content p {
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-.cart-item-content textarea {
-    width: 100%;
-    height: 50px;
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.cart-item-image img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.summary-area {
+.payment-modal .back-button {
     position: absolute;
-    top: 400px;
-    right: 100px;
-    width: 200px;
-    padding: 50px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: -110px;
+    left: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: black;
 }
 
-.summary-area p {
-    margin: 10px 0;
-    font-size: 16px;
+.payment-modal .pay-button {
+    margin-left: 0px;
+    margin-top: 250px;
+    width: 60%;
+}
+
+#payment-message {
+    margin-top: 120px;
+    font-size: 18px;
+    color: #333;
 }

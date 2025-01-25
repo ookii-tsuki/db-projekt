@@ -8,15 +8,15 @@
     <!-- Font Awesome für die Icons -->
     <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
 
-    <!-- CSS Referenz: past_orders.css -->
-    <link href="{{ url_for('static', filename='css/order/checkout.css') }}" rel="stylesheet">
+    <!-- CSS Referenz: search.css -->
+    <link href="{{ url_for('static', filename='css/order/checkout.css') }}" rel="stylesheet"> 
 </head>
 <body>
+    <!-- zurück-Knopf auf der Detailseite um zur Hauptseite zurückzukehren -->
+    <a id="back-button" href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
 
     <!-- Header Container -->
     <div class="header">
-        <button id="back-button" class="back-button">←</button> <!-- zurück -->
-
         <!-- Container für Logo und Profil -->
         <div class="logo-profile">
             <!-- Bild oben links -->
@@ -40,7 +40,6 @@
         <!-- Container für die Header Knöpfe -->
         <div class="header-buttons">
             <button class="button icon-button" id="bell-button"><i class="fas fa-bell"></i></button> <!-- Glocke -->
-            <button class="button icon-button" id="cart-button"><i class="fas fa-shopping-cart"></i></button> <!-- Warenkorb -->
             <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
         </div>
     </div>
@@ -48,29 +47,49 @@
     <!-- Benachrichtigungen Container -->
     <div class="notifications" id="notifications"></div>
 
-    <!-- Main Inhalt Container -->
+    <!-- Vergangene Bestellungen Container -->
+    <div class="past-orders" id="past-orders">
+        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+    </div>
+
+    <!-- Container für den Warenkorb -->
     <div class="mainarea">
         <div class="text">Übersicht über deine Bestellung</div>
-            <div id="checkout"></div>
-        </div>
+        <div id="cart-container"></div>
+    </div>
+
+    <!-- Container für Fehlernachrichten -->
+    <div class="error-container" id="error-container"></div>
+
+    <!-- Main Inhalt Container -->
+    <div class="mainarea">
 
         <!-- Container für die Buttons -->
         <div class="buttonsarea">
-
+        
             <div id="modal-overlay" style="display: none;"></div>
 
             <div id="modal" style="display: none;">
                 <div id="modal-content">
-                    <p>Ihr aktuelles Guthaben auf Lieferspatz beträgt 100,00 EUR</p>
                     <button id="close-modal">Schließen</button>
                 </div>
             </div>
-            
-            <!-- Container für die Zusammenfassung -->
-            <div class="summary-area"></div>
+        
+            <div id="cart-box" class="cart-box"></div>
+            <div id="wallet-container" class="wallet-container"></div>
+            <div id="total-sum" class="total-sum"></div>
+            <button id="pay-button" class="pay-button">Bezahlen</button>
 
-        <!-- Referenz zum JS: past_orders.js -->
+            <!-- Pop-up für die Bezahlung -->
+            <div id="payment-modal" class="payment-modal" style="display: none;">
+                <div class="payment-modal-content">
+                    <button id="close-payment-modal" class="back-button">Zurück</button>
+                    <p id="payment-message"></p>
+                    <button id="complete-payment-button" class="pay-button">Bezahlung abschließen</button>
+                </div>
+            </div>
+            
+        <!-- Referenz zum JS: search.js -->
         <script src="{{ url_for('static', filename='js/order/checkout.js') }}"></script>
-    </div>
 </body>
 </html>
