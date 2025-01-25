@@ -300,12 +300,35 @@ function displayCart(cart) {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.classList.add('cart-item');
         cartItemDiv.innerHTML = `
+            <button class="remove-item-button" data-item-id="${item.id}">X</button>
             <h3>${item.name}</h3>
             <p>Preis: ${item.price} €</p>
             <p>Menge: ${item.quantity}</p>
             <p>Notizen: ${item.notes}</p>
         `;
         cartContainer.appendChild(cartItemDiv);
+
+        // Add event listener to the remove button
+        cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
+            const itemId = this.getAttribute('data-item-id');
+            try {
+                const response = await fetch('/api/order/remove_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ item_id: itemId })
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem entfernen vom Artikel den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Entfernen des Artikels:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Entfernen des Artikels:', error);
+            }
+        });
     });
 
     // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
