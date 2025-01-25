@@ -91,7 +91,8 @@ def api_add_item():
             name=name,
             price=price,
             description=description,
-            image=image
+            image=image,
+            restaurant_id=restaurant_id
         )
 
         # Das Menü-Item zur Datenbank hinzufügen und speichern
@@ -102,10 +103,13 @@ def api_add_item():
         return jsonify({"message": "Item successfully added to the menu."}), 201
 
     except BadRequest as e:
-        return jsonify({"message": "Invalid request body."}), 400
+        return jsonify({"message": e.description}), 400
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
 
     except NotFound as e:
-        return jsonify({"message": "Restaurant not found."}), 404
+        return jsonify({"message": e.description}), 404
 
     except Exception as e:
         print(traceback.format_exc())
@@ -115,9 +119,17 @@ def api_add_item():
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["PUT"])
 def api_update_item(item_id):
     try:
+
+        restaurant_id = session.get("restaurant_id")
+        if not restaurant_id:
+            raise Unauthorized("No restaurant is logged in.")
+        
         item = MenuItem.query.get(item_id)
         if not item:
             raise NotFound("Item not found.")
+        
+        if item.restaurant_id != restaurant_id:
+            raise Unauthorized("Not authorized to update this item.")
 
         data = request.get_json()
         name = data.get("name")
@@ -133,13 +145,18 @@ def api_update_item(item_id):
         item.description = description
         item.image = image
 
+        db.session.commit()
+
         return jsonify({"message": "Item successfully updated."}), 200
 
     except BadRequest as e:
-        return jsonify({"message": "Invalid request body."}), 400
+        return jsonify({"message": e.description}), 400
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
 
     except NotFound as e:
-        return jsonify({"message": "Item not found."}), 404
+        return jsonify({"message": e.description}), 404
 
     except Exception as e:
         print(traceback.format_exc())
@@ -149,16 +166,26 @@ def api_update_item(item_id):
 @restaurant_bp.route("/api/restaurant/item/<item_id>", methods=["DELETE"])
 def api_delete_item(item_id):
     try:
+        restaurant_id = session.get("restaurant_id")
+        if not restaurant_id:
+            raise Unauthorized("No restaurant is logged in.")
+        
         menu_item = MenuItem.query.get(item_id)
         if not menu_item:
             raise NotFound("Item not found.")
+        
+        if menu_item.restaurant_id != restaurant_id:
+            raise Unauthorized("Not authorized to delete this item.")
 
         db.session.delete(menu_item)
         db.session.commit()
         return jsonify({"message": "Item successfully deleted."}), 200
 
     except NotFound as e:
-        return jsonify({"message": "Item not found."}), 404
+        return jsonify({"message": e.description}), 404
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
 
     except Exception as e:
         print(traceback.format_exc())
@@ -170,48 +197,51 @@ def api_orders_status():
     try:
         # Aktuelles Restaurant aus der Session abrufen
         restaurant_id = session.get("restaurant_id")
-        print("Restaurant ID from session:", restaurant_id)  # Debugging
         if not restaurant_id:
-            raise BadRequest("No restaurant is logged in.")
+            raise Unauthorized("No restaurant is logged in.")
 
-        # Suche aktive Bestellungen (Status: 0, 1, 2) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([0, 1, 2])).all()
+        # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([1, 2, 3])).all()
         if not orders:
-            raise NotFound("No active orders.")
+            raise NotFound("No order history available.")
 
-        # Formatiere die Antwort mit Benutzerdaten
-        orders_data = [
-            {
-                "order_id": order.order_id,
-                "user_id": order.user_id,
-                "name": f"{order.user.first_name} {order.user.last_name}" if order.user else None,
-                "address": order.user.address if order.user else None,
-                "city": order.user.city if order.user else None,
-                "zip": order.user.zip_code if order.user else None,
-                "items": [
-                    {
-                        "item_id": item.menu_item.item_id,
-                        "name": item.menu_item.name,
-                        "price": item.menu_item.price,
-                        "quantity": item.quantity,
-                        "notes": item.notes if hasattr(item, 'notes') else None
-                    }
-                    for item in order.order_items
-                ],
-                "total": order.total,
-                "status": order.status,
-                "date": int(order.date.timestamp()) if order.date else None
-            }
-            for order in orders
-        ]
-        return jsonify(orders_data), 200
+        # Formatiere die Antwort
+        order_history = [
+        {
+            "order_id": order.order_id,
+            "user_id": order.user_id,
+            "name": f"{order.user.first_name} {order.user.last_name}",
+            "address": order.user.address,
+            "city": order.user.city,
+            "zip": order.user.zip_code,
+            "items": [
+                {
+                    "item_id": order_item.item_id,
+                    "name": order_item.menu_item.name,
+                    "price": order_item.menu_item.price,
+                    "quantity": order_item.quantity,
+                    "notes": order_item.notes
+                }
+                for order_item in order.order_items
+            ],
+            "total": order.total,
+            "status": order.status,
+            "date": int(order.date.timestamp())
+        }
+        for order in orders
+    ]
+
+        return jsonify(order_history), 200
 
     except BadRequest as e:
-        return jsonify({"message": "Invalid request body."}), 400
+        return jsonify({"message": e.description}), 400
+    
     except Unauthorized as e:
-        return jsonify({"message": "No restaurant is logged in."}), 401
+        return jsonify({"message": e.description}), 401
+    
     except NotFound as e:
-        return jsonify({"message": "Order not found."}), 404
+        return jsonify({"message": e.description}), 404
+    
     except Exception as e:
         return jsonify({"message": "An error occurred."}), 500
     
@@ -219,9 +249,16 @@ def api_orders_status():
 @restaurant_bp.route("/api/restaurant/orders/order/<order_id>", methods=["PUT"])
 def api_update_order_status(order_id):
     try:
+        restaurant_id = session.get("restaurant_id")
+        if not restaurant_id:
+            raise Unauthorized("No restaurant is logged in.")
+        
         order = Order.query.get(order_id)
         if not order:
             raise NotFound("Order not found.")
+        
+        if order.restaurant_id != restaurant_id:
+            raise Unauthorized("Not authorized to update this order.")
 
         data = request.get_json()
         status = data.get("status")
@@ -234,8 +271,13 @@ def api_update_order_status(order_id):
 
     except NotFound as e:
         return jsonify({"message": e.description}), 404
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
+    
     except BadRequest as e:
         return jsonify({"message": e.description}), 400
+    
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
@@ -246,39 +288,39 @@ def api_stats():
     try:
         # Sicherstellen, dass die restaurant_id in der Session existiert
         restaurant_id = session.get("restaurant_id")
-        print("Restaurant ID:", restaurant_id)  # Debugging
+
         if not restaurant_id:
-            raise BadRequest("No restaurant is logged in.")
+            raise Unauthorized("No restaurant is logged in.")
 
         # Get the total number of orders for the restaurant
         total_orders = Order.query.filter_by(restaurant_id=restaurant_id).count()
-        print("Total Orders:", total_orders)  # Debugging
+
 
         # Get the total revenue from the restaurant's wallet field
         restaurant = Restaurant.query.get(restaurant_id)
         total_revenue = restaurant.wallet if restaurant and restaurant.wallet else 0.0
-        print("Total Revenue:", total_revenue)  # Debugging
 
-        # Ensure total_revenue is a valid number
-        if isinstance(total_revenue, str) and total_revenue.strip() == '':
-            total_revenue = 0.0
 
         # Get the rating from the restaurant's rating field
         rating = restaurant.rating if restaurant and restaurant.rating else 0.0
-        print("Rating:", rating)  # Debugging
 
         stats = {
             "total_orders": total_orders,
             "total_revenue": float(total_revenue),
-            "rating": float(rating),
+            "average_rating": float(rating),
         }
 
         return jsonify(stats), 200
 
     except BadRequest as e:
-        return jsonify({"message": "Invalid request body."}), 400
+        return jsonify({"message": e.description}), 400
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
+    
     except NotFound as e:
-        return jsonify({"message": "No statistics found."}), 404
+        return jsonify({"message": e.description}), 404
+    
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
@@ -290,39 +332,49 @@ def api_order_history():
         # Aktuelles Restaurant aus der Session abrufen
         restaurant_id = session.get("restaurant_id")
         if not restaurant_id:
-            raise BadRequest("No restaurant is logged in.")
+            raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter_by(restaurant_id=restaurant_id, status=1).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([3, 4])).all()
         if not orders:
             raise NotFound("No order history available.")
 
         # Formatiere die Antwort
         order_history = [
-            {
-                "order_id": order.order_id,
-                "user_id": order.user_id,
-                "total": order.total,
-                "status": order.status,
-                "date": order.date.strftime("%Y-%m-%d %H:%M:%S"),
-                "items": [
-                    {
-                        "item_id": item.menu_item.item_id,
-                        "name": item.menu_item.name,
-                        "price": item.menu_item.price,
-                        "quantity": item.quantity
-                    }
-                    for item in order.order_items
-                ]
-            }
-            for order in orders
-        ]
+        {
+            "order_id": order.order_id,
+            "user_id": order.user_id,
+            "name": f"{order.user.first_name} {order.user.last_name}",
+            "address": order.user.address,
+            "city": order.user.city,
+            "zip": order.user.zip_code,
+            "items": [
+                {
+                    "item_id": order_item.item_id,
+                    "name": order_item.menu_item.name,
+                    "price": order_item.menu_item.price,
+                    "quantity": order_item.quantity,
+                    "notes": order_item.notes
+                }
+                for order_item in order.order_items
+            ],
+            "total": order.total,
+            "status": order.status,
+            "date": int(order.date.timestamp())
+        }
+        for order in orders
+    ]
 
         return jsonify(order_history), 200
 
     except BadRequest as e:
-        return jsonify({"message": "Invalid request body."}), 400
+        return jsonify({"message": e.description}), 400
+    
+    except Unauthorized as e:
+        return jsonify({"message": e.description}), 401
+    
     except NotFound as e:
-        return jsonify({"message": "No order history found."}), 404
+        return jsonify({"message": e.description}), 404
+    
     except Exception as e:
         return jsonify({"message": "An error occurred."}), 500
