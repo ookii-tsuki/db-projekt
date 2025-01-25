@@ -73,13 +73,13 @@ body {
 }
 
 .button:hover {
-    background-color: black;
+    background-color: black; /* Wenn cursor drauf, wird der Button schwarz */
     color: white;
 }
 
 .mainarea {
-    width: 90%;
-    max-width: 600px;
+    width: 100%;
+    max-width: 1200px;
     margin: 20px auto;
 }
 
@@ -89,6 +89,35 @@ body {
     color: black; 
     margin: 100px 0 80px; /* Erster Parameter ist der Abstand zur oben Grenze, dritter Parameter der Abstand nach unten */
     font-weight: bold;
+}
+
+/* Die Schaltfläche zum Suchen */
+.search-container {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    margin: 20px 0; 
+}
+
+/* Input auf der Suchfläche */
+.search-input {
+    padding: 10px; 
+    font-size: 16px; /* Schriftgröße */
+    border: 2px solid black; 
+    border-radius: 5px 0 0 5px; /* macht die Ecken links rund */
+    width: 300px; /* fixierte Größe für Input */
+}
+
+/* Suchleiste */
+.search-button {
+    padding: 10px 20px; 
+    font-size: 16px; 
+    border: 2px solid black; 
+    border-left: none; 
+    border-radius: 0 5px 5px 0; /* Ecken rechts sind rund */
+    background-color: black; 
+    color: white; 
+    cursor: pointer;
 }
 
 /* Layout der horizontalen Linie */
@@ -148,15 +177,13 @@ hr {
     z-index: 1000; 
 }
 
-/* Layout für die individuellen Notifikationen */
 .notification-item {
     padding: 10px; 
     border-bottom: 1px solid #ddd; /* untere Grenze zum separieren der einzelnen Benachrichtigungen */
 }
 
-/* Die letzte Benachrichtigung soll keine untere Grenze haben */
 .notification-item:last-child {
-    border-bottom: none;
+    border-bottom: none; /* Die letzte Benachrichtigung soll keine untere Grenze haben */
 }
 
 #bell-button.new-notification::after {
@@ -171,23 +198,23 @@ hr {
     transform: translate(50%, -50%);
 }
 
-/* Styles für den Mehr-Knöpfe Container */
+/* Layout für den Mehr-Knöpfe Container */
 .more-buttons {
-    display: none; 
-    position: absolute; 
-    top: 70px; 
-    right: 20px; 
-    background-color: white;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    border-radius: 1px;
-    padding: 10px; 
-    z-index: 1000; 
-    flex-direction: column; /* um die Knöpfe vertikal zu stapeln */
-    gap: none; 
+  display: none; 
+  position: absolute; 
+  top: 70px; 
+  right: 20px; 
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  border-radius: 1px;
+  padding: 10px; 
+  z-index: 1000; 
+  flex-direction: column; /* um die Knöpfe vertikal zu stapeln */
+  gap: none; 
 }
 
-/* Styles für den vergangene-Bestellungen-Container */
+/* Layout für den vergangene-Bestellungen-Container */
 .past-orders {
     display: none;
     position: absolute; 
@@ -204,102 +231,16 @@ hr {
 
 /* Layout für die einzelnen Bestellungen */
 .order-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: left;
-    font-size: 16px;
-}
-
-.order-details ul {
-    list-style-type: none;
-    padding: 0; 
-    margin: 0; 
-}
-
-.order-details li {
-    padding: 5px 0;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.order-details .restaurant-name {
-    font-weight: bold; 
-    margin-bottom: 10px; 
-    font-size: 18px;
-}
-
-.order-details .total {
-    text-align: right; /* Summe */
-    font-size: 18px; 
-}
-
-.order-header, .order-details {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.order-details .left {
-    flex: 1;
-}
-
-.order-details .right {
-    text-align: right;
-}
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.order-header h3 {
-    margin: 0;
-    font-size: 22px;
-}
-
-.order-header p {
-    margin: 0;
-    font-size: 16px;
-}
-
-.order-details {
-    margin-top: 10px;
-}
-
-.order-details p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
-.order-total {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 18px;
-    text-align: right;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 10px 0;
-}
-
-/* Layout des zurück-Buttons nach "vergangene Bestellungen" */
-.back-button {
-    position: absolute;
-    top: 120px; 
-    left: 10px;
-    font-size: 24px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: black;
+/* Die letzte Bestellung soll keine untere Grenze haben */
+.order-item:last-child {
+    border-bottom: none;
 }
 
 /* Styles für die Buttons auf den einzelnen vergangene-Bestellungen-Elementen */
@@ -309,6 +250,13 @@ hr {
     cursor: pointer;
     font-size: 24px;
     color: black;
+}
+
+/* Layout für die vergangene Bestellungen Details */
+.order-details {
+    display: block;
+    padding: 10px;
+    border-top: 1px solid #ddd;
 }
 
 /* Layout für den Guthaben-Container */
@@ -347,7 +295,88 @@ hr {
     color: white; 
 }
 
-/* Overlay */
+.bold-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 100px;
+}
+
+/* Stile der Knöpfe bei Restaurants */
+.food-button {
+    padding: 20px 40px;
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: white;
+    color: black;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.food-button:hover {
+    background-color: black;
+    color: white;
+}
+
+.food-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 80px;
+}
+
+.restaurants-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px;
+}
+
+/* Stile für die Restaurant-Karten */
+.restaurant-card {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.restaurant-card .restaurant-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.restaurant-banner {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.restaurant-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.restaurant-info h3 {
+    margin: 0;
+}
+
+.restaurant-info p {
+    margin: 5px 0; /* Platz zwischen Restaurant Name und Beschreibung */
+}
+
+.restaurant-delivery-time {
+    margin-top: 60px; /* Platz zwischen Beschreibung und Lieferzeit */
+}
+
+.restaurant-rating {
+    font-size: 14px;
+    color: #000000;
+}
+
 #modal-overlay {
     position: fixed;
     top: 0;
@@ -358,7 +387,6 @@ hr {
     z-index: 999;
 }
 
-/* Modal */
 #modal {
     position: fixed;
     top: 50%;
@@ -373,4 +401,12 @@ hr {
 
 #modal-content {
     text-align: center;
+}
+
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 20px; 
 }

@@ -1,8 +1,8 @@
 body {
-    font-family: Arial, sans-serif; /* Schriftart */
+    font-family: Arial, sans-serif;
     margin: 0; 
     padding: 0; 
-    display: flex; /* Flexbox layout */
+    display: flex;
     flex-direction: column; 
     align-items: center; 
     text-align: center; 
@@ -63,7 +63,7 @@ body {
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    width: 200px;
+    width: 200px; 
     height: 80px; 
 }
 
@@ -163,7 +163,7 @@ hr {
     content: '';
     position: absolute;
     top: 55px;
-    right: 125px;
+    right: 67px;
     width: 10px;
     height: 10px;
     background-color: red;
@@ -171,7 +171,7 @@ hr {
     transform: translate(50%, -50%);
 }
 
-/* Styles für den Mehr-Knöpfe Container */
+/* Layout für den Mehr-Knöpfe Container */
 .more-buttons {
     display: none; 
     position: absolute; 
@@ -187,7 +187,15 @@ hr {
     gap: none; 
 }
 
-/* Styles für den vergangene-Bestellungen-Container */
+.cart-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout für den vergangene-Bestellungen-Container */
 .past-orders {
     display: none;
     position: absolute; 
@@ -204,97 +212,23 @@ hr {
 
 /* Layout für die einzelnen Bestellungen */
 .order-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: left;
-    font-size: 16px;
-}
-
-.order-details ul {
-    list-style-type: none;
-    padding: 0; 
-    margin: 0; 
-}
-
-.order-details li {
-    padding: 5px 0;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.order-details .restaurant-name {
-    font-weight: bold; 
-    margin-bottom: 10px; 
-    font-size: 18px;
-}
-
-.order-details .total {
-    text-align: right; /* Summe */
-    font-size: 18px; 
-}
-
-.order-header, .order-details {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.order-details .left {
-    flex: 1;
+/* Die letzte Bestellung soll keine untere Grenze haben */
+.order-item:last-child {
+    border-bottom: none;
 }
 
-.order-details .right {
-    text-align: right;
-}
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.order-header h3 {
-    margin: 0;
-    font-size: 22px;
-}
-
-.order-header p {
-    margin: 0;
-    font-size: 16px;
-}
-
-.order-details {
-    margin-top: 10px;
-}
-
-.order-details p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
-.order-total {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 18px;
-    text-align: right;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 10px 0;
-}
-
-/* Layout des zurück-Buttons nach "vergangene Bestellungen" */
+/* Layout des zurück-Buttons */
 .back-button {
     position: absolute;
-    top: 120px; 
-    left: 10px;
+    top: 130px;
+    left: 50px;
     font-size: 24px;
     cursor: pointer;
     background: none;
@@ -309,6 +243,13 @@ hr {
     cursor: pointer;
     font-size: 24px;
     color: black;
+}
+
+/* Layout für die vergangene Bestellungen Details */
+.order-details {
+    display: block;
+    padding: 10px;
+    border-top: 1px solid #ddd;
 }
 
 /* Layout für den Guthaben-Container */
@@ -347,30 +288,44 @@ hr {
     color: white; 
 }
 
+.bold-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 100px;
+}
+
 /* Overlay */
 #modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+z-index: 999;
 }
 
 /* Modal */
 #modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: #fff;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+z-index: 1000;
 }
 
 #modal-content {
-    text-align: center;
+text-align: center;
+}
+
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 20px; 
 }
