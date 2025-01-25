@@ -307,6 +307,15 @@ function displayCart(cart) {
         `;
         cartContainer.appendChild(cartItemDiv);
     });
+
+    // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
+    const checkoutButton = document.createElement('button');
+    checkoutButton.innerText = 'Zur Kasse';
+    checkoutButton.classList.add('checkout-button');
+    checkoutButton.addEventListener('click', function() {
+        window.location.href = '/checkout';
+    });
+    cartContainer.appendChild(checkoutButton);
 }
 
 // Abrufen des Warenkorbs, wenn die Seite geladen wird
