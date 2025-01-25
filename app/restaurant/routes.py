@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, jsonify, session
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 from app.models import MenuItem, Order, db, Restaurant, User  # Import der benötigten Modelle
+from app.order_services import dispatch_order_schedule
 import traceback
 
 # Import the blueprint
@@ -267,6 +268,10 @@ def api_update_order_status(order_id):
 
         order.status = status
         db.session.commit()
+
+        if status == 1:
+            dispatch_order_schedule(order_id)
+            
         return jsonify({"message": "Order status successfully updated."}), 200
 
     except NotFound as e:
