@@ -41,7 +41,17 @@ function toggleMessage() {
 
 function fetchOrders() {
     fetch('/api/restaurant/orders/status')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    const notificationsContainer = document.getElementById('notificationsContainer');
+                    notificationsContainer.innerHTML = '<p class="card-text text-muted" id="noNotifications">Es gibt keine neuen Benachrichtigungen</p>';
+                    throw new Error('No notifications found (404)');
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const notificationsContainer = document.getElementById('notificationsContainer');
             notificationsContainer.innerHTML = ''; // Clear previous notifications
@@ -79,7 +89,11 @@ function fetchOrders() {
                 }, 500);
             }
         })
-        .catch(error => console.error('Error fetching orders:', error));
+        .catch(error => {
+            // Handle the error without logging it to the console
+            const notificationsContainer = document.getElementById('notificationsContainer');
+            notificationsContainer.innerHTML = '<p class="card-text text-muted" id="noNotifications">Es gibt keine neuen Benachrichtigungen</p>';
+        });
 }
 
 setInterval(fetchOrders, 5000); // Fetch orders every 5 seconds

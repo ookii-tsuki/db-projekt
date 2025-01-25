@@ -1,0 +1,141 @@
+body {
+    background-color: white;
+    color: black;
+  }
+
+  .main-heading {
+    margin-top: 80px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .back-button {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .sub-heading {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  .line {
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+  }
+  .food-item {
+    margin: 20px auto;
+    width: 80%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+  }
+  .food-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .food-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+  }
+  .food-description {
+    flex: 2;
+    margin-right: 20px;
+  }
+  .food-photo {
+    flex: 1;
+    max-width: 150px;
+    height: 150px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    object-fit: cover;
+  }
+  .edit-icon {
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  .save-button, .btn-black {
+    margin-top: 20px;
+    float: right;
+    background-color: black;
+    color: white;
+    border: none;
+  }
+  .save-button:hover, .btn-black:hover {
+    background-color: grey;
+    color: white;
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    z-index: 10;
+  }
+  .overlay-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+  }
+  .file-upload {
+    margin: 20px 0;
+    text-align: center;
+  }
+  .file-upload input {
+    display: none;
+  }
+  .file-upload label {
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+  }
+  .file-upload label:hover {
+    background-color: grey;
+  }
+  .btn-spacing {
+    margin-top: 10px;
+  }
+  .add-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+  .add-button:hover {
+    background-color: grey;
+  }
+  .centered {
+    display: flex;
+    justify-content: center;
+  }
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  .button-container .btn-black {
+    width: 48%;
+  }
