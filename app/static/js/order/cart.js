@@ -286,7 +286,6 @@ async function fetchCart() {
     }
 }
 
-// Funktion zum Anzeigen des Warenkorbs
 function displayCart(cart) {
     const cartContainer = document.getElementById('cart-container');
     cartContainer.innerHTML = '';
@@ -303,7 +302,7 @@ function displayCart(cart) {
             <button class="remove-item-button" data-item-id="${item.id}">X</button>
             <h3>${item.name}</h3>
             <p>Preis: ${item.price} €</p>
-            <p class="item-quantity" data-item-id="${item.id}">Menge: ${item.quantity}</p>
+            <p>Menge: ${item.quantity}</p>
             <p>Notizen: ${item.notes}</p>
         `;
         cartContainer.appendChild(cartItemDiv);
@@ -327,47 +326,6 @@ function displayCart(cart) {
                 console.error('Fehler beim Entfernen des Artikels:', error);
             }
         });
-    });
-
-    // ändere die Menge des Items
-    cartItemDiv.querySelector('.item-quantity').addEventListener('click', function() {
-        const itemId = this.getAttribute('data-item-id');
-        const currentQuantity = item.quantity;
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.value = currentQuantity;
-        input.min = 1;
-        input.classList.add('quantity-input');
-
-        this.innerHTML = '';
-        this.appendChild(input);
-
-        input.addEventListener('blur', async function() {
-            const newQuantity = input.value;
-            if (newQuantity != currentQuantity) {
-                try {
-                    const response = await fetch('/api/order/update_cart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ item_id: itemId, quantity: newQuantity })
-                    });
-
-                    if (response.ok) {
-                        fetchCart(); // nach dem Ändern der Menge den Warenkorb neu laden
-                    } else {
-                        console.error('Fehler beim Aktualisieren der Menge:', response.statusText);
-                    }
-                } catch (error) {
-                    console.error('Fehler beim Aktualisieren der Menge:', error);
-                }
-            } else {
-                this.parentElement.innerHTML = `Menge: ${currentQuantity}`;
-            }
-        });
-
-        input.focus();
     });
 
     // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
