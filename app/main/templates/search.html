@@ -89,7 +89,11 @@
                 </div>
             </div>
             
-        <!-- Referenz zum JS: search.js -->
-        <script src="{{ url_for('static', filename='js/main/search.js') }}"></script>
 </body>
+
+<script>
+    let no_image = "{{ url_for('static', filename='images/no_image.png') }}";
+</script>
+<!-- Referenz zum JS: search.js -->
+<script src="{{ url_for('static', filename='js/main/search.js') }}"></script>
 </html>

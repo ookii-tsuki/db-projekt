@@ -293,11 +293,11 @@ function displayRestaurants(data) {
         const restaurantCard = document.createElement('div');
         restaurantCard.classList.add('restaurant-card');
         restaurantCard.innerHTML = `
-        <a href="/menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
-            <img src="${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
+        <a href="/restaurant_menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
+            <img src="${restaurant.banner ? restaurant.banner : no_image}" alt="${restaurant.name}" class="restaurant-banner">
             <div class="restaurant-info">
                 <h3>${restaurant.name}</h3>
-                <p class="restaurant-rating">Bewertung: ${restaurant.rating}</p>
+                <p class="restaurant-rating">Bewertung: ${restaurant.rating ? restaurant.rating.toFixed(1) : '0.0'}</p>
             </div>
             <p>${restaurant.description}</p>
             <p class="restaurant-delivery-time">Lieferzeit: ${restaurant.approx_delivery_time}</p>
