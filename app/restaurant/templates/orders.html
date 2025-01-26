@@ -15,6 +15,11 @@
 
 
   <div class="container">
+
+    {% if not restaurant_id %}
+    {% include 'components/not_loggedin.html' %}
+    {% else %}
+
     <!-- Main Heading -->
      {% set heading = 'Aktuelle Bestellungen' %}
      {% set sub_heading = 'Hier können Sie die aktuell eingegangenen Bestellungen einsehen und verwalten.' %}
@@ -27,18 +32,27 @@
     <div id="ordersContainer"></div>
 
     <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
+
+    {% endif %}
   </div>
 
   <!-- Order Details Overlay -->
   {% set is_active = True %}
   {% include 'components/details_overlay.html' %}
 
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/restaurant/orders.js') }}"></script>
 </body>
+
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+{% if restaurant_id %}
+
+<script src="{{ url_for('static', filename='js/restaurant/orders.js') }}"></script>
 
 <script>
   // Call to fetch restaurant data and order data on page load
   fetchOrderData('status');
 </script>
+
+{% endif %}
 </html>

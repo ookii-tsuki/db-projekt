@@ -5,12 +5,15 @@
     <a class="navbar-brand" href="{{ url_for('restaurant.dashboard') }}">
         <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" height="40" alt="Platform Logo">
     </a>
+    {% if restaurant_id %}
+
     <div class="ml-auto d-flex align-items-center">
         <a class="btn link-dark mr-2" id="logout-link" href="#">Logout</a>
         <button class="btn icon-button text-dark" id="bell-button" onclick="toggleMessage()">
             <i class="fas fa-bell" style="font-size: 24px;"></i>
         </button> <!-- Glocke -->
     </div>
+    {% endif %}
 </nav>
 
 <!-- Notification Panel -->
@@ -23,4 +26,8 @@
     </div>
 </div>
 
+{% if restaurant_id %}
+
 <script src="{{ url_for('static', filename='js/restaurant/header.js') }}"></script>
+
+{% endif %}

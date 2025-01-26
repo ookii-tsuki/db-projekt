@@ -15,6 +15,11 @@
 
 
   <div class="container">
+
+    {% if not restaurant_id %}
+    {% include 'components/not_loggedin.html' %}
+    {% else %}
+
     <!-- Main Heading -->
      {% set heading = 'Ihre Bestellhistorie' %}
      {% set sub_heading = 'Hier können Sie Ihre Bestellhistorie einsehen.' %}
@@ -33,12 +38,20 @@
   {% set is_active = False %}
   {% include 'components/details_overlay.html' %}
 
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/restaurant/orders.js') }}"></script>
+  {% endif %}
+
 </body>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+{% if restaurant_id %}
+
+<script src="{{ url_for('static', filename='js/restaurant/orders.js') }}"></script>
 
 <script>
   // Call to fetch restaurant data and order data on page load
   fetchOrderData('history');
 </script>
+
+{% endif %}
 </html>
