@@ -33,7 +33,7 @@ fetch('/api/auth/restaurant')  // Replace with actual URL to fetch JSON
     document.getElementById('restaurantAddress').textContent = `${data.address}, ${data.zip} ${data.city}`;
     document.getElementById('restaurantOpeningHours').innerHTML = formatOpeningHours(data.opening_hours);
     // If there's an image, display it (assuming it could be a URL or base64)
-    if (data.banner) {
+    if (data.banner && data.banner.length > 0 && data.banner.startsWith('data:image/')) {
       document.getElementById('restaurantImage').src = data.banner;
     }
   }

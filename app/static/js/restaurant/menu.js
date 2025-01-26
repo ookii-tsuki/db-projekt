@@ -30,8 +30,12 @@ function showEditOverlay(item) {
 
   const editPreview = document.getElementById('editImagePreview');
   editPreview.src = item.image;
-  importedImage = item.image;
-  editPreview.style.display = 'block';
+  uploadedImage = item.image;
+
+  editPreview.style.display = 'none';
+  if (item.image) {
+    editPreview.style.display = 'block';
+  }
 
   document.getElementById('editOverlay').style.display = 'flex';
 }
@@ -76,14 +80,14 @@ function renderMenu(menuItems) {
       <div class="food-item">
         <div class="food-header">
           <h2>${item.name} - €${item.price.toFixed(2)}</h2>
-          <img src="{{ url_for('static', filename='images/pen1.png') }}" alt="Edit" class="edit-icon" style="width: 20px; height: 20px;" onclick='showEditOverlay(${JSON.stringify(item)})'>
+          <img src="${edit_icon}" alt="Edit" class="edit-icon" style="width: 20px; height: 20px;" onclick='showEditOverlay(${JSON.stringify(item)})'>
         </div>
         <div class="food-details">
           <div class="food-description">
             <strong>${item.name}</strong>
             <p>${item.description}</p>
           </div>
-          <img src="${item.image}" alt="Food Photo" class="food-photo">
+          <img src="${(item.image ? item.image : no_image)}" alt="Food Photo" class="food-photo">
         </div>
       </div>`;
     container.insertAdjacentHTML('beforeend', foodItemHTML);
