@@ -27,6 +27,7 @@ Table restaurants {
   banner Text
   rating Float
   cuisine Integer
+  delivery_radius Float [not null, default: 5.0]
 
   Indexes {
     (email) [unique]
@@ -55,6 +56,7 @@ Table order_items {
   restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
   quantity Integer [not null, default: 1]
   notes String
+  price Float [not null]
 }
 
 Table orders {

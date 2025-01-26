@@ -13,19 +13,26 @@ from app.restaurant import restaurant_bp
 
 @restaurant_bp.route("/restaurant/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    restaurant_id = session.get("restaurant_id")
+
+    return render_template("dashboard.html", restaurant_id=restaurant_id)
 
 @restaurant_bp.route("/restaurant/menu")
 def menu():
-    return render_template("menu.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("menu.html", restaurant_id=restaurant_id)
 
 @restaurant_bp.route("/restaurant/orders")
 def orders():
-    return render_template("orders.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("orders.html", restaurant_id=restaurant_id)
 
-@restaurant_bp.route("/restaurant/order-history")
+# Create a route for the restaurant order history page
+# The route will return the order_history.html template
+@restaurant_bp.route("/restaurant/order_history")
 def order_history():
-    return render_template("order_history.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("order_history.html", restaurant_id=restaurant_id)
 
 ########################################################################
 ############################ API ROUTES ################################
@@ -202,7 +209,9 @@ def api_orders_status():
             raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([1, 2, 3])).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([0, 1, 2])) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
         if not orders:
             raise NotFound("No order history available.")
 
@@ -219,7 +228,7 @@ def api_orders_status():
                 {
                     "item_id": order_item.item_id,
                     "name": order_item.menu_item.name,
-                    "price": order_item.menu_item.price,
+                    "price": order_item.price,
                     "quantity": order_item.quantity,
                     "notes": order_item.notes
                 }
@@ -327,7 +336,6 @@ def api_stats():
         return jsonify({"message": e.description}), 404
     
     except Exception as e:
-        print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
     
 # API-Route für die Bestellhistorie
@@ -340,7 +348,9 @@ def api_order_history():
             raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([3, 4])).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
         if not orders:
             raise NotFound("No order history available.")
 
@@ -357,7 +367,7 @@ def api_order_history():
                 {
                     "item_id": order_item.item_id,
                     "name": order_item.menu_item.name,
-                    "price": order_item.menu_item.price,
+                    "price": order_item.price,
                     "quantity": order_item.quantity,
                     "notes": order_item.notes
                 }

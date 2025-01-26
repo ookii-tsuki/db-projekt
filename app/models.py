@@ -52,6 +52,7 @@ class Restaurant(db.Model):
     banner = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Float, nullable=True)  # Bewertung (z. B. 4.5)
     cuisine = db.Column(db.Integer, nullable=True, default=0) # 0: Sonstiges, 1: Pizza, 2: Sushi, 3: Burger, 4: Döner, 5: Pasta, 6: Italienisch, 7: Asiatisch, 8: Indisch, 9: Mexikanisch
+    delivery_radius = db.Column(db.Float, nullable=False, default=5.0)  # Lieferradius in km
 
     # Beziehungen 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True)
@@ -111,6 +112,7 @@ class OrderItem(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Float, nullable=False)
 
     # Beziehungen
     order = db.relationship('Order', backref=db.backref('order_items', lazy=True))

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ihre Speisekarte</title>
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/restaurant/menu.css') }}">
+</head>
+<body>
+  {% include 'components/header.html' %}
+  <div class="container">
+
+    {% if not restaurant_id %}
+    {% include 'components/not_loggedin.html' %}
+    {% else %}
+
+    {% set heading = 'Ihre Speisekarte' %}
+    {% set sub_heading = 'Hier können Sie nach Bedarf Items zu Ihrer Speisekarte hinzufügen<br>bestehende Items anpassen, oder Items entfernen.' %}
+    {% include 'components/page_info.html' %}
+
+    <div class="line"></div>
+    <div id="foodItemsContainer"></div>
+    <div class="line"></div>
+    <div class="centered">
+      <button class="btn btn-dark add-button" onclick="showAddOverlay()">Hinzufügen</button>
+    </div>
+  </div>
+
+    {% with prefix='edit' %}
+    {% include 'components/item_edit.html' %}
+    {% endwith %}
+
+    {% with prefix='add' %}
+    {% include 'components/item_edit.html' %}
+    {% endwith %}
+
+    {% endif %}
+
+  <script>
+    let edit_icon = "{{ url_for('static', filename='images/edit.png') }}";
+    let no_image = "{{ url_for('static', filename='images/no_image.png') }}";
+  </script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/restaurant/menu.js') }}">
+   
+  </script>
+</body>
+</html>
