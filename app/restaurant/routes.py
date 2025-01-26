@@ -209,7 +209,7 @@ def api_orders_status():
             raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([1, 2, 3])).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([0, 1, 2])).all()
         if not orders:
             raise NotFound("No order history available.")
 
