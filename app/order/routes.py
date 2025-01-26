@@ -54,7 +54,7 @@ def api_cart():
             {
                 "item_id": item.item_id,
                 "name": item.menu_item.name,
-                "price": item.menu_item.price,
+                "price": item.price,
                 "quantity": item.quantity,
                 "notes": item.notes
             } for item in cart.cart_items
@@ -108,7 +108,7 @@ def api_add_cart():
             db.session.flush()  # Ensure cart_id is generated
 
         order_item = OrderItem.query.filter_by(cart_id=cart.cart_id, item_id=item_id).first()
-        if order_item:
+        if order_item: # Update quantity and notes if item already in cart
             order_item.quantity = quantity
             order_item.notes = notes
         else:
@@ -117,7 +117,8 @@ def api_add_cart():
                 item_id=item_id,
                 restaurant_id=menu_item.restaurant_id,
                 quantity=quantity,
-                notes=notes
+                notes=notes,
+                price=menu_item.price
             )
             db.session.add(order_item)
         
@@ -301,7 +302,7 @@ def api_order_history():
                 {
                     "item_id": item.item_id,
                     "name": item.menu_item.name,
-                    "price": item.menu_item.price,
+                    "price": item.price,
                     "quantity": item.quantity,
                     "notes": item.notes
                 } for item in order.order_items
@@ -360,7 +361,7 @@ def api_order_status():
                 {
                     "item_id": item.item_id,
                     "name": item.menu_item.name,
-                    "price": item.menu_item.price,
+                    "price": item.price,
                     "quantity": item.quantity,
                     "notes": item.notes
                 } for item in order.order_items

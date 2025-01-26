@@ -111,6 +111,7 @@ class OrderItem(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.restaurant_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Float, nullable=False)
 
     # Beziehungen
     order = db.relationship('Order', backref=db.backref('order_items', lazy=True))

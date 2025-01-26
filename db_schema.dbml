@@ -55,6 +55,7 @@ Table order_items {
   restaurant_id Integer [ref: > restaurants.restaurant_id, not null]
   quantity Integer [not null, default: 1]
   notes String
+  price Float [not null]
 }
 
 Table orders {
