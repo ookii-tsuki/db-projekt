@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif; /* Schriftart */
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,32 +9,73 @@ body {
     background-color: white;
 }
 
+/* Header */
 .header {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
+    background-color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-
-.header-icons {
-    width: 40px; 
-    height: 40px; 
-    padding: 0;
-    border-radius: 50%; /* macht die Schaltfläche rund */
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    font-size: 24px; 
-    margin-left: 10px; 
+    position: relative; /* Für absolute Positionierung der Dropdowns */
 }
 
 .logo-profile {
     display: flex;
     align-items: center;
-    position: relative;
+    gap: 10px; /* Abstand zwischen Logo und Profil */
+}
+
+.photo {
+    width: 60px;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Header Buttons */
+.header-buttons {
+    display: flex;
+    gap: 15px; /* Abstand zwischen Buttons */
+    align-items: center;
+}
+
+.icon-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    border: 2px solid black;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.icon-button:hover {
+    background-color: black;
+    color: white;
+}
+
+/* Dropdown-Menüs */
+.more-buttons {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    display: none; /* Versteckt, bis aktiviert */
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
 .more-button {
@@ -43,14 +84,10 @@ body {
     border-radius: 8px;
     background-color: white;
     color: black;
-    font-size: 24px;
+    font-size: 16px;
     cursor: pointer;
+    text-align: center;
     transition: background-color 0.3s, color 0.3s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 200px;
-    height: 80px;
 }
 
 .more-button:hover {
@@ -58,6 +95,90 @@ body {
     color: white;
 }
 
+/* Layout für den Inhalt */
+.content {
+    display: flex;
+    justify-content: space-between; /* Menü links, Warenkorb rechts */
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 20px; /* Abstand zwischen Menü und Warenkorb */
+}
+
+/* Menü-Stil */
+.menu {
+    flex: 3; /* Menü nimmt mehr Platz ein */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Menü-Items */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.menu-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.menu-details {
+    flex: 1;
+}
+
+.add-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #28a745;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Warenkorb */
+.cart {
+    flex: 1;
+    max-width: 300px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.cart ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.cart ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+#empty-cart {
+    text-align: center;
+    color: #555;
+    margin-top: 20px;
+}
+
+/* Benachrichtigungen */
 .notifications {
     display: none;
     position: absolute;
@@ -80,116 +201,27 @@ body {
 .notification-item:last-child {
     border-bottom: none;
 }
-
-#bell-button.new-notification::after {
-    content: '';
+.back-button {
     position: absolute;
-    top: 55px;
-    right: 125px;
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    border-radius: 50%;
-    transform: translate(50%, -50%);
-}
-
-.more-buttons {
-    display: none;
-    position: absolute;
-    top: 70px;
-    right: 20px;
+    top: 50%; /* Zentriert den Pfeil vertikal im Header */
+    left: 10px; /* Abstand vom linken Rand */
+    transform: translateY(-50%); /* Vertikale Mitte */
     background-color: white;
     border: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 1px;
-    padding: 10px;
-    z-index: 1000;
-    flex-direction: column;
-    gap: none;
-}
-
-.container {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 20px;
-    width: 80%;
-    margin-top: 20px;
-}
-
-.left-section {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.right-section {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.menu h2 {
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-.menu-item {
+    border-radius: 8px;
+    padding: 5px;
+    cursor: pointer;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.menu-item img {
-    width: 100px;
-    height: 100px;
-    border-radius: 8px;
-    object-fit: cover;
+.back-button i {
+    font-size: 16px; /* Größe des Icons */
+    color: black;
 }
 
-.menu-item .details {
-    flex: 1;
-    margin-left: 20px;
-}
-
-.menu-item .details h3 {
-    margin: 0 0 10px;
-}
-
-.menu-item .details p {
-    margin: 5px 0;
-    color: #666;
-}
-
-.menu-item .details .price {
-    font-weight: bold;
-    color: #333;
-}
-
-.store-info {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.store-info h1 {
-    font-size: 2em;
-    margin: 0;
-    color: #333333;
-}
-
-.store-info p {
-    font-size: 1em;
-    color: #666666;
-    margin: 5px 0;
+.back-button:hover {
+    background-color: #f0f0f0;
 }

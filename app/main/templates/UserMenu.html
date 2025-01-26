@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LS Hauptseite</title>
+
+    <!-- Font Awesome für die Icons -->
+    <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
+
+    <!-- CSS Referenz: search.css -->
+    <link href="{{ url_for('static', filename='css/main/menu.css') }}" rel="stylesheet"> 
+</head>
+<body>
+    <!-- Header Container -->
+    <div class="header">
+        <!-- Container für Logo und Profil -->
+        <div class="logo-profile">
+            <!-- Bild oben links -->
+            <img id="logo" src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+            <!-- Profil -->
+            <button class="button icon-button" id="profile-button"><i class="fas fa-user"></i></button>
+            <!-- Guthaben Container -->
+            <div class="guthaben-container" id="guthaben-container">
+                <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
+            </div>
+        </div>
+        
+        <!-- nach drücken vom Mehr-Knopf -->
+        <div class="more-buttons" id="more-buttons">
+            <button class="more-button" id="past-orders-button">vergangene Bestellungen</button>
+            <button class="more-button">Einstellungen</button>
+            <button class="more-button">über Uns</button>
+        </div>
+
+        <!-- Container für die Header Knöpfe -->
+        <div class="header-buttons">
+            <button class="button icon-button" id="bell-button"><i class="fas fa-bell"></i></button> <!-- Glocke -->
+            <button class="button icon-button" id="cart-button"><i class="fas fa-shopping-cart"></i></button> <!-- Warenkorb -->
+            <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
+        </div>
+    </div>
+
+    <!-- Benachrichtigungen Container -->
+    <div class="notifications" id="notifications"></div>
+
+    <!-- Vergangene Bestellungen Container -->
+    <div class="past-orders" id="past-orders">
+        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+    </div>
+
+    <!-- Main Container -->
+    <body>
+        <div class="content">
+            <!-- Menü -->
+            <section class="menu">
+                <h2>Burger</h2>
+        
+                <div class="menu-item">
+                    <img src="/images/burger1.png" alt="BH Main Burger" class="menu-image">
+                    <div class="menu-details">
+                        <h3>BH Main Burger</h3>
+                        <p>Der legendäre Burger, der uns so beliebt gemacht hat!</p>
+                        <p>Burger mit saftigem Doppelrindfleisch und frischem Gemüse.</p>
+                        <p>Die perfekte Basis für eine Geschmacksexplosion.</p>
+                    </div>
+                    <button class="add-button">+</button>
+                </div>
+        
+                <div class="menu-item">
+                    <img src="/images/burger2.png" alt="Vegano Burger" class="menu-image">
+                    <div class="menu-details">
+                        <h3>Vegano Burger</h3>
+                        <p>Die perfekte Alternative für Vegetarier und Veganer!</p>
+                        <p>Veganer Feldsalatburger mit frischem Gemüse.</p>
+                        <p>Nach Wunsch auch als Doppelburger.</p>
+                    </div>
+                    <button class="add-button">+</button>
+                </div>
+        
+                <div class="menu-item">
+                    <img src="/images/burger3.png" alt="Chicken Burger Deluxe" class="menu-image">
+                    <div class="menu-details">
+                        <h3>Chicken Burger Deluxe</h3>
+                        <p>Der beste Burger für Chicken-Liebhaber!</p>
+                        <p>Leckeres Hähnchenfleisch mit frischem Gemüse.</p>
+                        <p>Nach Wunsch auch mit Panade.</p>
+                    </div>
+                    <button class="add-button">+</button>
+                </div>
+        
+                <div class="menu-item">
+                    <img src="/images/burger4.png" alt="Cheeseburger" class="menu-image">
+                    <div class="menu-details">
+                        <h3>Cheeseburger</h3>
+                        <p>Ein simpler, aber umso effektiver Burger!</p>
+                        <p>Saftiges Rindfleisch mit leckerem Cheddarkäse.</p>
+                        <p>Frisches Gemüse und leckere Burgersauce.</p>
+                    </div>
+                    <button class="add-button">+</button>
+                </div>
+            </section>
+        
+            <!-- Warenkorb -->
+            <div class="cart">
+                <h2>Dein Warenkorb</h2>
+                <ul id="cart-items">
+                    <!-- Dynamische Inhalte -->
+                </ul>
+                <p id="empty-cart">Dein Warenkorb ist noch leer</p>
+            </div>
+        </div>        
+            
+            
+        <!-- Referenz zum JS:-->
+        <script src="{{ url_for('static', filename='js/main/menu.js') }}"></script>
+</body>
+</html>

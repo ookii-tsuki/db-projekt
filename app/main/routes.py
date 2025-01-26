@@ -37,11 +37,9 @@ def search():
 
 # Create a route for the menu page
 # The route will return the menu.html template
-@main_bp.route("/restaurant_menu")
+@main_bp.route("/menu")
 def menu():
-    return render_template("restaurant_menu.html")
-
-
+    return render_template("UserMenu.html")
 
 #######################################################################
 ############################ API ROUTES ###############################
