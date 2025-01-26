@@ -27,6 +27,7 @@ Table restaurants {
   banner Text
   rating Float
   cuisine Integer
+  delivery_radius Float [not null, default: 5.0]
 
   Indexes {
     (email) [unique]

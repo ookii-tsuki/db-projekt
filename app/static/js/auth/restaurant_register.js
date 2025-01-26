@@ -19,7 +19,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
         password: document.getElementById('password').value.trim(),  // Password input value
         banner: importedImage,
         cuisine: document.getElementById('cuisine').selectedIndex,
-        delivery_radius: parseInt(document.getElementById('delivery-radius').value.trim(), 10), // Delivery radius input value
+        delivery_radius: parseFloat(document.getElementById('delivery-radius').value.trim()), // Delivery radius input value
         opening_hours: []
     };
 
@@ -78,7 +78,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     }
 
     // Validate delivery radius (must be between 1 and 10 km)
-    const deliveryRadius = parseInt(formData.delivery_radius, 10);
+    const deliveryRadius = formData.delivery_radius;
     if (isNaN(deliveryRadius) || deliveryRadius < 1 || deliveryRadius > 10) {
         document.getElementById('deliveryRadiusError').textContent = 'Lieferumfang muss zwischen 1 und 10 km liegen.';
         isValid = false;
