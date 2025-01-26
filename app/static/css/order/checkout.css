@@ -375,7 +375,7 @@ text-align: center;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
     margin-top: 300px;
-    margin-left: 120px;
+    margin-left: 350px;
 }
 
 .pay-button:hover {
