@@ -34,4 +34,17 @@
   </div>
 </div>
 
+{% if is_active %}
+<script>
+  function _fetchOrderData() {
+    fetchOrderData('status');
+  }
+</script>
+{% else %}
+<script>
+  function _fetchOrderData() {
+    fetchOrderData('history');
+  }
+</script>
+{% endif %}
 <script src="{{ url_for('static', filename='js/restaurant/details_overlay.js') }}"></script>

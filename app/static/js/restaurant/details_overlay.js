@@ -48,7 +48,7 @@ function showOverlay(details) {
       if (response.status === 200) {
         const responseData = await response.json();
         closeOverlay();
-        fetchOrderData(); // Refresh the order list
+        _fetchOrderData(); // Refresh the order list
       } else if (response.status === 400) {
         const errorData = await response.json();
         alert(errorData.message); // Error message
@@ -79,7 +79,7 @@ function showOverlay(details) {
       if (response.status === 200) {
         const responseData = await response.json();
         closeOverlay();
-        fetchOrderData(); // Refresh the order list
+        _fetchOrderData(); // Refresh the order list
       } else if (response.status === 400) {
         const errorData = await response.json();
         alert(errorData.message); // Error message
