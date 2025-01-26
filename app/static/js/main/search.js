@@ -146,6 +146,9 @@ document.getElementById('search-button').addEventListener('click', async functio
                 handleError({ message: "Ungültige Abfrageparameter." });
             } else if (response.status === 404) {
                 handleError({ message: "Es wurden keine Restaurants gefunden." });
+            }
+            else if (response.status === 401) {
+                handleError({ message: "Unauthorisiert. Bitte melden Sie sich an." });
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
@@ -319,9 +322,11 @@ function navigateToRestaurant(restaurantId) {
 }
 
 // Funktion zum Abrufen der Restaurants vom Server
-async function fetchRestaurants() {
+async function fetchRestaurants(cuisine=null) {
     try {
-        const response = await fetch('/api/main/search', {
+        handleError({ message: "" });
+
+        const response = await fetch(!cuisine ? '/api/main/search' : `/api/main/search?cuisine=${cuisine}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -333,7 +338,12 @@ async function fetchRestaurants() {
                 handleError({ message: "Ungültige Abfrageparameter." });
             } else if (response.status === 404) {
                 handleError({ message: "Es wurden keine Restaurants in der Nähe gefunden." });
-            } else {
+                displayRestaurants([]);
+            }
+            else if (response.status === 401) {
+                handleError({ message: "Unauthorisiert. Bitte melden Sie sich an." });
+            }
+            else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
             return;
