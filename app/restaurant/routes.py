@@ -209,7 +209,9 @@ def api_orders_status():
             raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([0, 1, 2])).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id, Order.status.in_([0, 1, 2])) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
         if not orders:
             raise NotFound("No order history available.")
 
@@ -334,7 +336,6 @@ def api_stats():
         return jsonify({"message": e.description}), 404
     
     except Exception as e:
-        print(traceback.format_exc())
         return jsonify({"message": "An error occurred."}), 500
     
 # API-Route für die Bestellhistorie
@@ -347,7 +348,9 @@ def api_order_history():
             raise Unauthorized("No restaurant is logged in.")
 
         # Suche abgeschlossene Bestellungen (Status: 1) in der Datenbank
-        orders = Order.query.filter(Order.restaurant_id == restaurant_id).all()
+        orders = Order.query.filter(Order.restaurant_id == restaurant_id) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
         if not orders:
             raise NotFound("No order history available.")
 

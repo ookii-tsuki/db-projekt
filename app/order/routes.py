@@ -291,7 +291,9 @@ def api_order_history():
         if not user_id:
             raise Unauthorized("User not logged in.")
 
-        orders = Order.query.filter_by(user_id=user_id).all()
+        orders = Order.query.filter_by(user_id=user_id) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
 
         if not orders:
             raise NotFound("No orders found.")
@@ -350,7 +352,9 @@ def api_order_status():
             raise Unauthorized("User not logged in.")
 
         # Fetch orders with status not equal to 3 (delivered) or 4 (rejected)
-        orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])).all()
+        orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
 
         if not orders:
             raise NotFound("No active orders found.")
