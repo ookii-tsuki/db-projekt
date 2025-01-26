@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger House</title>
+
+    <!-- Font Awesome für die Icons -->
+    <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
+
+    <!-- Verlinkung der CSS-Datei -->
+    <link href="{{ url_for('static', filename='css/main/menu.css') }}" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">Burger House</div>
+        <div class="header-icons">
+            <button><i class="fas fa-bell"></i></button>
+            <button><i class="fas fa-shopping-cart"></i></button>
+            <button><i class="fas fa-ellipsis-h"></i></button>
+        </div>
+    </header>
+     
+    <div class="container">
+        <div class="left-section">
+            <div class="store-info">
+                <h1>Burger House</h1>
+                <p>Bickenstraße 182, Duisburg</p>
+                <p>Lieferzeit: 10 - 20 Minuten | Kostenlose Lieferung ab 20 €</p>
+            </div>
+
+            <!-- Dynamische Inhalte (Menü-Items) werden hier angezeigt -->
+            <div id="menu-container"></div>
+        </div>
+
+        <div class="right-section">
+            <h2>Dein Warenkorb ist noch leer</h2>
+        </div>
+    </div>
+
+    <!-- Referenz zum JS -->
+    <script src="{{ url_for('static', filename='js/main/menu.js') }}"></script>
+</body>
+</html>
