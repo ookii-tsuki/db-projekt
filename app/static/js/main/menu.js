@@ -67,17 +67,45 @@ document.getElementById('ausloggen-button').addEventListener('click', async func
     }
 });
 
-async function loadRestaurantData() {
+async function loadRestaurantBanner() {
     try {
-        const response = await fetch('/api/main/restaurant_data'); 
-        if (!response.ok) throw new Error('Fehler beim Abrufen der Restaurantdaten.');
+        // Restaurant-ID (z. B. aus URL oder festlegen)
+        const restaurantId = 1;
 
+        // API-Aufruf mit der Restaurant-ID
+        const response = await fetch(`/api/main/restaurant?id=${restaurantId}`);
+        if (!response.ok) {
+            throw new Error("Fehler beim Laden der Restaurantdaten.");
+        }
+
+        // API-Daten in JSON umwandeln
         const restaurantData = await response.json();
-        displayRestaurantBanner(restaurant_data.banner); // Dynamischen Banner laden
+
+        // Bild-Element im HTML finden
+        const bannerElement = document.getElementById("restaurant-banner");
+
+        // Prüfen, ob ein Banner verfügbar ist
+        if (restaurantData.banner) {
+            // Dynamisch Bildquelle und Alternativtext setzen
+            bannerElement.src = restaurantData.banner; // Bildquelle (z. B. URL)
+            bannerElement.alt = `Banner von ${restaurantData.name}`; // Alternativtext
+        } else {
+            console.warn("Kein Banner für dieses Restaurant verfügbar.");
+        }
     } catch (error) {
-        console.error(error);
+        console.error("Fehler beim Laden des Restaurant-Banners:", error);
     }
 }
+
+// Funktion aufrufen, wenn die Seite geladen ist
+document.addEventListener("DOMContentLoaded", loadRestaurantBanner);
+// Script ausführen, nachdem die Seite vollständig geladen wurde
+document.addEventListener("DOMContentLoaded", loadRestaurantBanner);
+
+
+
+
+
 
 // Lade die Daten beim Laden der Seite
 document.addEventListener('DOMContentLoaded', () => {
