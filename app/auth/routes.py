@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 from flask import jsonify, render_template, Blueprint, request, session
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -208,8 +209,9 @@ def api_restaurant_register():
         banner = data.get("banner")
         opening_hours = data.get("opening_hours")
         cuisine = data.get("cuisine")
+        delivery_radius = data.get("delivery_radius")
 
-        required_fields = [name, email, password, address, city, zip_code, opening_hours]
+        required_fields = [name, email, password, address, city, zip_code, opening_hours, delivery_radius]
 
         # Check if any of the required fields are empty
         if not all(required_fields):
@@ -224,6 +226,14 @@ def api_restaurant_register():
         if (restaurant_exists):
             return jsonify({"message": "Restaurant already exists."}), 409
         
+        def biased_random_rating(min_val, max_val, bias_min, bias_max):
+            while True:
+                value = random.uniform(min_val, max_val)
+                if bias_min <= value <= bias_max:
+                    return value
+                if random.random() < 0.3:
+                    return value
+        
         new_restaurant = Restaurant(
             name=name,
             email=email,
@@ -234,7 +244,9 @@ def api_restaurant_register():
             description=description,
             wallet=0.00,
             banner=banner,
-            cuisine=cuisine
+            cuisine=cuisine,
+            delivery_radius=delivery_radius,
+            rating=biased_random_rating(1.0, 5.0, 4.0, 4.9)
         )
         # Add the restaurant to the database
         db.session.add(new_restaurant)
