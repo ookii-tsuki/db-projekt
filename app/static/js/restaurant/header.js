@@ -98,3 +98,23 @@ function fetchOrders() {
 
 setInterval(fetchOrders, 5000); // Fetch orders every 5 seconds
 fetchOrders();
+
+document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    fetch('/api/auth/restaurant/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/'; // Redirect to login page after logout
+        } else {
+            throw new Error('Logout failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});

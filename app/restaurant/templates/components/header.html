@@ -1,12 +1,12 @@
 <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/restaurant/header.css') }}" rel="stylesheet">
 
-
 <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="{{ url_for('restaurant.dashboard') }}">
         <img src="{{ url_for('static', filename='images/lieferspatz.png') }}" height="40" alt="Platform Logo">
     </a>
-    <div class="ml-auto">
+    <div class="ml-auto d-flex align-items-center">
+        <a class="btn link-dark mr-2" id="logout-link" href="#">Logout</a>
         <button class="btn icon-button text-dark" id="bell-button" onclick="toggleMessage()">
             <i class="fas fa-bell" style="font-size: 24px;"></i>
         </button> <!-- Glocke -->
