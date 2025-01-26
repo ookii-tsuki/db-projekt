@@ -1,87 +1,86 @@
-// Funktion: Restaurantdetails dynamisch anzeigen (inkl. Bewertung)
-function displayRestaurantDetails(restaurantData) {
-    const headerContainer = document.querySelector('.header');
-    headerContainer.querySelector('h1').textContent = restaurantData.name;
-    headerContainer.querySelector('span').textContent = restaurantData.address;
-    headerContainer.querySelector('.header-buttons').innerHTML = `
-        <span>${'★'.repeat(Math.round(restaurantData.rating))} (${restaurantData.rating.toFixed(1)})</span>
-    `;
-}
-
-// Funktion: Menü-Items dynamisch anzeigen (ohne Bewertung)
-function displayMenuItems(menuItems) {
-    const menuContainer = document.querySelector('.menu');
-    menuContainer.innerHTML = ''; // Container leeren
-
-    menuItems.forEach(item => {
-        const menuItem = document.createElement('div');
-        menuItem.classList.add('item');
-        menuItem.innerHTML = `
-            <img class="photo" src="${item.image || '#'}" alt="${item.name}">
-            <div class="item-details">
-                <h2>${item.name}</h2>
-                <p>${item.description}</p>
-                <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
-            </div>
-            <div class="button-container">
-                <button class="button item-button" data-item="${item.name}" data-price="${item.price}">+</button>
-            </div>
-        `;
-        menuContainer.appendChild(menuItem);
-    });
-
-    // Event Listener für die Buttons hinzufügen
-    document.querySelectorAll('.item-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const itemName = button.getAttribute('data-item');
-            const itemPrice = parseFloat(button.getAttribute('data-price'));
-            addToCart(itemName, itemPrice);
-        });
-    });
-}
-
-// Funktion: Artikel zum Warenkorb hinzufügen
-const cart = [];
-function addToCart(name, price) {
-    const existingItem = cart.find(item => item.name === name);
-    if (existingItem) {
-        existingItem.quantity += 1;
+document.getElementById('logo').addEventListener('click', function() {
+    window.location.href = '/search';
+});
+document.getElementById('bell-button').addEventListener('click', function() {
+    var notifications = document.getElementById('notifications');
+    if (notifications.style.display === 'none' || notifications.style.display === '') {
+        notifications.style.display = 'block';
+        fetchOrderStatus();
     } else {
-        cart.push({ name, price, quantity: 1 });
+        notifications.style.display = 'none';
     }
-    updateCart();
-}
+    this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
+});
 
-// Funktion: Warenkorb aktualisieren
-function updateCart() {
-    const cartContainer = document.getElementById('cart-items');
-    const emptyCartMessage = document.getElementById('empty-cart');
-    cartContainer.innerHTML = '';
-    if (cart.length === 0) {
-        emptyCartMessage.style.display = 'block';
+document.getElementById('cart-button').addEventListener('click', function() {
+    window.location.href = '/cart';
+});
+
+document.getElementById('more-button').addEventListener('click', function() {
+    var moreButtons = document.getElementById('more-buttons');
+    if (moreButtons.style.display === 'none' || moreButtons.style.display === '') {
+        moreButtons.style.display = 'flex';
     } else {
-        emptyCartMessage.style.display = 'none';
-        cart.forEach(item => {
-            const cartItem = document.createElement('li');
-            cartItem.textContent = `${item.name} (x${item.quantity}) - ${(item.price * item.quantity).toFixed(2).replace('.', ',')} €`;
-            cartContainer.appendChild(cartItem);
-        });
-    }
-}
-
-// Initialisierung der Seite
-document.addEventListener('DOMContentLoaded', async () => {
-    const restaurantId = 1; // Beispiel: Restaurant-ID
-    try {
-        const response = await fetch(`/api/main/restaurant?id=${restaurantId}`);
-        if (response.ok) {
-            const restaurantData = await response.json();
-            displayRestaurantDetails(restaurantData); // Restaurantdetails anzeigen
-            displayMenuItems(restaurantData.menu); // Menü anzeigen
-        } else {
-            console.error('Fehler beim Laden der Restaurantdaten.');
-        }
-    } catch (error) {
-        console.error('Fehler beim Abrufen der Restaurantdaten:', error);
+        moreButtons.style.display = 'none';
     }
 });
+
+document.getElementById('past-orders-button').addEventListener('click', function() {
+    var pastOrders = document.getElementById('past-orders');
+    if (pastOrders.style.display === 'none' || pastOrders.style.display === '') {
+        pastOrders.style.display = 'block';
+        fetchPastOrders();
+    } else {
+        pastOrders.style.display = 'none';
+    }
+});
+
+document.getElementById('profile-button').addEventListener('click', function() {
+    var guthabenContainer = document.getElementById('guthaben-container');
+    var ausloggenButton = document.getElementById('ausloggen-button');
+    if (guthabenContainer.style.display === 'none' || guthabenContainer.style.display === '') {
+        guthabenContainer.style.display = 'block';
+        ausloggenButton.style.display = 'block';
+    } else {
+        guthabenContainer.style.display = 'none';
+        ausloggenButton.style.display = 'none';
+    }
+});
+
+document.getElementById('ausloggen-button').addEventListener('click', async function() {
+    try {
+        const response = await fetch('/api/auth/user/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            window.location.href = '/'; // zur Index-Seite weiterleiten
+        } else {
+            const data = await response.json();
+            console.error('Ausloggen fehlgeschlagen:', data.message);
+        }
+    } catch (error) {
+        console.error('Fehler beim Ausloggen:', error);
+    }
+});
+
+async function loadRestaurantData() {
+    try {
+        const response = await fetch('/api/main/restaurant_data'); 
+        if (!response.ok) throw new Error('Fehler beim Abrufen der Restaurantdaten.');
+
+        const restaurantData = await response.json();
+        displayRestaurantBanner(restaurant_data.banner); // Dynamischen Banner laden
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// Lade die Daten beim Laden der Seite
+document.addEventListener('DOMContentLoaded', () => {
+    loadRestaurantData();
+});
+
