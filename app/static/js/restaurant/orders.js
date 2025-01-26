@@ -2,8 +2,7 @@ function displayOrders(orders) {
     const urlParams = new URLSearchParams(window.location.search);
     const order_id = urlParams.get('order_id');
 
-    const ordersContainer = document.getElementById('ordersContainer');
-    ordersContainer.innerHTML = ''; 
+    clearContent(); 
     
     if (orders.length === 0) {
       ordersContainer.innerHTML = '<p class="text-center animate__animated animate__fadeIn">No orders found.</p>';
@@ -62,7 +61,8 @@ function displayOrders(orders) {
         displayOrders(data);
       } else if (response.status === 404) {
         const error = await response.json();
-        showError(error.message || 'No active orders found.');
+        showError('Keine Bestellungen gefunden.');
+        clearContent();
       } else {
         showError('An unexpected error occurred.');
       }
@@ -74,7 +74,10 @@ function displayOrders(orders) {
     }
   }
 
-
+  function clearContent() {
+    const ordersContainer = document.getElementById('ordersContainer');
+    ordersContainer.innerHTML = '';
+  }
 
   function showError(message) {
     const errorMessageElement = document.getElementById('errorMessage');
