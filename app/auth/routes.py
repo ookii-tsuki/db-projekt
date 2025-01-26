@@ -231,7 +231,7 @@ def api_restaurant_register():
                 value = random.uniform(min_val, max_val)
                 if bias_min <= value <= bias_max:
                     return value
-                if random.random() < 0.3:
+                if random.random() < 0.1:
                     return value
         
         new_restaurant = Restaurant(
