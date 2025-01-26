@@ -235,9 +235,25 @@ function addOpeningHour() {
     closeInput.type = 'time';
     closeInput.classList.add('form-control');
     closeWrapper.appendChild(closeInput);
+
+    // Copy data from the last added opening hour if it exists
+    const lastRow = container.lastElementChild;
+    if (lastRow) {
+        const lastDaySelect = lastRow.querySelector('select');
+        const timeInputs = lastRow.querySelectorAll('input[type="time"]');
+        
+        if (lastDaySelect && timeInputs.length === 2) {
+            const lastOpenInput = timeInputs[0];
+            const lastCloseInput = timeInputs[1];
+            
+            daySelect.selectedIndex = (lastDaySelect.selectedIndex + 1) % days.length;
+            openInput.value = lastOpenInput.value;
+            closeInput.value = lastCloseInput.value;
+        }
+    }
   
     row.appendChild(dayWrapper);
     row.appendChild(openWrapper);
     row.appendChild(closeWrapper);
     container.appendChild(row);
-  }
+}
