@@ -13,19 +13,26 @@ from app.restaurant import restaurant_bp
 
 @restaurant_bp.route("/restaurant/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    restaurant_id = session.get("restaurant_id")
+
+    return render_template("dashboard.html", restaurant_id=restaurant_id)
 
 @restaurant_bp.route("/restaurant/menu")
 def menu():
-    return render_template("menu.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("menu.html", restaurant_id=restaurant_id)
 
 @restaurant_bp.route("/restaurant/orders")
 def orders():
-    return render_template("orders.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("orders.html", restaurant_id=restaurant_id)
 
-@restaurant_bp.route("/restaurant/order-history")
+# Create a route for the restaurant order history page
+# The route will return the order_history.html template
+@restaurant_bp.route("/restaurant/order_history")
 def order_history():
-    return render_template("order_history.html")
+    restaurant_id = session.get("restaurant_id")
+    return render_template("order_history.html", restaurant_id=restaurant_id)
 
 ########################################################################
 ############################ API ROUTES ################################
