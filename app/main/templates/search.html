@@ -63,11 +63,17 @@
 
         <!-- Container für die Filter-Buttons -->
         <div class="food-buttons-container">
-            <button class="food-button">Burger</button>
-            <button class="food-button">Pizza</button>
-            <button class="food-button">Döner</button>
-            <button class="food-button">Pasta</button>
-            <button class="food-button">Asiatisch</button>
+            <button class="food-button" onclick="fetchRestaurants()">Alle</button>
+            <button class="food-button" onclick="fetchRestaurants(1)">Pizza</button>
+            <button class="food-button" onclick="fetchRestaurants(2)">Sushi</button>
+            <button class="food-button" onclick="fetchRestaurants(3)">Burger</button>
+            <button class="food-button" onclick="fetchRestaurants(4)">Döner</button>
+            <button class="food-button" onclick="fetchRestaurants(5)">Pasta</button>
+            <button class="food-button" onclick="fetchRestaurants(6)">Italienisch</button>
+            <button class="food-button" onclick="fetchRestaurants(7)">Asiatisch</button>
+            <button class="food-button" onclick="fetchRestaurants(8)">Indisch</button>
+            <button class="food-button" onclick="fetchRestaurants(9)">Mexikanisch</button>
+            <button class="food-button" onclick="fetchRestaurants(0)">Sonstiges</button>
         </div>
 
         <p id="searchText" class="bold-text">Restaurants in deinem Umkreis</p>
@@ -89,7 +95,11 @@
                 </div>
             </div>
             
-        <!-- Referenz zum JS: search.js -->
-        <script src="{{ url_for('static', filename='js/main/search.js') }}"></script>
 </body>
+
+<script>
+    let no_image = "{{ url_for('static', filename='images/no_image.png') }}";
+</script>
+<!-- Referenz zum JS: search.js -->
+<script src="{{ url_for('static', filename='js/main/search.js') }}"></script>
 </html>

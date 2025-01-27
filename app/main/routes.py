@@ -64,12 +64,9 @@ def api_search():
 
         # Get user and nearby zip codes
         user = User.query.filter_by(user_id=user_id).first()
-        nearby_zips = find_nearby(user.zip_code, 5)
-        if not nearby_zips:
-            raise NotFound("No restaurants found nearby.")
 
         # Query restaurants
-        restaurants_query = Restaurant.query.filter(Restaurant.zip_code.in_([z[0] for z in nearby_zips]))
+        restaurants_query = Restaurant.query
 
         if query:
             restaurants_query = restaurants_query.filter(
@@ -101,13 +98,15 @@ def api_search():
         
         restaurants = restaurants_query.all()
 
+        restaurants = [r for r in restaurants if find_distance(user.zip_code, r.zip_code) <= r.delivery_radius]
+
         if not restaurants:
             raise NotFound("No restaurants found nearby.")
         
         # Sort by distance (ascending), favorites first, rating (descending), newer restaurants first
         sorted_restaurants = []
         for r in restaurants:
-            dist = next(z[1] for z in nearby_zips if z[0] == r.zip_code)
+            dist = int(find_distance(user.zip_code, r.zip_code))
             is_fav = r in user.favorites
             sorted_restaurants.append((r, dist, is_fav))
         
@@ -115,8 +114,8 @@ def api_search():
             key=lambda x: (
                 x[1],                # distance ascending
                 not x[2],            # favorites first
-                -x[0].rating,        # rating descending
-                -x[0].restaurant_id  # newer (higher ID) first
+                -(x[0].rating if x[0].rating is not None else 0),        # rating descending
+                -x[0].restaurant_id # newer restaurants first
             )
         )
                 

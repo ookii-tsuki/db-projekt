@@ -146,6 +146,9 @@ document.getElementById('search-button').addEventListener('click', async functio
                 handleError({ message: "Ungültige Abfrageparameter." });
             } else if (response.status === 404) {
                 handleError({ message: "Es wurden keine Restaurants gefunden." });
+            }
+            else if (response.status === 401) {
+                handleError({ message: "Unauthorisiert. Bitte melden Sie sich an." });
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
@@ -293,11 +296,11 @@ function displayRestaurants(data) {
         const restaurantCard = document.createElement('div');
         restaurantCard.classList.add('restaurant-card');
         restaurantCard.innerHTML = `
-        <a href="/menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
-            <img src="${restaurant.banner}" alt="${restaurant.name}" class="restaurant-banner">
+        <a href="/restaurant_menu?restaurant_id=${restaurant.restaurant_id}" class="restaurant-link">
+            <img src="${restaurant.banner ? restaurant.banner : no_image}" alt="${restaurant.name}" class="restaurant-banner">
             <div class="restaurant-info">
                 <h3>${restaurant.name}</h3>
-                <p class="restaurant-rating">Bewertung: ${restaurant.rating}</p>
+                <p class="restaurant-rating">Bewertung: ${restaurant.rating ? restaurant.rating.toFixed(1) : '0.0'}</p>
             </div>
             <p>${restaurant.description}</p>
             <p class="restaurant-delivery-time">Lieferzeit: ${restaurant.approx_delivery_time}</p>
@@ -319,9 +322,11 @@ function navigateToRestaurant(restaurantId) {
 }
 
 // Funktion zum Abrufen der Restaurants vom Server
-async function fetchRestaurants() {
+async function fetchRestaurants(cuisine=null) {
     try {
-        const response = await fetch('/api/main/search', {
+        handleError({ message: "" });
+
+        const response = await fetch(!cuisine ? '/api/main/search' : `/api/main/search?cuisine=${cuisine}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -333,7 +338,12 @@ async function fetchRestaurants() {
                 handleError({ message: "Ungültige Abfrageparameter." });
             } else if (response.status === 404) {
                 handleError({ message: "Es wurden keine Restaurants in der Nähe gefunden." });
-            } else {
+                displayRestaurants([]);
+            }
+            else if (response.status === 401) {
+                handleError({ message: "Unauthorisiert. Bitte melden Sie sich an." });
+            }
+            else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
             return;

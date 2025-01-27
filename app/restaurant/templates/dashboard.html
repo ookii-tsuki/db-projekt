@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ihr Restaurant</title>
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/restaurant/dashboard.css') }}">
+</head>
+<body>
+  {% include 'components/header.html' %}
+  <div class="container">
+    
+    {% if not restaurant_id %}
+    {% include 'components/not_loggedin.html' %}
+    {% else %}
+
+    {% set heading = 'Ihr Restaurant' %}
+    {% set sub_heading = 'Hier können Sie Änderungen an Ihrer Speisekarte vornehmen,<br>Ihr Restaurant bearbeiten, Ihre Historie einsehen und Bestellungen verwalten.' %}
+    {% include 'components/page_info.html' %}
+
+    {% include 'components/restaurant_card.html' %}
+    
+    <div class="buttons-grid">
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/menu'">Speisekarte bearbeiten</button>
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/orders'">Aktuelle Bestellungen</button>
+      <button class="btn btn-dark btn-custom" onclick="showGuthabenModal()">Statistiken</button>
+      <button class="btn btn-dark btn-custom" onclick="location.href='/restaurant/order_history'">Historie</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="hideGuthabenModal()"></div>
+  <div class="guthaben-modal" id="guthabenModal">
+    <div class="modal-header">
+      <h5>Ihre Statistiken auf Lieferspatz</h5>
+      <button class="btn-close" onclick="hideGuthabenModal()"></button>
+    </div>
+    <div class="modal-body">
+      
+      <p><strong>Gesamtbestellungen:</strong> <span id="totalOrders">0</span></p>
+      <p><strong>Gesamteinnahmen:</strong> <span id="totalRevenue">0 EUR</span></p>
+      <p><strong>Durchschnittliche Bewertung:</strong> <span id="averageRating">0</span></p>
+    </div>
+  </div>
+
+  {% endif %}
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+
+  <script src="{{ url_for('static', filename='js/restaurant/dashboard.js') }}"></script>
+</body>
+</html>
