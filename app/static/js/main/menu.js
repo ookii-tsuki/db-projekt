@@ -67,8 +67,6 @@ document.getElementById('ausloggen-button').addEventListener('click', async func
     }
 });
 
-
-
 async function loadRestaurantBanner() {
     try {
         // Restaurant-ID (z. B. aus URL oder festlegen)
@@ -114,41 +112,3 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRestaurantData();
 });
 
-document.getElementById('guthaben-button').addEventListener('click', async function() {
-    try {
-        const response = await fetch('/api/user/guthaben');
-        if (!response.ok) {
-            throw new Error("Fehler beim Laden des Guthabens.");
-        }
-
-        const data = await response.json();
-        const guthabenContainer = document.getElementById('guthaben-container');
-        guthabenContainer.innerHTML = `<p>Guthaben: ${data.guthaben} €</p>`;
-        guthabenContainer.style.display = 'block';
-    } catch (error) {
-        console.error("Fehler beim Laden des Guthabens:", error);
-    }
-});
-
-document.getElementById('profile-button').addEventListener('click', function() {
-    const guthabenContainer = document.getElementById('guthaben-container');
-    if (guthabenContainer.style.display === 'none' || guthabenContainer.style.display === '') {
-        guthabenContainer.style.display = 'block';
-    } else {
-        guthabenContainer.style.display = 'none';
-    }
-});
-
-function displayBanner(banner) {
-    const container = document.getElementById('restaurant-banner');
-    container.innerHTML = ''; // Löscht bestehenden Inhalt im Container
-
-    const bannerElement = document.createElement('img');
-    bannerElement.src = banner; // Setzt die Bildquelle
-    bannerElement.style.width = '100%'; // Passt das Bild an die Containergröße an
-    bannerElement.style.height = '100%'; // Passt das Bild an die Containergröße an
-    container.appendChild(bannerElement); // Fügt das Bild in den Container ein
-}
-
-// Testaufruf der Funktion
-displayBanner('https://via.placeholder.com/300x150');
