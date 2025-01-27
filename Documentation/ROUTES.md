@@ -12,7 +12,7 @@ This document describes the page routes that are available in the application.
 2. [Main Routes](#main-routes)
     1. [GET /](#get-)
     2. [GET /search](#get-search)
-    3. [GET /menu/:restaurant_id](#get-menurestaurant_id)
+    3. [GET /menu/:restaurant_id](#get-restaurant_menurestaurant_id)
 3. [Order Routes](#order-routes)
     1. [GET /cart](#get-cart)
     2. [GET /order_history](#get-order_history)
@@ -88,7 +88,7 @@ Get the search page.
 > If the user is logged in, the view will show a `Logout` button that will redirect to the `/` route.
 
 
-### GET /menu/:restaurant_id
+### GET /restaurant_menu/:restaurant_id
 
 **Description:**
 Get the menu page for a restaurant.

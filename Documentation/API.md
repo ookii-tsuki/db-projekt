@@ -172,6 +172,7 @@ Registers a new restaurant.
   "zip": "12345",
   "description": "The best pizza in town.",
   "banner": "/9j/4AAQSkZJRgABAQEAAAAAAAD/... (base64-encoded image data)",
+  "delivery_radius": 5,
   "opening_hours": [
         {
             "day_of_week": 0,

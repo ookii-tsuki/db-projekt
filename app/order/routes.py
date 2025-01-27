@@ -54,7 +54,7 @@ def api_cart():
             {
                 "item_id": item.item_id,
                 "name": item.menu_item.name,
-                "price": item.menu_item.price,
+                "price": item.price,
                 "quantity": item.quantity,
                 "notes": item.notes
             } for item in cart.cart_items
@@ -108,7 +108,7 @@ def api_add_cart():
             db.session.flush()  # Ensure cart_id is generated
 
         order_item = OrderItem.query.filter_by(cart_id=cart.cart_id, item_id=item_id).first()
-        if order_item:
+        if order_item: # Update quantity and notes if item already in cart
             order_item.quantity = quantity
             order_item.notes = notes
         else:
@@ -117,7 +117,8 @@ def api_add_cart():
                 item_id=item_id,
                 restaurant_id=menu_item.restaurant_id,
                 quantity=quantity,
-                notes=notes
+                notes=notes,
+                price=menu_item.price
             )
             db.session.add(order_item)
         
@@ -290,7 +291,9 @@ def api_order_history():
         if not user_id:
             raise Unauthorized("User not logged in.")
 
-        orders = Order.query.filter_by(user_id=user_id).all()
+        orders = Order.query.filter_by(user_id=user_id) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
 
         if not orders:
             raise NotFound("No orders found.")
@@ -301,7 +304,7 @@ def api_order_history():
                 {
                     "item_id": item.item_id,
                     "name": item.menu_item.name,
-                    "price": item.menu_item.price,
+                    "price": item.price,
                     "quantity": item.quantity,
                     "notes": item.notes
                 } for item in order.order_items
@@ -349,7 +352,9 @@ def api_order_status():
             raise Unauthorized("User not logged in.")
 
         # Fetch orders with status not equal to 3 (delivered) or 4 (rejected)
-        orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])).all()
+        orders = Order.query.filter(Order.user_id == user_id, Order.status.notin_([3, 4])) \
+            .order_by(Order.status.asc(), Order.date.desc()) \
+            .all()
 
         if not orders:
             raise NotFound("No active orders found.")
@@ -360,7 +365,7 @@ def api_order_status():
                 {
                     "item_id": item.item_id,
                     "name": item.menu_item.name,
-                    "price": item.menu_item.price,
+                    "price": item.price,
                     "quantity": item.quantity,
                     "notes": item.notes
                 } for item in order.order_items

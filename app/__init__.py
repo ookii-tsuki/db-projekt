@@ -3,10 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
 
+app = None
+
 # Initialize SQLAlchemy
 db = SQLAlchemy()
 
 def create_app():
+    global app
     app = Flask(__name__)
     app.config.from_object(Config)
 

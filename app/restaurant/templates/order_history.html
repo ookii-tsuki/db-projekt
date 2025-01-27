@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ihre Bestellhistorie</title>
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/restaurant/orders.css') }}">
+</head>
+<body>
+  <!-- Restaurant Logo -->
+  {% include 'components/header.html' %}
+  
+
+
+  <div class="container">
+
+    {% if not restaurant_id %}
+    {% include 'components/not_loggedin.html' %}
+    {% else %}
+
+    <!-- Main Heading -->
+     {% set heading = 'Ihre Bestellhistorie' %}
+     {% set sub_heading = 'Hier können Sie Ihre Bestellhistorie einsehen.' %}
+    {% include 'components/page_info.html' %}
+    <!-- Restaurant Card -->
+    {% include 'components/restaurant_card.html' %}
+
+
+    <!-- Example Order -->
+    <div id="ordersContainer"></div>
+
+    <div id="errorMessage" class="text-center text-danger" style="display: none; margin-top: 20px;"></div>
+  </div>
+
+  <!-- Order Details Overlay -->
+  {% set is_active = False %}
+  {% include 'components/details_overlay.html' %}
+
+  {% endif %}
+
+</body>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+{% if restaurant_id %}
+
+<script src="{{ url_for('static', filename='js/restaurant/orders.js') }}"></script>
+
+<script>
+  // Call to fetch restaurant data and order data on page load
+  fetchOrderData('history');
+</script>
+
+{% endif %}
+</html>

@@ -70,6 +70,12 @@
       </div>
 
       <div class="mb-3">
+        <label for="delivery-radius" class="form-label">Lieferumfang (km)</label>
+        <input id="delivery-radius" type="number" class="form-control" placeholder="Lieferumfang in km" step="0.01" required>
+        <div id="deliveryRadiusError" class="error"></div>
+      </div>
+
+      <div class="mb-3">
         <label for="banner" class="form-label">Restaurant Bild (optional)</label>
         <button type="button" class="button" onclick="document.getElementById('banner').click()">Bild hochladen</button>
         <input type="file" id="banner" class="form-control" accept="image/*" onchange="previewImage(event)">
