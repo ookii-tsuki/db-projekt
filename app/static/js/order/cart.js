@@ -302,15 +302,27 @@ function displayCart(cart) {
             <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
             <h3>${item.name}</h3>
             <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
-            <p>Menge: ${item.quantity}</p>
-            <p>Notizen: ${item.notes}</p>
+            <label for="quantity-${item.item_id}" class="form-label">Menge:</label>
+            <select id="quantity-${item.item_id}" class="form-control item-quantity" data-item-id="${item.item_id}">
+                <option value="1" ${item.quantity == 1 ? 'selected' : ''}>1</option>
+                <option value="2" ${item.quantity == 2 ? 'selected' : ''}>2</option>
+                <option value="3" ${item.quantity == 3 ? 'selected' : ''}>3</option>
+                <option value="4" ${item.quantity == 4 ? 'selected' : ''}>4</option>
+                <option value="5" ${item.quantity == 5 ? 'selected' : ''}>5</option>
+            </select>
+            <label for="notes-${item.item_id}" class="form-label">Notizen:</label>
+            <input type="text" id="notes-${item.item_id}" class="form-control item-notes" data-item-id="${item.item_id}" value="${item.notes}" maxlength="200">
         `;
         cartContainer.appendChild(cartItemDiv);
 
         cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
+            const isConfirmed = confirm('Soll das Item wirklich vom Warenkorb entfernt werden?');
+            if (!isConfirmed) {
+                return; // Wenn Nutzer nicht bestätigt, dann nicht entfernen
+            }
+
             try {
                 const itemId = item.item_id;
-
                 const requestBody = { item_id: itemId };
 
                 const response = await fetch('/api/order/remove_cart', {
@@ -330,6 +342,57 @@ function displayCart(cart) {
                 console.error('Fehler beim Entfernen des Artikels:', error);
             }
         });
+    
+        cartItemDiv.querySelector('.item-quantity').addEventListener('change', async function() {
+            const newQuantity = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: parseInt(newQuantity), restaurant_id: item.restaurant_id, notes: item.notes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Menge den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Menge:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Menge:', error);
+            }
+        });
+
+        cartItemDiv.querySelector('.item-notes').addEventListener('change', async function() {
+            const newNotes = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: item.quantity, restaurant_id: item.restaurant_id, notes: newNotes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Notizen den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Notizen:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Notizen:', error);
+            }
+        });
+
     });
 
     // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
