@@ -7,38 +7,180 @@
 
     <!-- Font Awesome für die Icons -->
     <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Verlinkung der CSS-Datei -->
     <link href="{{ url_for('static', filename='css/main/menu.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main/search.css') }}" rel="stylesheet"> 
+
 </head>
 <body>
-    <header>
-        <div class="logo">Burger House</div>
-        <div class="header-icons">
-            <button><i class="fas fa-bell"></i></button>
-            <button><i class="fas fa-shopping-cart"></i></button>
-            <button><i class="fas fa-ellipsis-h"></i></button>
-        </div>
-    </header>
-     
-    <div class="container">
-        <div class="left-section">
-            <div class="store-info">
-                <h1>Burger House</h1>
-                <p>Bickenstraße 182, Duisburg</p>
-                <p>Lieferzeit: 10 - 20 Minuten | Kostenlose Lieferung ab 20 €</p>
+    <div class="header">
+        <!-- Container für Logo und Profil -->
+        <div class="logo-profile">
+            <!-- Bild oben links -->
+            <img id="logo" src="{{ url_for('static', filename='images/lieferspatz.png') }}" alt="Photo" class="photo">
+            <!-- Profil -->
+            <button class="button icon-button" id="profile-button"><i class="fas fa-user"></i></button>
+            <!-- Guthaben Container -->
+            <div class="guthaben-container" id="guthaben-container">
+                <button class="guthaben-button" id="guthaben-button">Guthaben</button>
+                <button class="guthaben-button" id="ausloggen-button" style="display: none;">ausloggen</button>
             </div>
-
-            <!-- Dynamische Inhalte (Menü-Items) werden hier angezeigt -->
-            <div id="menu-container"></div>
+        </div>
+        
+        <!-- nach drücken vom Mehr-Knopf -->
+        <div class="more-buttons" id="more-buttons">
+            <button class="more-button" id="past-orders-button">vergangene Bestellungen</button>
+            <button class="more-button">Einstellungen</button>
+            <button class="more-button">über Uns</button>
         </div>
 
-        <div class="right-section">
-            <h2>Dein Warenkorb ist noch leer</h2>
+        <!-- Container für die Header Knöpfe -->
+        <div class="header-buttons">
+            <button class="button icon-button" id="bell-button"><i class="fas fa-bell"></i></button> <!-- Glocke -->
+            <button class="button icon-button" id="cart-button"><i class="fas fa-shopping-cart"></i></button> <!-- Warenkorb -->
+            <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
+        </div>
+    </div>
+     
+    <!-- Benachrichtigungen Container -->
+    <div class="notifications" id="notifications"></div>
+    <!-- Vergangene Bestellungen Container -->
+    <div class="past-orders" id="past-orders">
+        <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i></button>
+    </div>
+
+    <div class="buttonsarea">
+        
+        <div id="modal-overlay" style="display: none;"></div>
+
+        <div id="modal" style="display: none;">
+            <div id="modal-content">
+                <button id="close-modal">Schließen</button>
+            </div>
         </div>
     </div>
 
+    {% if request.args.get('restaurant_id') %}
+
+    <div class="container-fluid px-4">
+        <div class="row">
+            <!-- Main content column -->
+            <div class="col-9" id="restaurant-menu" style="display: block;">
+                <!-- Restaurant card -->
+                <div class="card mx-auto my-3">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='images/no_image.png') }}"
+                             class="card-img-top"
+                             style="height: 450px; object-fit: cover; filter: brightness(0.8);"
+                             alt="Restaurant Image">
+                        <div class="position-absolute top-0 start-0 mt-3 ms-3 text-start">
+                          <h2 id="restaurant_name" class="text-white fs-1 fw-bold" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.6);">
+                            Restaurant Name
+                          </h2>
+                          <div class="d-flex align-items-center" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.6);">
+                            <span class="text-warning fs-5">&#9733;</span>
+                            <span class="ms-1 text-white" id="restaurant_rating">4.5</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                          <span style="font-weight: bold; font-size: 1.25rem;" id="restaurant_address">123 Main St.</span>
+                          <span style="font-weight: bold; font-size: 1.25rem;" id="restaurant_approx_delv_time">Approx 30min</span>
+                        </div>
+                      </div>
+                </div>
+                
+                <!-- Menu items -->
+                <div class="card mb-3" style="height: 150px;">
+                    <div class="row g-0 h-100">
+                        <div class="col-md-3 d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='images/no_image.png') }}" class="img-fluid rounded-start" alt="Item Image" style="max-width: 200px;">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body py-0 h-100 d-flex flex-column justify-content-center text-start">
+                                <h5 class="card-title mb-1">Item Name</h5>
+                                <p class="card-text">Item description goes here. It provides details about the dish.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-center justify-content-end">
+                            <button class="btn btn-dark me-2">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-9" id="no-restaurant" style="display: none;">
+                <div class="alert alert-danger text-center" role="alert">
+                    Kein Restaurant gefunden.
+                </div>
+              
+                <button class="btn btn-dark" onclick="history.back()">Zurück</button>
+            </div>
+
+            <!-- Cart column -->
+            <div class="col-3">
+                <div class="card position-sticky" style="top: 1rem;">
+                    <div class="card-header">
+                        <h5 class="mb-0">Dein Warenkorb</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Empty Cart State -->
+                        <div id="empty-cart" class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">Dein Warenkorb ist noch leer</p>
+                        </div>
+
+                        <!-- Cart Items Container -->
+                        <div id="cart-items">
+                            <!-- Example Cart Item -->
+                            <div class="cart-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">Item Name</span>
+                                    <button class="btn btn-sm btn-outline-danger">-</button>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">$9.99</span>
+                                    <span class="badge bg-secondary">2x</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <div id="checkout-section">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Summe:</span>
+                                    <span class="fw-bold" id="price-element">$19.98</span>
+                                </div>
+                                <a href="/checkout" class="text-decoration-none">
+                                    <button class="btn btn-dark w-100 mt-3">Zum Bestellvorgang</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+
+    <div class="alert alert-danger text-center" role="alert">
+        Kein Restaurant gefunden.
+    </div>
+  
+    <button class="btn btn-dark" onclick="history.back()">Zurück</button>
+
+    {% endif %}
+
+</body>
+<script>
+    let no_image = "{{ url_for('static', filename='images/no_image.png') }}";
+</script>
+{% if request.args.get('restaurant_id') %}
     <!-- Referenz zum JS -->
     <script src="{{ url_for('static', filename='js/main/menu.js') }}"></script>
-</body>
+{% endif %}
+
 </html>
