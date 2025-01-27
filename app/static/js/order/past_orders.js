@@ -38,6 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.length === 0) {
             displayErrorMessage("keine vergangenen Bestellungen gefunden.");
         } else {
+
+            // Sortieren der Bestellungen nach Status und Datum
+            const statusOrder = [0, 1, 2, 3, 4];
+            data.sort((a, b) => {
+                if (a.status !== b.status) {
+                    return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+                }
+                return b.date - a.date;
+            });
+
             data.forEach(order => {
                 const orderItemDiv = document.createElement('div');
                 orderItemDiv.classList.add('order-item');
@@ -64,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                     </div>
                     `;
-                    mainArea.prepend(orderItemDiv);
+                    mainArea.appendChild(orderItemDiv);
             });
         }
     }
