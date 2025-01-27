@@ -402,36 +402,27 @@ async function fetchWallet() {
 }
 
 document.getElementById('pay-button').addEventListener('click', async function() {
-    const totalSumContainer = document.getElementById('total-sum');
-    const totalSumText = totalSumContainer.innerText;
-    const totalSum = parseFloat(totalSumText.replace('Summe: ', '').replace(' EUR', '').replace(',', '.'));
+    const cartContainer = document.getElementById('cart-container');
+    const cartItems = cartContainer.getElementsByClassName('cart-item');
+    let totalSum = 0;
 
-    try {
-        const response = await fetch('/api/auth/user', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const wallet = parseFloat(data.wallet);
-            const newWallet = wallet - totalSum;
-            const formattedNewWallet = newWallet.toFixed(2).replace('.', ',');
-
-            const paymentMessage = document.getElementById('payment-message');
-            paymentMessage.innerHTML = `Verfügbares Guthaben nach der Zahlung: ${formattedNewWallet} EUR`;
-
-            const paymentModal = document.getElementById('payment-modal');
-            paymentModal.style.display = 'block';
-        } else {
-            throw new Error('Fehler beim Abrufen der Guthaben-Informationen.');
+    if (cartItems.length === 0) {
+        const paymentMessage = document.getElementById('payment-message');
+        paymentMessage.innerHTML = 'Der Warenkorb ist leer.';
+    } else {
+        for (let item of cartItems) {
+            const priceText = item.querySelector('p:nth-child(3)').innerText;
+            const price = parseFloat(priceText.replace('Preis: ', '').replace(' €', '').replace(',', '.'));
+            totalSum += price;
         }
-    } catch (error) {
-        console.error('Fehler beim Abrufen der Guthaben-Informationen:', error);
-        alert('Fehler beim Abrufen der Guthaben-Informationen. Bitte versuchen Sie es später erneut.');
+
+        const formattedTotalSum = totalSum.toFixed(2).replace('.', ',');
+        const paymentMessage = document.getElementById('payment-message');
+        paymentMessage.innerHTML = `Gesamtsumme der Artikel: ${formattedTotalSum} EUR`;
     }
+
+    const paymentModal = document.getElementById('payment-modal');
+    paymentModal.style.display = 'block';
 });
 
 fetchWallet();
