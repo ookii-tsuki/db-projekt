@@ -299,9 +299,9 @@ function displayCart(cart) {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.classList.add('cart-item');
         cartItemDiv.innerHTML = `
-            <button class="remove-item-button" data-item-id="${item.id}">X</button>
+            <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
             <h3>${item.name}</h3>
-            <p>Preis: ${item.price} €</p>
+            <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
             <p>Menge: ${item.quantity}</p>
             <p>Notizen: ${item.notes}</p>
         `;
@@ -309,12 +309,16 @@ function displayCart(cart) {
 
         cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
             try {
+                const itemId = item.item_id;
+
+                const requestBody = { item_id: itemId };
+
                 const response = await fetch('/api/order/remove_cart', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ item_id: item.id })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (response.ok) {
