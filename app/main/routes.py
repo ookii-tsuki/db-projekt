@@ -37,11 +37,9 @@ def search():
 
 # Create a route for the menu page
 # The route will return the menu.html template
-@main_bp.route("/menu")
+@main_bp.route("/restaurant_menu")
 def menu():
-    return render_template("menu.html")
-
-
+    return render_template("restaurant_menu.html")
 
 #######################################################################
 ############################ API ROUTES ###############################
@@ -263,6 +261,11 @@ def api_favorite_restaurants():
 @main_bp.route("/api/main/restaurant", methods=["GET"])
 def api_restaurant_profile():
     try:
+
+        user_id = session.get("user_id")
+        if not user_id:
+            raise Unauthorized("User not logged in.")
+        
         restaurant_id = request.args.get("id")
 
         if not restaurant_id:
@@ -271,6 +274,8 @@ def api_restaurant_profile():
         restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
         if not restaurant:
             raise NotFound("Restaurant not found.")
+        
+        user = User.query.get(user_id)
 
         menu_items_data = []
         for item in restaurant.menu_items:
@@ -282,6 +287,8 @@ def api_restaurant_profile():
                 "image": item.image
             })
 
+        delivery_min_time, delivery_max_time = estimate_delivery_time_range(find_distance(user.zip_code, restaurant.zip_code))
+
         restaurant_data = {
             "restaurant_id": restaurant.restaurant_id,
             "name": restaurant.name,
@@ -290,7 +297,9 @@ def api_restaurant_profile():
             "zip": restaurant.zip_code,
             "description": restaurant.description,
             "banner": restaurant.banner,
-            "menu": menu_items_data
+            "menu": menu_items_data,
+            "rating": restaurant.rating,
+            "approx_delivery_time": f"{delivery_min_time}-{delivery_max_time} Min.",
         }
 
         return jsonify(restaurant_data), 200
