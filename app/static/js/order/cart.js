@@ -286,7 +286,6 @@ async function fetchCart() {
     }
 }
 
-// Funktion zum Anzeigen des Warenkorbs
 function displayCart(cart) {
     const cartContainer = document.getElementById('cart-container');
     cartContainer.innerHTML = '';
@@ -300,13 +299,110 @@ function displayCart(cart) {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.classList.add('cart-item');
         cartItemDiv.innerHTML = `
+            <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
             <h3>${item.name}</h3>
-            <p>Preis: ${item.price} €</p>
-            <p>Menge: ${item.quantity}</p>
-            <p>Notizen: ${item.notes}</p>
+            <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
+            <label for="quantity-${item.item_id}" class="form-label">Menge:</label>
+            <select id="quantity-${item.item_id}" class="form-control item-quantity" data-item-id="${item.item_id}">
+                <option value="1" ${item.quantity == 1 ? 'selected' : ''}>1</option>
+                <option value="2" ${item.quantity == 2 ? 'selected' : ''}>2</option>
+                <option value="3" ${item.quantity == 3 ? 'selected' : ''}>3</option>
+                <option value="4" ${item.quantity == 4 ? 'selected' : ''}>4</option>
+                <option value="5" ${item.quantity == 5 ? 'selected' : ''}>5</option>
+            </select>
+            <label for="notes-${item.item_id}" class="form-label">Notizen:</label>
+            <input type="text" id="notes-${item.item_id}" class="form-control item-notes" data-item-id="${item.item_id}" value="${item.notes}" maxlength="200">
         `;
         cartContainer.appendChild(cartItemDiv);
+
+        cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
+            const isConfirmed = confirm('Soll das Item wirklich vom Warenkorb entfernt werden?');
+            if (!isConfirmed) {
+                return; // Wenn Nutzer nicht bestätigt, dann nicht entfernen
+            }
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId };
+
+                const response = await fetch('/api/order/remove_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem entfernen vom Artikel den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Entfernen des Artikels:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Entfernen des Artikels:', error);
+            }
+        });
+    
+        cartItemDiv.querySelector('.item-quantity').addEventListener('change', async function() {
+            const newQuantity = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: parseInt(newQuantity), restaurant_id: item.restaurant_id, notes: item.notes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Menge den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Menge:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Menge:', error);
+            }
+        });
+
+        cartItemDiv.querySelector('.item-notes').addEventListener('change', async function() {
+            const newNotes = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: item.quantity, restaurant_id: item.restaurant_id, notes: newNotes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Notizen den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Notizen:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Notizen:', error);
+            }
+        });
+
     });
+
+    // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
+    const checkoutButton = document.createElement('button');
+    checkoutButton.innerText = 'Zur Kasse';
+    checkoutButton.classList.add('checkout-button');
+    checkoutButton.addEventListener('click', function() {
+        window.location.href = '/checkout';
+    });
+    cartContainer.appendChild(checkoutButton);
 }
 
 // Abrufen des Warenkorbs, wenn die Seite geladen wird
