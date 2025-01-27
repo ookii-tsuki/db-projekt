@@ -320,7 +320,7 @@ function updateCart() {
                     <div class="cart-item mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-bold">${item.name}</span>
-                            <button class="btn btn-sm btn-outline-danger">-</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.item_id})">-</button>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">${item.price.toFixed(2)}€</span>
@@ -391,7 +391,7 @@ async function loadRestaurantData() {
     <div class="row g-0 h-100">
         <div class="col-md-3">
             <div style="height: 200px; width: 100%; overflow: hidden; border-radius: 0.375rem 0 0 0.375rem;">
-                <img src="${item.image}" 
+                <img src="${item.image && item.image.startsWith("data:image") ? item.image : no_image}" 
                      class="w-100 h-100" 
                      alt="${item.name}"
                      style="object-fit: cover; object-position: center;">
@@ -405,7 +405,7 @@ async function loadRestaurantData() {
             </div>
         </div>
         <div class="col-md-1 d-flex align-items-center justify-content-end">
-            <button class="btn btn-dark me-2" onclick="addToCart('${item.item_id}')">+</button>
+            <button class="btn btn-dark me-2" onclick="openItemModal(${JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})">+</button>
         </div>
     </div>
 </div>`;
@@ -417,5 +417,124 @@ async function loadRestaurantData() {
     }
 }
 
+function incrementQuantity() {
+    const input = document.getElementById('quantity');
+    input.value = parseInt(input.value) + 1;
+}
+
+function decrementQuantity() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+async function addToCart(item) {
+    const quantity = document.getElementById('quantity').value;
+    const notes = document.getElementById('orderNotes').value;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurant_id = urlParams.get('restaurant_id');
+    
+    try {
+        const response = await fetch('/api/order/add_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                item_id: item.item_id,
+                restaurant_id: restaurant_id,
+                quantity: parseInt(quantity),
+                notes: notes
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.status === 201) {
+            // Success
+            showNotification(`${item.name} wurde zum Warenkorb hinzugefügt!`, 'success');
+            // Optional: Refresh cart display here
+        } else if (response.status === 400) {
+            showNotification('Fehler: Ungültige Anfrage. Bitte versuchen Sie es erneut.', 'danger');
+        } else if (response.status === 404) {
+            showNotification('Fehler: Restaurant oder Item nicht gefunden.', 'danger');
+        } else if (response.status === 401) {
+            showNotification('Fehler: Benutzer nicht angemeldet.', 'danger');
+        } else {
+            showNotification('Fehler: Unerwarteter Fehler. Bitte versuchen Sie es erneut.', 'danger');
+        }
+    } catch (error) {
+        showNotification('Fehler: Bitte versuchen Sie es später erneut.', 'danger');
+        console.error('Error:', error);
+    }
+    updateCart();
+
+    // Close modal after attempt
+    const modal = bootstrap.Modal.getInstance(document.getElementById('menuItemModal'));
+    modal.hide();
+}
+
+// Add after the openItemModal function
+
+async function removeFromCart(item_id) {
+    try {
+        const response = await fetch('/api/order/remove_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_id: item_id
+            })
+        });
+
+        if (response.status === 200) {
+            showNotification('Item wurde aus dem Warenkorb entfernt!', 'success');
+        } else if (response.status === 404) {
+            showNotification('Fehler: Item nicht im Warenkorb gefunden.', 'danger');
+        } else if (response.status === 401) {
+            showNotification('Fehler: Benutzer nicht angemeldet.', 'danger');
+        } else {
+            showNotification('Fehler: Unerwarteter Fehler. Bitte versuchen Sie es erneut.', 'danger');
+        }
+    } catch (error) {
+        showNotification('Fehler: Bitte versuchen Sie es später erneut.', 'danger');
+        console.error('Error:', error);
+    }
+    
+    updateCart();
+}
+
+// Function to open modal with item details
+function openItemModal(item) {
+    const modal = document.getElementById('menuItemModal');
+    document.getElementById('menuItemImage').src = item.image && item.image.startsWith("data:image") ? item.image : no_image;
+    document.getElementById('menuItemName').textContent = item.name;
+    document.getElementById('menuItemDescription').textContent = item.description;
+    document.getElementById('quantity').value = 1;
+    document.getElementById('orderNotes').value = '';
+    document.getElementById('addToCartButton').setAttribute('onclick', `addToCart(${JSON.stringify(item)})`);
+    new bootstrap.Modal(modal).show();
+}
+
+
 // Call the function when the page loads
 document.addEventListener('DOMContentLoaded', loadRestaurantData);
+
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('notificationToast');
+    const toastBody = document.getElementById('toastMessage');
+    const toastInstance = new bootstrap.Toast(toast, { delay: 3000 });
+    
+    // Set message
+    toastBody.textContent = message;
+    
+    // Set toast background color based on type
+    toast.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+    toast.classList.add(`bg-${type}`, 'text-white');
+    
+    // Show toast
+    toastInstance.show();
+}

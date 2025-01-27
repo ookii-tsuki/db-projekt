@@ -15,6 +15,16 @@
 
 </head>
 <body>
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1500">
+        <div id="notificationToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+            </div>
+        </div>
+    </div>
     <div class="header">
         <!-- Container für Logo und Profil -->
         <div class="logo-profile">
@@ -174,7 +184,53 @@
 
     {% endif %}
 
-</body>
+<!-- Menu Item Modal -->
+<div class="modal fade" id="menuItemModal" tabindex="-1" aria-labelledby="menuItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="menuItemModalLabel">Item hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Image Column -->
+                    <div class="col-md-6">
+                        <img id="menuItemImage" src="" alt="Menu Item" class="img-fluid rounded shadow">
+                    </div>
+                    <!-- Details Column -->
+                    <div class="col-md-6">
+                        <h4 id="menuItemName" class="mb-3"></h4>
+                        <p id="menuItemDescription" class="text-muted mb-4"></p>
+                        
+                        <!-- Quantity Input -->
+                        <div class="mb-4">
+                            <label for="quantity" class="form-label">Menge:</label>
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity()">-</button>
+                                <input type="number" class="form-control text-center" id="quantity" value="1" min="1">
+                                <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Notes Textarea -->
+                        <div class="mb-4">
+                            <label for="orderNotes" class="form-label">Deine Anmerkungen:</label>
+                            <textarea class="form-control" id="orderNotes" rows="3" placeholder="Hier kannst du besondere Wünsche angeben..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary" id="addToCartButton">In den Warenkorb</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
 <script>
     let no_image = "{{ url_for('static', filename='images/no_image.png') }}";
 </script>
@@ -183,4 +239,6 @@
     <script src="{{ url_for('static', filename='js/main/menu.js') }}"></script>
 {% endif %}
 
+
+</body>
 </html>
