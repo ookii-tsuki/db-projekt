@@ -78,8 +78,10 @@ body {
 }
 
 .mainarea {
+    display: flex;
+    justify-content: space-between;
     width: 90%;
-    max-width: 600px;
+    max-width: 500px;
     margin: 20px auto;
 }
 
@@ -190,7 +192,7 @@ hr {
 /* Layout für die Box mit den Cart Items */
 .cart-box {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 20px;
     padding: 20px;
     background-color: #f9f9f9;
@@ -200,14 +202,14 @@ hr {
     margin-top: -50px;
 }
 
-.cart-item {
-    flex: 1 1 calc(33.333% - 40px); /* Adjust the width of the items */
+.cart-item { 
     box-sizing: border-box;
     padding: 20px;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .cart-item h3 {
@@ -355,7 +357,7 @@ text-align: center;
 
 .wallet-container {
     margin-left: 250px;
-    margin-top: -115px;
+    margin-top: -130px;
     padding: 20px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
@@ -374,8 +376,8 @@ text-align: center;
     font-size: 24px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    margin-top: 300px;
-    margin-left: 350px;
+    margin-top: 200px;
+    margin-left: 300px;
 }
 
 .pay-button:hover {

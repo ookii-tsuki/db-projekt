@@ -402,7 +402,7 @@ async function fetchWallet() {
 }
 
 document.getElementById('pay-button').addEventListener('click', async function() {
-    const cartContainer = document.getElementById('cart-container');
+    const cartContainer = document.getElementById('cart-box');
     const cartItems = cartContainer.getElementsByClassName('cart-item');
     let totalSum = 0;
 
@@ -411,7 +411,7 @@ document.getElementById('pay-button').addEventListener('click', async function()
         paymentMessage.innerHTML = 'Der Warenkorb ist leer.';
     } else {
         for (let item of cartItems) {
-            const priceText = item.querySelector('p:nth-child(3)').innerText;
+            const priceText = item.querySelector('p:nth-child(2)').innerText;
             const price = parseFloat(priceText.replace('Preis: ', '').replace(' €', '').replace(',', '.'));
             totalSum += price;
         }
@@ -449,12 +449,14 @@ document.getElementById('complete-payment-button').addEventListener('click', asy
             paymentModal.style.display = 'none';
 
             fetchCart();
+            window.location.href = '/search';
         } else if (response.status === 400) {
             const data = await response.json();
             alert('Sie haben nicht genug Guthaben, um die Bestellung abzuschließen.');
         } else if (response.status === 404) {
             const data = await response.json();
             alert('Der Warenkorb ist leer.');
+            window.location.href = '/search';
         } else {
             throw new Error('Unerwarteter Fehler.');
         }
