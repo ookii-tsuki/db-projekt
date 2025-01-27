@@ -19,7 +19,6 @@ body {
     padding: 10px 20px; /* Innenabstand */
     background-color: white; /* Hintergrundfarbe */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Schatten */
-    position: relative; /* Für absolute Positionierung der Dropdowns */
 }
 
 /* Logo und Profil */
@@ -99,6 +98,41 @@ body {
     background-color: black;
     color: white;
 }
+/* Layout für den Guthaben-Container */
+.guthaben-container {
+    position: absolute;
+    top: 50px; /* Abstand vom Profil-Icon */
+    left: 0; /* Ausrichtung am linken Rand des Profil-Icons */
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+    display: none; /* Versteckt, bis aktiviert */
+}
+
+.guthaben-button {
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: white; 
+    color: black; 
+    font-size: 16px;
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 100px;
+    height: 40px;
+}
+
+.guthaben-button:hover {
+    background-color: black; 
+    color: white; 
+}
+
 
 /* Benachrichtigungen Dropdown */
 .notifications {
