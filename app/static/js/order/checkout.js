@@ -552,6 +552,8 @@ document.getElementById('complete-payment-button').addEventListener('click', asy
         } else if (response.status === 401) {
             alert('Sie sind nicht autorisiert. Bitte melden Sie sich an.');
             window.location.href = '/';
+        } else if (response.status === 402) {
+            alert('Zahlung fehlgeschlagen. Sie haben nicht genügend Guthaben.');
         } else if (response.status === 404) {
             alert('Der Warenkorb ist leer.');
             window.location.href = '/search';
