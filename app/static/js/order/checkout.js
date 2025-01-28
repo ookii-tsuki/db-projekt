@@ -271,14 +271,17 @@ async function fetchCart() {
         if (!response.ok) {
             if (response.status === 404) {
                 displayCart([]);
+            } else if (response.status === 401) {
+                alert('Sie sind nicht autorisiert. Bitte melden Sie sich an.');
+                window.location.href = '/';
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
             return;
         }
 
-        const data = await response.json();
-        displayCart(data);
+     const data = await response.json();
+     displayCart(data);
     } catch (error) {
         console.error("Fehler beim Abrufen des Warenkorbs.", error);
         const cartContainer = document.getElementById('cart-box');
@@ -286,13 +289,12 @@ async function fetchCart() {
     }
 }
 
-// Funktion zum Anzeigen des Warenkorbs
 function displayCart(cart) {
-    const cartContainer = document.getElementById('cart-box');
-    cartContainer.innerHTML = '';
+    const cartBox = document.getElementById('cart-box');
+    cartBox.innerHTML = '';
 
     if (cart.length === 0) {
-        cartContainer.innerHTML = '<p>Der Warenkorb ist leer.</p>';
+        cartBox.innerHTML = '<p>Der Warenkorb ist leer.</p>';
         return;
     }
 
@@ -300,12 +302,99 @@ function displayCart(cart) {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.classList.add('cart-item');
         cartItemDiv.innerHTML = `
+            <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
             <h3>${item.name}</h3>
-            <p>Preis: ${item.price} €</p>
-            <p>Menge: ${item.quantity}</p>
-            <p>Notizen: ${item.notes}</p>
+            <p class="item-price">Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
+            <label for="quantity-${item.item_id}" class="form-label">Menge:</label>
+            <select id="quantity-${item.item_id}" class="form-control item-quantity" data-item-id="${item.item_id}">
+                <option value="1" ${item.quantity == 1 ? 'selected' : ''}>1</option>
+                <option value="2" ${item.quantity == 2 ? 'selected' : ''}>2</option>
+                <option value="3" ${item.quantity == 3 ? 'selected' : ''}>3</option>
+                <option value="4" ${item.quantity == 4 ? 'selected' : ''}>4</option>
+                <option value="5" ${item.quantity == 5 ? 'selected' : ''}>5</option>
+            </select>
+            <label for="notes-${item.item_id}" class="form-label">Notizen:</label>
+            <input type="text" id="notes-${item.item_id}" class="form-control item-notes" data-item-id="${item.item_id}" value="${item.notes}" maxlength="200">
         `;
-        cartContainer.appendChild(cartItemDiv);
+        cartBox.appendChild(cartItemDiv);
+
+        cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
+            const isConfirmed = confirm('Soll das Item wirklich vom Warenkorb entfernt werden?');
+            if (!isConfirmed) {
+                return; // Wenn Nutzer nicht bestätigt, dann nicht entfernen
+            }
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId };
+
+                const response = await fetch('/api/order/remove_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem entfernen vom Artikel den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Entfernen des Artikels:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Entfernen des Artikels:', error);
+            }
+        });
+
+        cartItemDiv.querySelector('.item-quantity').addEventListener('change', async function() {
+            const newQuantity = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: parseInt(newQuantity), restaurant_id: item.restaurant_id, notes: item.notes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Menge den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Menge:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Menge:', error);
+            }
+        });
+
+        cartItemDiv.querySelector('.item-notes').addEventListener('change', async function() {
+            const newNotes = this.value;
+
+            try {
+                const itemId = item.item_id;
+                const requestBody = { item_id: itemId, quantity: item.quantity, restaurant_id: item.restaurant_id, notes: newNotes };
+
+                const response = await fetch('/api/order/add_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    fetchCart(); // nach dem ändern der Notizen den Warenkorb neu laden
+                } else {
+                    console.error('Fehler beim Ändern der Notizen:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fehler beim Ändern der Notizen:', error);
+            }
+        });
     });
 }
 
@@ -409,11 +498,20 @@ document.getElementById('pay-button').addEventListener('click', async function()
     if (cartItems.length === 0) {
         const paymentMessage = document.getElementById('payment-message');
         paymentMessage.innerHTML = 'Der Warenkorb ist leer.';
+        alert('Der Warenkorb ist leer. Bitte fügen Sie ihrem Warenkorb zuerst Artikel hinzu.');
+        window.location.href = '/search';
     } else {
         for (let item of cartItems) {
-            const priceText = item.querySelector('p:nth-child(2)').innerText;
-            const price = parseFloat(priceText.replace('Preis: ', '').replace(' €', '').replace(',', '.'));
-            totalSum += price;
+            const priceElement = item.querySelector('.item-price');
+            const quantityElement = item.querySelector('.item-quantity');
+            if (priceElement && quantityElement) {
+                const priceText = priceElement.innerText;
+                const price = parseFloat(priceText.replace('Preis: ', '').replace(' €', '').replace(',', '.'));
+                const quantity = parseInt(quantityElement.value);
+                totalSum += price * quantity;
+            } else {
+                console.error('Preis oder Menge nicht gefunden:', item);
+            }
         }
 
         const formattedTotalSum = totalSum.toFixed(2).replace('.', ',');
@@ -443,18 +541,18 @@ document.getElementById('complete-payment-button').addEventListener('click', asy
         });
 
         if (response.ok) {
-            const data = await response.json();
-            alert('Die Bestellung war erfolgreich!');
+            alert('Die Bestellung wurde erfolgreich aufgegeben!');
             const paymentModal = document.getElementById('payment-modal');
             paymentModal.style.display = 'none';
 
             fetchCart();
             window.location.href = '/search';
         } else if (response.status === 400) {
-            const data = await response.json();
             alert('Sie haben nicht genug Guthaben, um die Bestellung abzuschließen.');
+        } else if (response.status === 401) {
+            alert('Sie sind nicht autorisiert. Bitte melden Sie sich an.');
+            window.location.href = '/';
         } else if (response.status === 404) {
-            const data = await response.json();
             alert('Der Warenkorb ist leer.');
             window.location.href = '/search';
         } else {

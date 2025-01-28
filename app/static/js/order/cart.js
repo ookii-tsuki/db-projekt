@@ -392,7 +392,6 @@ function displayCart(cart) {
                 console.error('Fehler beim Ändern der Notizen:', error);
             }
         });
-
     });
 
     // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
