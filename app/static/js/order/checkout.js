@@ -271,6 +271,9 @@ async function fetchCart() {
         if (!response.ok) {
             if (response.status === 404) {
                 displayCart([]);
+            } else if (response.status === 401) {
+                alert('Sie sind nicht autorisiert. Bitte melden Sie sich an.');
+                window.location.href = '/';
             } else {
                 throw new Error(`unerwarteter Fehler: ${response.status}`);
             }
@@ -281,17 +284,17 @@ async function fetchCart() {
      displayCart(data);
     } catch (error) {
         console.error("Fehler beim Abrufen des Warenkorbs.", error);
-        const cartContainer = document.getElementById('cart-container');
+        const cartContainer = document.getElementById('cart-box');
         cartContainer.innerHTML = '<p>Fehler beim Abrufen des Warenkorbs. Bitte versuchen Sie es später erneut.</p>';
     }
 }
 
 function displayCart(cart) {
-    const cartContainer = document.getElementById('cart-container');
-    cartContainer.innerHTML = '';
+    const cartBox = document.getElementById('cart-box');
+    cartBox.innerHTML = '';
 
     if (cart.length === 0) {
-        cartContainer.innerHTML = '<p>Der Warenkorb ist leer.</p>';
+        cartBox.innerHTML = '<p>Der Warenkorb ist leer.</p>';
         return;
     }
 
@@ -301,7 +304,7 @@ function displayCart(cart) {
         cartItemDiv.innerHTML = `
             <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
             <h3>${item.name}</h3>
-            <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
+            <p class="item-price">Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
             <label for="quantity-${item.item_id}" class="form-label">Menge:</label>
             <select id="quantity-${item.item_id}" class="form-control item-quantity" data-item-id="${item.item_id}">
                 <option value="1" ${item.quantity == 1 ? 'selected' : ''}>1</option>
@@ -313,7 +316,7 @@ function displayCart(cart) {
             <label for="notes-${item.item_id}" class="form-label">Notizen:</label>
             <input type="text" id="notes-${item.item_id}" class="form-control item-notes" data-item-id="${item.item_id}" value="${item.notes}" maxlength="200">
         `;
-        cartContainer.appendChild(cartItemDiv);
+        cartBox.appendChild(cartItemDiv);
 
         cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
             const isConfirmed = confirm('Soll das Item wirklich vom Warenkorb entfernt werden?');
@@ -342,7 +345,7 @@ function displayCart(cart) {
                 console.error('Fehler beim Entfernen des Artikels:', error);
             }
         });
-    
+
         cartItemDiv.querySelector('.item-quantity').addEventListener('change', async function() {
             const newQuantity = this.value;
 
@@ -393,15 +396,6 @@ function displayCart(cart) {
             }
         });
     });
-
-    // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
-    const checkoutButton = document.createElement('button');
-    checkoutButton.innerText = 'Zur Kasse';
-    checkoutButton.classList.add('checkout-button');
-    checkoutButton.addEventListener('click', function() {
-        window.location.href = '/checkout';
-    });
-    cartContainer.appendChild(checkoutButton);
 }
 
 // Abrufen des Warenkorbs, wenn die Seite geladen wird
@@ -469,3 +463,105 @@ function handleError(error) {
     const container = document.getElementById('error-container');
     container.innerHTML = `<p>${error.message}</p>`;
 }
+
+async function fetchWallet() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const formattedWallet = parseFloat(data.wallet).toFixed(2).replace('.', ','); 
+            const walletContainer = document.getElementById('wallet-container');
+            walletContainer.innerHTML = `<p>Ihr aktuelles Guthaben: ${formattedWallet} EUR</p>`;
+            return data.wallet;
+        } else {
+            throw new Error('Fehler beim Abrufen der Guthaben-Informationen.');
+        }
+    } catch (error) {
+        console.error('Fehler beim Abrufen der Guthaben-Informationen:', error);
+        const walletContainer = document.getElementById('wallet-container');
+        walletContainer.innerHTML = '<p>Fehler beim Abrufen der Guthaben-Informationen. Bitte versuchen Sie es später erneut.</p>';
+        return null;
+    }
+}
+
+document.getElementById('pay-button').addEventListener('click', async function() {
+    const cartContainer = document.getElementById('cart-box');
+    const cartItems = cartContainer.getElementsByClassName('cart-item');
+    let totalSum = 0;
+
+    if (cartItems.length === 0) {
+        const paymentMessage = document.getElementById('payment-message');
+        paymentMessage.innerHTML = 'Der Warenkorb ist leer.';
+        alert('Der Warenkorb ist leer. Bitte fügen Sie ihrem Warenkorb zuerst Artikel hinzu.');
+        window.location.href = '/search';
+    } else {
+        for (let item of cartItems) {
+            const priceElement = item.querySelector('.item-price');
+            const quantityElement = item.querySelector('.item-quantity');
+            if (priceElement && quantityElement) {
+                const priceText = priceElement.innerText;
+                const price = parseFloat(priceText.replace('Preis: ', '').replace(' €', '').replace(',', '.'));
+                const quantity = parseInt(quantityElement.value);
+                totalSum += price * quantity;
+            } else {
+                console.error('Preis oder Menge nicht gefunden:', item);
+            }
+        }
+
+        const formattedTotalSum = totalSum.toFixed(2).replace('.', ',');
+        const paymentMessage = document.getElementById('payment-message');
+        paymentMessage.innerHTML = `Gesamtsumme der Artikel: ${formattedTotalSum} EUR`;
+    }
+
+    const paymentModal = document.getElementById('payment-modal');
+    paymentModal.style.display = 'block';
+});
+
+fetchWallet();
+
+document.getElementById('close-payment-modal').addEventListener('click', function() {
+    const paymentModal = document.getElementById('payment-modal');
+    paymentModal.style.display = 'none';
+});
+
+document.getElementById('complete-payment-button').addEventListener('click', async function() {
+    try {
+        const response = await fetch('/api/order/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: 'place_order' })
+        });
+
+        if (response.ok) {
+            alert('Die Bestellung wurde erfolgreich aufgegeben!');
+            const paymentModal = document.getElementById('payment-modal');
+            paymentModal.style.display = 'none';
+
+            fetchCart();
+            window.location.href = '/search';
+        } else if (response.status === 400) {
+            alert('Sie haben nicht genug Guthaben, um die Bestellung abzuschließen.');
+        } else if (response.status === 401) {
+            alert('Sie sind nicht autorisiert. Bitte melden Sie sich an.');
+            window.location.href = '/';
+        } else if (response.status === 402) {
+            alert('Zahlung fehlgeschlagen. Sie haben nicht genügend Guthaben.');
+        } else if (response.status === 404) {
+            alert('Der Warenkorb ist leer.');
+            window.location.href = '/search';
+        } else {
+            throw new Error('Unerwarteter Fehler.');
+        }
+    } catch (error) {
+        console.error('Fehler bei der Bezahlung:', error);
+        alert('Fehler beim Abschließen der Bezahlung. Bitte versuchen Sie es später erneut.');
+    }
+});
