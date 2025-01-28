@@ -10,7 +10,7 @@ function showGuthabenModal() {
       .then(data => {
         document.getElementById('totalOrders').innerText = data.total_orders;
         document.getElementById('totalRevenue').innerText = data.total_revenue.toFixed(2) + ' EUR';
-        document.getElementById('averageRating').innerText = data.average_rating;
+        document.getElementById('averageRating').innerText = data.average_rating.toFixed(1);
         document.getElementById('guthabenModal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
       })

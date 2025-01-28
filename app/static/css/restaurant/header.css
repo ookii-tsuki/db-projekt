@@ -43,3 +43,14 @@ body {
 .shake-bell {
     animation: shake 0.5s ease-in-out;
 }
+
+/* Add this new CSS class */
+#notificationPanel {
+    position: fixed !important; /* Override inline style */
+    top: 75px !important; /* Position below navbar, adjust based on navbar height */
+    right: 10px;
+    width: 400px;
+    z-index: 1001; /* Higher than navbar to ensure visibility */
+    max-height: calc(100vh - 85px); /* Viewport height minus navbar and some padding */
+    overflow-y: auto; /* Enable scrolling if content is too long */
+}
