@@ -10,12 +10,11 @@ document.getElementById('bell-button').addEventListener('click', function() {
     } else {
         notifications.style.display = 'none';
     }
-    this.classList.remove('new-notification');
+    this.classList.remove('new-notification');   // Der rote Punkt wird entfernt, wenn die Benachrichtigungen gelesen werden
 });
 
-document.getElementById('back-button').addEventListener('click', function(event) {
-    event.preventDefault();
-    window.history.back();
+document.getElementById('cart-button').addEventListener('click', function() {
+    window.location.href = '/cart';
 });
 
 document.getElementById('more-button').addEventListener('click', function() {
@@ -129,33 +128,6 @@ document.getElementById('guthaben-button').addEventListener('click', async funct
     });
 });
 
-// Öffnen des Fensters
-document.getElementById('guthaben-button').addEventListener('click', function () {
-    const modal = document.getElementById('modal');
-    const overlay = document.getElementById('modal-overlay');
-
-    modal.style.display = 'block';
-    overlay.style.display = 'block';
-});
-
-// Schließen des Fensters
-document.getElementById('close-modal').addEventListener('click', function () {
-    const modal = document.getElementById('modal');
-    const overlay = document.getElementById('modal-overlay');
-
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-});
-
-// Overlay zum Schließen
-document.getElementById('modal-overlay').addEventListener('click', function () {
-    const modal = document.getElementById('modal');
-    const overlay = document.getElementById('modal-overlay');
-
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-});
-
 // Funktion zum Abrufen des Status der Bestellungen vom Server
 async function fetchOrderStatus() {
     try {
@@ -178,6 +150,7 @@ async function fetchOrderStatus() {
         console.error("Fehler beim Abrufen des Bestellstatus.", error);
     }
 }
+
 
 // Logik, um die Zahlen in Text umzuwandeln
 function getStatusText(status) {
@@ -219,7 +192,6 @@ function displayOrderStatus(orders) {
     bellButton.classList.add('new-notification');
 }
 
-// Polling zum regelmäßigen Abrufen des Bestellstatus
 let lastOrderStatus = null;
 async function pollOrderStatus() {
     try {
@@ -255,160 +227,13 @@ async function pollOrderStatus() {
     }
 }
 
-// Polling alle 5 Sekunden
 setInterval(pollOrderStatus, 5000);
 
-// Funktion zum Abrufen des Warenkorbs vom Server
-async function fetchCart() {
-    try {
-        const response = await fetch('/api/order/cart', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                displayCart([]);
-            } else {
-                throw new Error(`unerwarteter Fehler: ${response.status}`);
-            }
-            return;
-        }
-
-     const data = await response.json();
-     displayCart(data);
-    } catch (error) {
-        console.error("Fehler beim Abrufen des Warenkorbs.", error);
-        const cartContainer = document.getElementById('cart-container');
-        cartContainer.innerHTML = '<p>Fehler beim Abrufen des Warenkorbs. Bitte versuchen Sie es später erneut.</p>';
-    }
+function handleError(error) {
+    const container = document.getElementById('error-container');
+    container.innerHTML = `<p>${error.message}</p>`;
 }
 
-function displayCart(cart) {
-    const cartContainer = document.getElementById('cart-container');
-    cartContainer.innerHTML = '';
-
-    if (cart.length === 0) {
-        cartContainer.innerHTML = '<p>Der Warenkorb ist leer.</p>';
-        return;
-    }
-
-    cart.forEach(item => {
-        const cartItemDiv = document.createElement('div');
-        cartItemDiv.classList.add('cart-item');
-        cartItemDiv.innerHTML = `
-            <button class="remove-item-button" data-item-id="${item.item_id}">X</button>
-            <h3>${item.name}</h3>
-            <p>Preis: ${item.price.toFixed(2).replace('.', ',')} €</p>
-            <label for="quantity-${item.item_id}" class="form-label">Menge:</label>
-            <select id="quantity-${item.item_id}" class="form-control item-quantity" data-item-id="${item.item_id}">
-                <option value="1" ${item.quantity == 1 ? 'selected' : ''}>1</option>
-                <option value="2" ${item.quantity == 2 ? 'selected' : ''}>2</option>
-                <option value="3" ${item.quantity == 3 ? 'selected' : ''}>3</option>
-                <option value="4" ${item.quantity == 4 ? 'selected' : ''}>4</option>
-                <option value="5" ${item.quantity == 5 ? 'selected' : ''}>5</option>
-            </select>
-            <label for="notes-${item.item_id}" class="form-label">Notizen:</label>
-            <input type="text" id="notes-${item.item_id}" class="form-control item-notes" data-item-id="${item.item_id}" value="${item.notes}" maxlength="200">
-        `;
-        cartContainer.appendChild(cartItemDiv);
-
-        cartItemDiv.querySelector('.remove-item-button').addEventListener('click', async function() {
-            const isConfirmed = confirm('Soll das Item wirklich vom Warenkorb entfernt werden?');
-            if (!isConfirmed) {
-                return; // Wenn Nutzer nicht bestätigt, dann nicht entfernen
-            }
-
-            try {
-                const itemId = item.item_id;
-                const requestBody = { item_id: itemId };
-
-                const response = await fetch('/api/order/remove_cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (response.ok) {
-                    fetchCart(); // nach dem entfernen vom Artikel den Warenkorb neu laden
-                } else {
-                    console.error('Fehler beim Entfernen des Artikels:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Fehler beim Entfernen des Artikels:', error);
-            }
-        });
-    
-        cartItemDiv.querySelector('.item-quantity').addEventListener('change', async function() {
-            const newQuantity = this.value;
-
-            try {
-                const itemId = item.item_id;
-                const requestBody = { item_id: itemId, quantity: parseInt(newQuantity), restaurant_id: item.restaurant_id, notes: item.notes };
-
-                const response = await fetch('/api/order/add_cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (response.ok) {
-                    fetchCart(); // nach dem ändern der Menge den Warenkorb neu laden
-                } else {
-                    console.error('Fehler beim Ändern der Menge:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Fehler beim Ändern der Menge:', error);
-            }
-        });
-
-        cartItemDiv.querySelector('.item-notes').addEventListener('change', async function() {
-            const newNotes = this.value;
-
-            try {
-                const itemId = item.item_id;
-                const requestBody = { item_id: itemId, quantity: item.quantity, restaurant_id: item.restaurant_id, notes: newNotes };
-
-                const response = await fetch('/api/order/add_cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (response.ok) {
-                    fetchCart(); // nach dem ändern der Notizen den Warenkorb neu laden
-                } else {
-                    console.error('Fehler beim Ändern der Notizen:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Fehler beim Ändern der Notizen:', error);
-            }
-        });
-
-    });
-
-    // Der Knopf soll nur angezeigt werden, wenn der Warenkorb etwas enthält
-    const checkoutButton = document.createElement('button');
-    checkoutButton.innerText = 'Zur Kasse';
-    checkoutButton.classList.add('checkout-button');
-    checkoutButton.addEventListener('click', function() {
-        window.location.href = '/checkout';
-    });
-    cartContainer.appendChild(checkoutButton);
-}
-
-// Abrufen des Warenkorbs, wenn die Seite geladen wird
-fetchCart();
-
-// Funktion für vergangene Bestellungen
 function displayPastOrders(data) {
     const pastOrdersDiv = document.getElementById('past-orders');
     pastOrdersDiv.innerHTML = '';
@@ -439,7 +264,6 @@ function displayPastOrders(data) {
     });
 }
 
-// Funktion zum Abrufen vergangener Bestellungen vom Server
 async function fetchPastOrders() {
     try {
         const response = await fetch('/api/order/history', {
@@ -448,6 +272,7 @@ async function fetchPastOrders() {
                 'Content-Type': 'application/json',
             }
         });
+
         if (!response.ok) {
             if (response.status === 404) {
                 displayPastOrders([]);
@@ -456,6 +281,7 @@ async function fetchPastOrders() {
             }
             return;
         }
+
         const data = await response.json();
         displayPastOrders(data);
     } catch (error) {
@@ -465,8 +291,250 @@ async function fetchPastOrders() {
     }
 }
 
-// Funktion für etwaige errors
-function handleError(error) {
-    const container = document.getElementById('error-container');
-    container.innerHTML = `<p>${error.message}</p>`;
+function updateCart() {
+    fetch('/api/order/cart')
+        .then(response => {
+            if (response.status === 404) {
+                throw new Error('Cart empty');
+            }
+            return response.json();
+        })
+        .then(items => {
+            // Hide empty cart message and show cart section
+            document.getElementById('empty-cart').style.display = 'none';
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.style.display = 'block';
+
+            // Clear existing items but keep checkout section
+            const checkoutSection = document.getElementById('checkout-section');
+            cartItemsContainer.innerHTML = '';
+            
+            // Calculate total
+            let total = 0;
+
+            // Add each item to cart
+            items.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const itemHtml = `
+                    <div class="cart-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">${item.name}</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.item_id})">-</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">${item.price.toFixed(2)}€</span>
+                            <span class="badge bg-secondary">${item.quantity}x</span>
+                        </div>
+                        ${item.notes ? `<small class="d-flex text-muted">${item.notes}</small>` : ''}
+                    </div>
+                `;
+                cartItemsContainer.innerHTML += itemHtml;
+            });
+
+            // Add back checkout section and update total
+            cartItemsContainer.appendChild(checkoutSection);
+            const priceSpan = document.getElementById('price-element');
+            priceSpan.textContent = total.toFixed(2) + '€';
+        })
+        .catch(error => {
+            // Show empty cart state and hide cart items
+            document.getElementById('empty-cart').style.display = 'block';
+            document.getElementById('cart-items').style.display = 'none';
+        });
+}
+// Initial cart load
+updateCart();
+
+
+async function loadRestaurantData() {
+    // Get restaurant ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurant_id = urlParams.get('restaurant_id');
+    
+    if (!restaurant_id) {
+        console.error('No restaurant ID provided');
+        return;
+    }
+
+    try {
+        // Fetch restaurant data
+        const response = await fetch(`/api/main/restaurant?id=${restaurant_id}`);
+        const data = await response.json();
+
+        if (response.status === 404) {
+            document.getElementById('restaurant-menu').style.display = 'none';
+            document.getElementById('no-restaurant').style.display = 'block';
+            return;
+        }
+
+        // Update restaurant header info
+        document.getElementById('restaurant_name').textContent = data.name;
+        document.getElementById('restaurant_rating').textContent = data.rating;
+        document.getElementById('restaurant_address').textContent = `${data.address}, ${data.zip} ${data.city}`;
+        document.getElementById('restaurant_approx_delv_time').textContent = data.approx_delivery_time;
+
+        // Update banner image if provided
+        document.querySelector('.card-img-top').src = data.banner && data.banner.startsWith("data:image") ? data.banner : no_image;
+
+        // Get container for menu items
+        const menuContainer = document.querySelector('.col-9');
+
+        // Remove existing menu item template
+        const existingMenuItems = menuContainer.querySelectorAll('.card.mb-3');
+        existingMenuItems.forEach(item => item.remove());
+
+        // Create menu items
+        data.menu.forEach(item => {
+            const menuItem = `
+<div class="card mb-3" style="height: 200px;">
+    <div class="row g-0 h-100">
+        <div class="col-md-3">
+            <div style="height: 200px; width: 100%; overflow: hidden; border-radius: 0.375rem 0 0 0.375rem;">
+                <img src="${item.image && item.image.startsWith("data:image") ? item.image : no_image}" 
+                     class="w-100 h-100" 
+                     alt="${item.name}"
+                     style="object-fit: cover; object-position: center;">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card-body py-0 h-100 d-flex flex-column justify-content-center text-start">
+                <h5 class="card-title mb-1">${item.name}</h5>
+                <p class="card-text">${item.description}</p>
+                <p class="card-text"><strong>€${item.price.toFixed(2)}</strong></p>
+            </div>
+        </div>
+        <div class="col-md-1 d-flex align-items-center justify-content-end">
+            <button class="btn btn-dark me-2" onclick="openItemModal(${JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})">+</button>
+        </div>
+    </div>
+</div>`;
+            menuContainer.insertAdjacentHTML('beforeend', menuItem);
+        });
+
+    } catch (error) {
+        console.error('Error loading restaurant data:', error);
+    }
+}
+
+function incrementQuantity() {
+    const input = document.getElementById('quantity');
+    input.value = parseInt(input.value) + 1;
+}
+
+function decrementQuantity() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+async function addToCart(item) {
+    const quantity = document.getElementById('quantity').value;
+    const notes = document.getElementById('orderNotes').value;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurant_id = urlParams.get('restaurant_id');
+    
+    try {
+        const response = await fetch('/api/order/add_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                item_id: item.item_id,
+                restaurant_id: restaurant_id,
+                quantity: parseInt(quantity),
+                notes: notes
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.status === 201) {
+            // Success
+            showNotification(`${item.name} wurde zum Warenkorb hinzugefügt!`, 'success');
+            // Optional: Refresh cart display here
+        } else if (response.status === 400) {
+            showNotification('Fehler: Ungültige Anfrage. Bitte versuchen Sie es erneut.', 'danger');
+        } else if (response.status === 404) {
+            showNotification('Fehler: Restaurant oder Item nicht gefunden.', 'danger');
+        } else if (response.status === 401) {
+            showNotification('Fehler: Benutzer nicht angemeldet.', 'danger');
+        } else {
+            showNotification('Fehler: Unerwarteter Fehler. Bitte versuchen Sie es erneut.', 'danger');
+        }
+    } catch (error) {
+        showNotification('Fehler: Bitte versuchen Sie es später erneut.', 'danger');
+        console.error('Error:', error);
+    }
+    updateCart();
+
+    // Close modal after attempt
+    const modal = bootstrap.Modal.getInstance(document.getElementById('menuItemModal'));
+    modal.hide();
+}
+
+// Add after the openItemModal function
+
+async function removeFromCart(item_id) {
+    try {
+        const response = await fetch('/api/order/remove_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_id: item_id
+            })
+        });
+
+        if (response.status === 200) {
+            showNotification('Item wurde aus dem Warenkorb entfernt!', 'success');
+        } else if (response.status === 404) {
+            showNotification('Fehler: Item nicht im Warenkorb gefunden.', 'danger');
+        } else if (response.status === 401) {
+            showNotification('Fehler: Benutzer nicht angemeldet.', 'danger');
+        } else {
+            showNotification('Fehler: Unerwarteter Fehler. Bitte versuchen Sie es erneut.', 'danger');
+        }
+    } catch (error) {
+        showNotification('Fehler: Bitte versuchen Sie es später erneut.', 'danger');
+        console.error('Error:', error);
+    }
+    
+    updateCart();
+}
+
+// Function to open modal with item details
+function openItemModal(item) {
+    const modal = document.getElementById('menuItemModal');
+    document.getElementById('menuItemImage').src = item.image && item.image.startsWith("data:image") ? item.image : no_image;
+    document.getElementById('menuItemName').textContent = item.name;
+    document.getElementById('menuItemDescription').textContent = item.description;
+    document.getElementById('quantity').value = 1;
+    document.getElementById('orderNotes').value = '';
+    document.getElementById('addToCartButton').setAttribute('onclick', `addToCart(${JSON.stringify(item)})`);
+    new bootstrap.Modal(modal).show();
+}
+
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', loadRestaurantData);
+
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('notificationToast');
+    const toastBody = document.getElementById('toastMessage');
+    const toastInstance = new bootstrap.Toast(toast, { delay: 3000 });
+    
+    // Set message
+    toastBody.textContent = message;
+    
+    // Set toast background color based on type
+    toast.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+    toast.classList.add(`bg-${type}`, 'text-white');
+    
+    // Show toast
+    toastInstance.show();
 }
