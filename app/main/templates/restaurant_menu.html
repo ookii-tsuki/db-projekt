@@ -32,6 +32,7 @@
         </div>
     </div>
     <div class="header">
+        {% if session.get('user_id') %}
         <!-- Container für Logo und Profil -->
         <div class="logo-profile">
             <!-- Bild oben links -->
@@ -58,6 +59,7 @@
             <button class="button icon-button" id="cart-button"><i class="fas fa-shopping-cart"></i></button> <!-- Warenkorb -->
             <button class="button icon-button" id="more-button"><i class="fas fa-ellipsis-h"></i></button> <!-- Mehr -->
         </div>
+        {% endif %}
     </div>
      
     <!-- Benachrichtigungen Container -->
@@ -77,6 +79,18 @@
             </div>
         </div>
     </div>
+    {% if not session.get('user_id') %}
+
+    <div>
+        <div class="alert alert-danger text-center" role="alert">
+            Bitte logge dich ein, um auf diese Seite zuzugreifen.
+        </div>
+        <a href="/users/login" class="text-decoration-none">
+            <button class="btn btn-dark w-100">Zum Login</button>
+        </a>
+    </div>
+
+    {% else %}
 
     {% if request.args.get('restaurant_id') %}
 
@@ -187,6 +201,8 @@
     </div>
   
     <button class="btn btn-dark" onclick="history.back()">Zurück</button>
+
+    {% endif %}
 
     {% endif %}
 
