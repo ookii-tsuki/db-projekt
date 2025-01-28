@@ -370,7 +370,7 @@ async function loadRestaurantData() {
 
         // Update restaurant header info
         document.getElementById('restaurant_name').textContent = data.name;
-        document.getElementById('restaurant_rating').textContent = data.rating;
+        document.getElementById('restaurant_rating').textContent = data.rating.toFixed(1);
         document.getElementById('restaurant_address').textContent = `${data.address}, ${data.zip} ${data.city}`;
         document.getElementById('restaurant_approx_delv_time').textContent = data.approx_delivery_time;
 

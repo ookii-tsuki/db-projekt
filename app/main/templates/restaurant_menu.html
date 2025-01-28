@@ -13,6 +13,12 @@
     <link href="{{ url_for('static', filename='css/main/menu.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/main/search.css') }}" rel="stylesheet"> 
 
+    <style>
+        #bell-button.new-notification::after {
+            right: 165px !important;
+        }
+    </style>
+
 </head>
 <body>
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1500">
