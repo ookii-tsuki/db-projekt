@@ -106,13 +106,13 @@ def api_search():
         # Sort by distance (ascending), favorites first, rating (descending), newer restaurants first
         sorted_restaurants = []
         for r in restaurants:
-            dist = int(find_distance(user.zip_code, r.zip_code))
+            dist = find_distance(user.zip_code, r.zip_code)
             is_fav = r in user.favorites
             sorted_restaurants.append((r, dist, is_fav))
         
         sorted_restaurants.sort(
             key=lambda x: (
-                x[1],                # distance ascending
+                int(x[1]),                # distance ascending
                 not x[2],            # favorites first
                 -(x[0].rating if x[0].rating is not None else 0),        # rating descending
                 -x[0].restaurant_id # newer restaurants first
